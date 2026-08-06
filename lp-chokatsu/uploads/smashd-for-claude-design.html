@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMASHD — Hand-Smashed Burgers</title>
+
+<!--
+  ============================================================
+  Claude（アーティファクト/Claudeデザイン）編集用 アレンジ版
+  ------------------------------------------------------------
+  ・Claude上のプレビュー環境は外部スクリプトの読み込み先がcdnjs.cloudflare.comに
+    限定されることが多く、Lenis（jsDelivr配信／cdnjs未掲載）は読み込めない可能性が
+    高いため、このバージョンではLenisの<script src>を外しました。
+  ・コードはもともと「Lenisが無ければネイティブスクロールにフォールバックする」設計
+    のため、機能（スクロール登場アニメーション・パララックス・ヘッダー濃淡）は
+    Lenis無しでもすべて動作します。慣性スクロールの「滑らかさ」だけが無くなります。
+  ・Google Fonts（fonts.googleapis.com）は読み込み可否が環境依存なので残していますが、
+    読み込めない場合は自動でシステムフォントにフォールバックします。
+  ・ダウンロードして直接ブラウザで開く用途にはLenis入りの完成版（v5）をご利用ください。
+  ============================================================
+-->
+
+<!--
+  ============================================================
+  制作メモ（v2：ビジュアル精度向上版）
+  ------------------------------------------------------------
+  ・Claude in Chromeでcravburgers.shopを実際に開き、JSでcomputed style /
+    CSS変数を取得して得た実データを使用：
+      --beige:#F5E3CD  --red:#F91814  --mustard:#FFD750
+      --mustard-dark:#F4A804  --black:#1B1B1B
+      見出しフォント: "Mouse Memoirs"（Google Fonts／オープンライセンス）
+      ロゴ等の太字フォント: "Modak"（Google Fonts／オープンライセンス）
+    フォント・色は著作物ではない（フォントはOFL、色は配色そのものに著作権なし）ため
+    そのまま使用しています。
+  ・イラスト・写真・コピー・コードはすべて新規作成。ブランド名 "SMASHD" は
+    架空でCRAV社とは無関係です。実際のマスコットキャラクター（チェフ／フライ／
+    目玉付きバーガー等）は再現していません。
+  ・写真はすべてplaceholder（点線枠＋ステッカー風の回転・影効果）。
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mouse+Memoirs&family=Modak&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --beige:#F5E3CD;
+    --black:#1B1B1B;
+    --white:#FFFFFF;
+    --red:#F91814;
+    --mustard:#FFD750;
+    --mustard-dark:#F4A804;
+    --maroon:#4C0016;
+    --display:'Mouse Memoirs', sans-serif;
+    --wordmark:'Modak', sans-serif;
+    --body:'Inter', sans-serif;
+    --maxw:1200px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--body);background:var(--beige);color:var(--black);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  :focus-visible{outline:3px solid var(--red);outline-offset:3px;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  h1,h2{font-family:var(--display);font-weight:400;letter-spacing:.01em;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .8s cubic-bezier(.22,.61,.36,1);}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;} html{scroll-behavior:auto;}}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--body);font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:9px 18px;border-radius:999px;box-shadow:0 6px 14px rgba(27,27,27,0.18);}
+  .pill.on-red{background:var(--mustard);color:var(--red);}
+  .pill.on-beige{background:var(--red);color:var(--white);}
+  .pill.on-mustard{background:var(--white);color:var(--red);}
+  .rot-l{transform:rotate(-4deg);}
+  .rot-r{transform:rotate(3deg);}
+
+  .sticker{position:relative;border:7px solid var(--white);box-shadow:0 16px 30px rgba(27,27,27,0.22);border-radius:2px;transform:rotate(30deg) scale(.92);transition:transform .9s cubic-bezier(.16,1,.3,1);}
+  .sticker.is-stuck{transform:rotate(var(--rest-rotate,0deg)) scale(1);}
+  .sticker::after{content:'';position:absolute;top:0;right:0;width:30px;height:30px;background:linear-gradient(135deg, transparent 50%, rgba(27,27,27,0.14) 50%);transform-origin:top right;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+  .sticker:hover::after{transform:scale(1.7);}
+  @media (prefers-reduced-motion: reduce){.sticker{transition:none;transform:rotate(var(--rest-rotate,0deg)) scale(1) !important;}}
+  .img-placeholder{width:100%;height:100%;min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center;color:#7A6A57;font-family:var(--body);font-size:12px;font-weight:600;line-height:1.5;padding:14px;background:repeating-linear-gradient(45deg, rgba(27,27,27,0.04) 0 10px, transparent 10px 20px);}
+
+  .wave-top{margin-bottom:-2px;line-height:0;}
+  .wave-top svg{display:block;width:100%;height:70px;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(245,227,205,0.7);backdrop-filter:blur(4px);box-shadow:0 1px 0 rgba(27,27,27,0.06);transition:background .3s,box-shadow .3s,backdrop-filter .3s;}
+  header.scrolled{background:rgba(245,227,205,0.96);backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(27,27,27,0.08);}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:var(--wordmark);font-size:24px;color:var(--red);}
+  .nav-links{display:flex;gap:30px;font-size:14px;font-weight:600;}
+  .nav-links a:hover{color:var(--red);}
+  .nav-cta{font-weight:800;font-size:13px;background:var(--red);color:var(--white);padding:10px 20px;border-radius:999px;letter-spacing:.03em;}
+  @media (max-width:760px){.nav-links{display:none;}}
+
+  .hero{padding:140px 0 80px;position:relative;}
+  .hero-badges{display:flex;justify-content:space-between;max-width:760px;margin:0 auto -20px;position:relative;z-index:3;padding:0 10px;}
+  .hero h1{text-align:center;color:var(--red);font-size:clamp(56px,12vw,140px);line-height:.88;-webkit-text-stroke:3px var(--white);text-shadow:0 6px 0 rgba(27,27,27,0.08);}
+  .hero-wordmark{text-align:center;margin:-10px 0 30px;}
+  .hero-wordmark span{font-family:var(--wordmark);font-size:clamp(40px,8vw,90px);color:var(--mustard-dark);text-shadow:0 4px 0 rgba(27,27,27,0.1);}
+  .hero-photo-row{display:flex;justify-content:center;margin-bottom:40px;}
+  .hero-photo-row .sticker{width:300px;height:300px;}
+  .hero-copy{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:880px;margin:0 auto 44px;text-align:center;}
+  .hero-copy p{font-size:14.5px;color:#4A3F36;}
+  .hero-cta{text-align:center;}
+  .btn-primary{display:inline-block;font-weight:800;font-size:14.5px;letter-spacing:.03em;background:var(--red);color:var(--white);padding:18px 36px;border-radius:999px;box-shadow:0 10px 24px rgba(249,24,20,0.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;}
+  .btn-primary:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 30px rgba(249,24,20,0.4);}
+  .btn-primary:active{transform:scale(.96);}
+  .pill{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  .pill:hover{transform:scale(1.08) rotate(0deg) !important;}
+
+  section{padding:100px 0;}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 50px;}
+  .section-head h2{font-size:clamp(30px,6vw,58px);line-height:1.1;margin:18px 0 16px;}
+  .section-head p{font-size:15px;color:#4A3F36;max-width:480px;margin:0 auto;}
+
+  .collage-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:20px;max-width:780px;margin:0 auto;}
+  .collage-grid .sticker{height:260px;}
+  .collage-grid .sticker:nth-of-type(1){--rest-rotate:-5deg;}
+  .collage-grid .sticker:nth-of-type(2){--rest-rotate:2deg;align-self:end;height:200px;}
+  .collage-grid .sticker:nth-of-type(3){--rest-rotate:5deg;}
+  @media (max-width:760px){.collage-grid{grid-template-columns:1fr;} .collage-grid .sticker{height:220px !important;}}
+
+  .experience{background:var(--red);color:var(--white);text-align:center;}
+  .experience .section-head h2{color:var(--mustard);-webkit-text-stroke:2px var(--white);}
+  .experience .section-head p{color:rgba(255,255,255,0.85);}
+  .exp-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;align-items:center;max-width:900px;margin:0 auto;}
+  .exp-spec{font-family:var(--body);font-weight:800;font-size:13.5px;line-height:2.1;text-align:left;}
+  .exp-spec.right{text-align:right;}
+  .exp-illustration{width:220px;height:220px;border-radius:50%;background:var(--mustard);display:flex;align-items:center;justify-content:center;color:var(--red);font-family:var(--wordmark);font-size:15px;text-align:center;padding:14px;box-shadow:0 16px 30px rgba(0,0,0,0.25);transform:rotate(-3deg);}
+  @media (max-width:760px){.exp-grid{grid-template-columns:1fr;text-align:center;} .exp-spec, .exp-spec.right{text-align:center;} .exp-illustration{margin:0 auto;}}
+
+  .full-photo{height:480px;}
+  .full-photo .img-placeholder{height:100%;border-radius:0;}
+
+  .layers{text-align:center;}
+  .layer-headline{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;font-size:clamp(26px,5.5vw,46px);max-width:760px;margin:0 auto;}
+  .layer-headline .chip{width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#7A6A57;font-weight:700;border:2px dashed rgba(27,27,27,0.2);vertical-align:middle;}
+
+  .takeaway{background:var(--mustard);}
+  .takeaway .section-head p{color:#5A4A1F;}
+  .city-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;max-width:1000px;margin:50px auto 0;position:relative;}
+  .city-card .sticker{height:160px;margin-bottom:10px;}
+  .city-card:nth-child(odd) .sticker{--rest-rotate:-4deg;}
+  .city-card:nth-child(even) .sticker{--rest-rotate:4deg;}
+  .city-label{text-align:center;font-weight:800;font-size:13px;color:var(--red);}
+  @media (max-width:880px){.city-grid{grid-template-columns:repeat(2,1fr);}}
+
+  .feel{text-align:center;}
+  .feel .img-placeholder{max-width:420px;height:280px;margin:30px auto 0;}
+
+  footer{background:var(--black);color:rgba(245,227,205,0.7);padding:60px 0 30px;overflow:hidden;}
+  .footer-links{display:flex;justify-content:center;gap:28px;font-size:13.5px;margin-bottom:40px;flex-wrap:wrap;}
+  .footer-wordmark{text-align:center;font-family:var(--wordmark);font-size:clamp(60px,16vw,160px);line-height:1;color:transparent;-webkit-text-stroke:2px rgba(245,227,205,0.5);margin-bottom:30px;}
+  /* ===== original mascot：炎キャラクター（CRAVのイラストとは無関係の独自デザイン） =====
+     元サイト解析で判明した --sticker-rotate:30deg（傾いた初期状態→スクロールで定位置に収まる）と
+     peelback-hover/active（ホバー/クリックで角が浮く）の2系統の動きをCSSで再現 */
+  .footer-bottom{text-align:center;font-size:12px;display:flex;flex-direction:column;gap:6px;}
+  .mascot{
+    width:64px;height:64px;
+    transform:rotate(30deg) scale(.85);
+    transition:transform .9s cubic-bezier(.16,1,.3,1);
+  }
+  .mascot.is-stuck{transform:rotate(var(--rest-rotate, -6deg)) scale(1);}
+  .mascot:hover{transform:rotate(var(--rest-rotate, -6deg)) scale(1.12) !important;}
+  [data-speed]{will-change:transform;}
+  @media (prefers-reduced-motion: reduce){.mascot{transition:none;transform:rotate(var(--rest-rotate, -6deg)) scale(1) !important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo">SMASHD</div>
+    <nav class="nav-links">
+      <a href="#about">Burgers</a>
+      <a href="#layers">About</a>
+      <a href="#takeaway">Locations</a>
+    </nav>
+    <a href="#feel" class="nav-cta">Order</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-badges">
+      <span class="pill on-beige rot-l">Smashed Fresh</span>
+      <span class="pill on-beige rot-r">Bold Flavor</span>
+    </div>
+    <h1>THE BURGER</h1>
+    <div class="hero-wordmark"><span>SMASHD</span></div>
+    <div class="hero-photo-row reveal">
+      <div class="sticker" style="--rest-rotate:-2deg;"><div class="img-placeholder">[商品写真：バーガーのヒーローショット]</div></div>
+    </div>
+    <div class="hero-copy reveal">
+      <p>Smashed hot on the flat top, our patties lock in ultimate juiciness under a caramelized crust.</p>
+      <p>Topped with melted cheddar and a glaze crafted to satisfy your cravings, every single time.</p>
+    </div>
+    <div class="hero-cta reveal"><a href="#feel" class="btn-primary">Order Now</a></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Top Classic</span>
+      <h2>Juicy Cheesy<br>Fully Loaded</h2>
+      <p>SMASHD is back and bolder than ever. Honoring our roots, we bring the ultimate smashed experience — hot, loaded, and crafted fresh.</p>
+      <div style="margin-top:24px;"><a href="#feel" class="btn-primary">Order Now</a></div>
+    </div>
+    <div class="collage-grid reveal" style="position:relative;">
+      <svg class="mascot" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;top:-34px;left:-10px;z-index:3;width:56px;height:56px;--rest-rotate:-8deg;">
+        <path d="M32 4C20 16 14 26 14 36a18 18 0 0036 0c0-7-3-12-6-16 1 6-2 10-6 10-5 0-7-4-6-9C36 16 32 10 32 4Z" fill="var(--red)"/>
+        <circle cx="26" cy="36" r="2.4" fill="var(--black)"/><circle cx="38" cy="36" r="2.4" fill="var(--black)"/>
+        <path d="M25 43c3 3 11 3 14 0" stroke="var(--black)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="sticker"><div class="img-placeholder">[写真：調理シーン]</div></div>
+      <div class="sticker"><div class="img-placeholder">[写真：チーズ接写]</div></div>
+      <div class="sticker"><div class="img-placeholder">[写真：店内]</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="experience">
+  <div class="wave-top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--red)"/></svg></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-red rot-r" style="display:inline-block;">Experience</span>
+      <h2>Food That<br>Feels Good</h2>
+    </div>
+    <div class="exp-grid reveal" style="position:relative;">
+      <svg class="mascot" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;top:-44px;left:0;width:48px;height:48px;--rest-rotate:6deg;">
+        <path d="M32 4C20 16 14 26 14 36a18 18 0 0036 0c0-7-3-12-6-16 1 6-2 10-6 10-5 0-7-4-6-9C36 16 32 10 32 4Z" fill="var(--mustard)"/>
+        <circle cx="26" cy="36" r="2.4" fill="var(--white)"/><circle cx="38" cy="36" r="2.4" fill="var(--white)"/>
+        <path d="M25 43c3 3 11 3 14 0" stroke="var(--white)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="exp-spec">450 KCAL<br>HIGH PROTEIN<br>FRESH INGREDIENTS</div>
+      <div class="exp-illustration" data-speed="0.06">SMASHD<br>★ ★ ★</div>
+      <div class="exp-spec right">100% REAL BEEF<br>NO SHORTCUTS<br>TRUE TASTE</div>
+    </div>
+  </div>
+  <div class="wave-top" style="transform:rotate(180deg);"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--beige)"/></svg></div>
+</section>
+
+<section class="full-photo" style="padding:0;">
+  <div class="img-placeholder">[写真：商品を持つ人物のライフスタイルショット]</div>
+</section>
+
+<section class="layers" id="layers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Pure Quality</span>
+    </div>
+    <div class="layer-headline reveal">
+      Every layer <span class="chip">[レタス]</span> packed with <span class="chip">[トマト]</span> signature <span class="chip">[チーズ]</span> flavor <span class="chip">[パティ]</span>
+    </div>
+  </div>
+</section>
+
+<section class="takeaway" id="takeaway">
+  <div class="wave-top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--mustard)"/></svg></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-mustard rot-r" style="display:inline-block;">Take Away</span>
+      <h2 style="color:var(--black);">Quality That<br>Travels With You</h2>
+      <p>Freshly packed, ready to go wherever you crave — from our flat-top to any corner of the globe.</p>
+    </div>
+    <div class="city-grid reveal">
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Berlin]</div></div><div class="city-label">Berlin</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:London]</div></div><div class="city-label">London</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:New York]</div></div><div class="city-label">New York</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Sydney]</div></div><div class="city-label">Sydney</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Tokyo]</div></div><div class="city-label">Tokyo</div></div>
+    </div>
+  </div>
+  <div class="wave-top" style="transform:rotate(180deg);"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--beige)"/></svg></div>
+</section>
+
+<section class="feel" id="feel">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Feel It</span>
+      <h2>Feel The Change</h2>
+      <p>Smashed for the bold, built for the hungry. Every crispy edge and juicy layer rules.</p>
+      <div style="margin-top:24px;"><a href="#" class="btn-primary">Order Now</a></div>
+    </div>
+    <div class="img-placeholder reveal" style="position:relative;" data-speed="0.04">[商品写真：最終CTA用]
+      <svg class="mascot" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;bottom:-28px;right:-20px;width:60px;height:60px;--rest-rotate:-10deg;">
+        <path d="M32 4C20 16 14 26 14 36a18 18 0 0036 0c0-7-3-12-6-16 1 6-2 10-6 10-5 0-7-4-6-9C36 16 32 10 32 4Z" fill="var(--red)"/>
+        <circle cx="26" cy="36" r="2.4" fill="var(--black)"/><circle cx="38" cy="36" r="2.4" fill="var(--black)"/>
+        <path d="M25 43c3 3 11 3 14 0" stroke="var(--black)" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="#about">Home</a><a href="#about">Burgers</a><a href="#layers">About</a><a href="#takeaway">Locations</a>
+    </div>
+    <div class="footer-wordmark">SMASHD</div>
+    <div class="footer-bottom">
+      <span>© 2026 SMASHD — All rights reserved（架空ブランド／デモ用）</span>
+      <span>Hand-smashed patties · toasted buns · est. 2019</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Lenis（jsDelivr配信）はClaude上のプレビュー環境では読み込めない可能性があるため外しています。
+  // window.Lenis が無い場合は下記コードが自動でネイティブスクロールにフォールバックします。
+  // ===== Lenis 慣性スクロール（OSS／MITライセンス。元サイトと同一ライブラリを正規利用） =====
+  let lenis;
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.Lenis) {
+    lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+  }
+
+  // ===== スクロールでフェードイン =====
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+  },{threshold:0.12});
+  revealEls.forEach(el=>io.observe(el));
+
+  // ===== シールが「ペタッと貼られる」スクロール登場（--sticker-rotate:30deg→定位置） =====
+  const stickEls = document.querySelectorAll('.sticker, .mascot');
+  const stickIo = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-stuck'); stickIo.unobserve(e.target); } });
+  },{threshold:0.25});
+  stickEls.forEach(el=>stickIo.observe(el));
+
+  // ===== パララックス（data-speed属性を持つ要素をスクロール量に応じてずらす） =====
+  const parallaxEls = Array.from(document.querySelectorAll('[data-speed]'));
+  function updateParallax(){
+    const vh = window.innerHeight;
+    parallaxEls.forEach(el=>{
+      const speed = parseFloat(el.dataset.speed) || 0;
+      const rect = el.getBoundingClientRect();
+      const center = rect.top + rect.height/2 - vh/2;
+      el.style.transform = `translateY(${(-center*speed).toFixed(1)}px) ${el.dataset.baseTransform||''}`;
+    });
+  }
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    if(lenis){ lenis.on('scroll', updateParallax); }
+    window.addEventListener('scroll', updateParallax, {passive:true});
+    window.addEventListener('resize', updateParallax);
+    updateParallax();
+  }
+
+  // ===== ヘッダー：スクロールで背景を濃く =====
+  const headerEl = document.querySelector('header');
+  function updateHeader(){
+    if(window.scrollY > 40) headerEl.classList.add('scrolled');
+    else headerEl.classList.remove('scrolled');
+  }
+  window.addEventListener('scroll', updateHeader, {passive:true});
+  if(lenis){ lenis.on('scroll', updateHeader); }
+  updateHeader();
+</script>
+
+</body>
+</html>
