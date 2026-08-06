@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>特定商取引法に基づく表記 — C.H.O活 MONSTER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&family=Modak&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700;
+      background: #f5e3cd;
+      color: #1b1b1b;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+
+    :root {
+      --cream:   #f5e3cd;
+      --red:     #f91814;
+      --yellow:  #ffd750;
+      --gold:    #f4a804;
+      --dark:    #1b1b1b;
+      --white:   #ffffff;
+      --pad:     clamp(20px, 2.5vw, 48px);
+    }
+
+    /* ============ NAV (LP流用) ============ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 19px var(--pad);
+      background: rgba(245,227,205,0.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 2px 16px rgba(27,27,27,0.08);
+    }
+    .nav-logo img { height: clamp(40px, 5vw, 64px); width: auto; display: block; object-fit: contain; }
+    .nav-right { display: flex; gap: 16px; align-items: center; }
+    .nav-btn-primary {
+      background: var(--red);
+      color: var(--cream);
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+      font-size: clamp(16px, 1.3vw, 25px);
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 9px 30px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .nav-btn-primary { padding: 8px 18px; font-size: 14px; }
+    }
+
+    /* ============ PAGE ============ */
+    main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: clamp(110px, 16vw, 180px) var(--pad) clamp(60px, 10vw, 120px);
+    }
+    .page-title {
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+      font-size: clamp(26px, 5.5vw, 48px);
+      color: var(--red);
+      line-height: 1.2;
+      text-align: center;
+      margin-bottom: clamp(32px, 5vw, 56px);
+      text-wrap: balance;
+      -webkit-text-stroke: 0.018em #fff;
+    }
+
+    .tokusho-list {
+      list-style: none;
+      background: var(--white);
+      border-radius: 22px;
+      box-shadow: 0 12px 34px rgba(27,27,27,0.10);
+      overflow: hidden;
+    }
+    .tokusho-item {
+      padding: clamp(20px, 3vw, 32px) clamp(20px, 3.2vw, 40px);
+      border-bottom: 2px solid rgba(27,27,27,0.08);
+    }
+    .tokusho-item:last-child { border-bottom: none; }
+    .tokusho-term {
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+      font-size: clamp(17px, 2vw, 24px);
+      color: var(--red);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    /* 黒文字本文（LP統一スタイル） */
+    .tokusho-desc {
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+      font-size: clamp(17px, 1.5vw, 22px);
+      color: #000;
+      line-height: 1.8;
+    }
+    .tokusho-desc a { color: #000; text-decoration: underline; text-underline-offset: 2px; }
+
+    @media (max-width: 768px) {
+      .tokusho-desc { font-size: clamp(15px, 4vw, 18px); }
+      .tokusho-term { font-size: clamp(16px, 4.4vw, 20px); }
+    }
+
+    /* ============ FOOTER (LP流用) ============ */
+    footer {
+      background: var(--cream);
+      padding: clamp(40px, 6vw, 80px) var(--pad) clamp(24px, 4vw, 48px);
+      border-top: 2px solid rgba(27,27,27,0.12);
+    }
+    .footer-top {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-nav {
+      display: flex;
+      gap: clamp(16px, 2vw, 32px);
+      flex-wrap: wrap;
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+      font-size: clamp(14px, 1.4vw, 18px);
+    }
+    .footer-nav a { color: var(--dark); transition: opacity .15s; }
+    .footer-nav a:hover { opacity: 0.6; }
+    .footer-copy {
+      font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700;
+      font-size: clamp(13px, 1.3vw, 16px);
+      opacity: 0.7;
+    }
+    .footer-wordmark {
+      max-width: 800px;
+      margin: clamp(28px, 5vw, 56px) auto 0;
+    }
+    .footer-wordmark img { width: 100%; height: auto; display: block; object-fit: contain; opacity: 0.9; }
+    @media (max-width: 768px) {
+      .footer-top { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <nav>
+    <a href="cho-katsu-marquee.html" class="nav-logo"><img src="uploads/C.H.O活-MONSTER.png" alt="C.H.O活 MONSTER"></a>
+    <div class="nav-right">
+      <a href="https://www.amazon.co.jp/dp/B0GJT49KWC?ref=cm_sw_r_cp_ud_dp_K3W56Z8DWYEBN1RGDMQC&amp;ref_=cm_sw_r_cp_ud_dp_K3W56Z8DWYEBN1RGDMQC&amp;social_share=cm_sw_r_cp_ud_dp_K3W56Z8DWYEBN1RGDMQC&amp;th=1" target="_blank" rel="noopener noreferrer" class="nav-btn-primary">Amazonで買う</a>
+    </div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main>
+    <h1 class="page-title">特定商取引法に基づく表記</h1>
+
+    <ul class="tokusho-list">
+      <li class="tokusho-item">
+        <div class="tokusho-term">会社名</div>
+        <div class="tokusho-desc">株式会社GROWX</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">事業者の名称</div>
+        <div class="tokusho-desc">岩本源己</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">事業者の所在地</div>
+        <div class="tokusho-desc">〒1500001<br>東京都渋谷区神宮前３－２－１９</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">お問い合わせ先</div>
+        <div class="tokusho-desc"><a href="tel:0361612993">03-6161-2993</a><br><a href="mailto:info@growx.co.jp">info@growx.co.jp</a></div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">販売価格</div>
+        <div class="tokusho-desc">販売価格は、税込み表記となっております。<br>また、別途配送料が掛かる場合もございます。配送料に関しては商品詳細ページをご確認ください。</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">代金の支払い方法</div>
+        <div class="tokusho-desc">クレジットカード決済、PAY ID あと払い、銀行振込決済</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">代金の支払い時期</div>
+        <div class="tokusho-desc">・クレジットカード：商品注文確定時にお支払いが確定いたします。<br>・銀行振込決済：ご請求後5営業日以内にお支払いください。</div>
+      </li>
+      <li class="tokusho-item">
+        <div class="tokusho-term">返品について</div>
+        <div class="tokusho-desc">商品に欠陥がある場合をのぞき、基本的には返品には応じません。</div>
+      </li>
+    </ul>
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-nav">
+        <a href="tokushoho.html" target="_blank" rel="noopener noreferrer">特商法</a>
+        <a href="https://www.growx.co.jp/#company" target="_blank" rel="noopener noreferrer">会社概要</a>
+      </div>
+      <p class="footer-copy">© 2026 MY MONSTERS — All rights reserved</p>
+    </div>
+    <div class="footer-wordmark"><img src="uploads/C.H.O活-MONSTER.png" alt="C.H.O活 MONSTER"></div>
+  </footer>
+
+</body>
+</html>

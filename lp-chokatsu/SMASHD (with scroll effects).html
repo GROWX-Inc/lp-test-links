@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMASHD — Hand-Smashed Burgers</title>
+
+<!--
+  ============================================================
+  SMASHD デモLP — スクロール演出強化版
+  ------------------------------------------------------------
+  追加した演出（cravburgers.shopの「動きの仕組み」を参考に、素材・コード・
+  コピーはすべて独自）：
+  ① シールが貼られる演出：.sticker / .mascot は画面外で大きく傾いて待機
+     （25〜35deg・やや縮小）、IntersectionObserver(25%)で画面内に入ると
+     自然な角度（要素ごと -10〜6deg）へ cubic-bezier(.16,1,.3,1)≒power3.out
+     で収まる。ホバーで角が浮くペルバック演出（影付き三角形の拡大）。
+  ② 飛行機が点線に沿うTake Away演出：都市カードを結ぶ点線SVGパス上を、
+     セクションのスクロール進行度(0〜1)に連動して getPointAtLength で
+     飛行機が滑らかに移動。前後でも端点に留まり破綻しない。
+
+  画像はすべて <img src="PLACEHOLDER_*.png"> に統一（後で実アセットに差替可）。
+  読み込めない場合は背景色＋キャプション付きのラッパーが見た目を保つ。
+
+  外部スクリプトは追加していません（要求のイージングはCSSで再現）。
+  Lenisが在ればそれを使い、無ければネイティブスクロールにフォールバック。
+  色 #F5E3CD/#F91814/#FFD750 と Mouse Memoirs / Modak（OFL）を使用。
+  ブランド名 "SMASHD" は架空。実在キャラクター等は再現していません。
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mouse+Memoirs&family=Modak&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- ① 慣性スクロール：外部依存なしの自前実装を本体にしています（cdnjs制約に抵触せず、
+     どの環境でも壊れません）。もし許可CDN(cdnjs)経由などで window.Lenis が読み込まれていれば
+     そちらを優先利用し、無ければ自前の軽量慣性へ、reduced-motion／タッチ端末ではネイティブへ
+     自動フォールバックします。 -->
+
+
+<style>
+  :root{
+    --beige:#F5E3CD;
+    --black:#1B1B1B;
+    --white:#FFFFFF;
+    --red:#F91814;
+    --mustard:#FFD750;
+    --mustard-dark:#F4A804;
+    --maroon:#4C0016;
+    --display:'Mouse Memoirs', sans-serif;
+    --wordmark:'Modak', sans-serif;
+    --body:'Inter', sans-serif;
+    --maxw:1200px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--body);background:var(--beige);color:var(--black);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  img{max-width:100%;display:block;}
+  a{color:inherit;text-decoration:none;}
+  :focus-visible{outline:3px solid var(--red);outline-offset:3px;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  h1,h2{font-family:var(--display);font-weight:400;letter-spacing:.01em;}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .8s cubic-bezier(.22,.61,.36,1);}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  @media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;} html{scroll-behavior:auto;}}
+
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--body);font-weight:800;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;padding:9px 18px;border-radius:999px;box-shadow:0 6px 14px rgba(27,27,27,0.18);}
+  .pill.on-red{background:var(--mustard);color:var(--red);}
+  .pill.on-beige{background:var(--red);color:var(--white);}
+  .pill.on-mustard{background:var(--white);color:var(--red);}
+  .rot-l{transform:rotate(-4deg);}
+  .rot-r{transform:rotate(3deg);}
+
+  /* ===== ① シール：画面外で大きく傾いて待機 → 画面内で自然な角度に収まる ===== */
+  .sticker{
+    position:relative;border:7px solid var(--white);
+    box-shadow:0 16px 30px rgba(27,27,27,0.22);border-radius:2px;
+    transform:rotate(var(--enter-rotate,30deg)) scale(.9);
+    transition:transform .9s cubic-bezier(.16,1,.3,1), box-shadow .35s ease;
+  }
+  .sticker.is-stuck{transform:rotate(var(--rest-rotate,0deg)) scale(1);}
+  /* ペルバック：角の影付き三角形がホバーで拡大して「めくれて浮く」演出 */
+  .sticker::after{content:'';position:absolute;top:0;right:0;width:30px;height:30px;background:linear-gradient(135deg, transparent 50%, rgba(27,27,27,0.16) 50%);transform-origin:top right;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+  .sticker:hover{box-shadow:0 22px 40px rgba(27,27,27,0.30);}
+  .sticker:hover::after{transform:scale(1.9);}
+  @media (prefers-reduced-motion: reduce){.sticker{transition:none;transform:rotate(var(--rest-rotate,0deg)) scale(1) !important;}}
+
+  /* 画像ラッパー：背景色＋キャプションのフォールバック。imgが読めない時も崩れない */
+  .img-placeholder{position:relative;overflow:hidden;width:100%;height:100%;min-height:140px;display:flex;align-items:center;justify-content:center;text-align:center;color:#7A6A57;font-family:var(--body);font-size:12px;font-weight:600;line-height:1.5;padding:14px;background:#EAD8BD repeating-linear-gradient(45deg, rgba(27,27,27,0.05) 0 10px, transparent 10px 20px);}
+  .img-placeholder>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+
+  .wave-top{margin-bottom:-2px;line-height:0;}
+  .wave-top svg{display:block;width:100%;height:70px;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(245,227,205,0.7);backdrop-filter:blur(4px);box-shadow:0 1px 0 rgba(27,27,27,0.06);transition:background .3s,box-shadow .3s,backdrop-filter .3s;}
+  header.scrolled{background:rgba(245,227,205,0.96);backdrop-filter:blur(10px);box-shadow:0 4px 16px rgba(27,27,27,0.08);}
+  .nav{max-width:var(--maxw);margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo{display:inline-flex;align-items:center;font-family:var(--wordmark);font-size:24px;color:var(--red);line-height:1;}
+  .logo>img{height:26px;width:auto;}
+  .nav-links{display:flex;gap:30px;font-size:14px;font-weight:600;}
+  .nav-links a:hover{color:var(--red);}
+  .nav-cta{font-weight:800;font-size:13px;background:var(--red);color:var(--white);padding:10px 20px;border-radius:999px;letter-spacing:.03em;}
+  @media (max-width:760px){.nav-links{display:none;}}
+
+  .hero{padding:140px 0 80px;position:relative;}
+  .hero-badges{display:flex;justify-content:space-between;max-width:760px;margin:0 auto -20px;position:relative;z-index:3;padding:0 10px;}
+  .hero h1{text-align:center;color:var(--red);font-size:clamp(56px,12vw,140px);line-height:.88;-webkit-text-stroke:3px var(--white);text-shadow:0 6px 0 rgba(27,27,27,0.08);}
+  .hero-wordmark{text-align:center;margin:-10px 0 30px;}
+  .hero-wordmark span{font-family:var(--wordmark);font-size:clamp(40px,8vw,90px);color:var(--mustard-dark);text-shadow:0 4px 0 rgba(27,27,27,0.1);}
+  .hero-photo-row{display:flex;justify-content:center;margin-bottom:40px;}
+  .hero-photo-row .sticker{width:300px;height:300px;}
+  .hero-copy{display:grid;grid-template-columns:1fr 1fr;gap:40px;max-width:880px;margin:0 auto 44px;text-align:center;}
+  .hero-copy p{font-size:14.5px;color:#4A3F36;}
+  .hero-cta{text-align:center;}
+  .btn-primary{display:inline-block;font-weight:800;font-size:14.5px;letter-spacing:.03em;background:var(--red);color:var(--white);padding:18px 36px;border-radius:999px;box-shadow:0 10px 24px rgba(249,24,20,0.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;}
+  .btn-primary:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 30px rgba(249,24,20,0.4);}
+  .btn-primary:active{transform:scale(.96);}
+  .pill{transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+  .pill:hover{transform:scale(1.08) rotate(0deg) !important;}
+
+  section{padding:100px 0;}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 50px;}
+  .section-head h2{font-size:clamp(30px,6vw,58px);line-height:1.1;margin:18px 0 16px;}
+  .section-head p{font-size:15px;color:#4A3F36;max-width:480px;margin:0 auto;}
+
+  .collage-grid{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:20px;max-width:780px;margin:0 auto;}
+  .collage-grid .sticker{height:260px;}
+  .collage-grid .sticker:nth-of-type(1){--rest-rotate:-5deg;}
+  .collage-grid .sticker:nth-of-type(2){--rest-rotate:2deg;align-self:end;height:200px;}
+  .collage-grid .sticker:nth-of-type(3){--rest-rotate:5deg;}
+  @media (max-width:760px){.collage-grid{grid-template-columns:1fr;} .collage-grid .sticker{height:220px !important;}}
+
+  .experience{background:var(--red);color:var(--white);text-align:center;}
+  .experience .section-head h2{color:var(--mustard);-webkit-text-stroke:2px var(--white);}
+  .experience .section-head p{color:rgba(255,255,255,0.85);}
+  .exp-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:30px;align-items:center;max-width:900px;margin:0 auto;}
+  .exp-spec{font-family:var(--body);font-weight:800;font-size:13.5px;line-height:2.1;text-align:left;}
+  .exp-spec.right{text-align:right;}
+  .exp-illustration{width:220px;height:220px;border-radius:50%;background:var(--mustard);display:flex;align-items:center;justify-content:center;color:var(--red);font-family:var(--wordmark);font-size:15px;text-align:center;padding:14px;box-shadow:0 16px 30px rgba(0,0,0,0.25);transform:rotate(-3deg);}
+  @media (max-width:760px){.exp-grid{grid-template-columns:1fr;text-align:center;} .exp-spec, .exp-spec.right{text-align:center;} .exp-illustration{margin:0 auto;}}
+
+  .full-photo{height:480px;}
+  .full-photo .img-placeholder{height:100%;border-radius:0;}
+
+  .layers{text-align:center;}
+  .layer-headline{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;font-size:clamp(26px,5.5vw,46px);max-width:760px;margin:0 auto;}
+  .layer-headline .chip{position:relative;overflow:hidden;width:56px;height:56px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#7A6A57;font-weight:700;border:2px dashed rgba(27,27,27,0.2);vertical-align:middle;background:#EAD8BD;}
+  .layer-headline .chip>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+  .takeaway{background:var(--mustard);}
+  .takeaway .section-head p{color:#5A4A1F;}
+  .city-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:18px;max-width:1000px;margin:50px auto 0;position:relative;}
+  .city-card{position:relative;z-index:2;}
+  .city-card .sticker{height:160px;margin-bottom:10px;}
+  .city-card:nth-child(odd) .sticker{--rest-rotate:-4deg;}
+  .city-card:nth-child(even) .sticker{--rest-rotate:4deg;}
+  .city-label{text-align:center;font-weight:800;font-size:13px;color:var(--red);}
+  @media (max-width:880px){.city-grid{grid-template-columns:repeat(2,1fr);}}
+
+  /* ===== ② 飛行機 × 点線パス ===== */
+  .flight-svg{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:4;}
+  .flight-path{fill:none;stroke:var(--red);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1 9;opacity:.55;}
+  .plane{transition:opacity .4s ease;}
+  @media (prefers-reduced-motion: reduce){.plane{opacity:.9 !important;}}
+
+  .feel{text-align:center;}
+  .feel .img-placeholder{max-width:420px;height:280px;margin:30px auto 0;}
+
+  footer{background:var(--black);color:rgba(245,227,205,0.7);padding:60px 0 30px;overflow:hidden;}
+  .footer-links{display:flex;justify-content:center;gap:28px;font-size:13.5px;margin-bottom:40px;flex-wrap:wrap;}
+  .footer-wordmark{text-align:center;font-family:var(--wordmark);font-size:clamp(60px,16vw,160px);line-height:1;color:transparent;-webkit-text-stroke:2px rgba(245,227,205,0.5);margin-bottom:30px;}
+  .footer-bottom{text-align:center;font-size:12px;display:flex;flex-direction:column;gap:6px;}
+
+  /* ===== マスコット：独自デザイン。シールと同じ「傾いて待機→収まる」挙動 ===== */
+  .mascot{
+    position:absolute;
+    transform:rotate(var(--enter-rotate,30deg)) scale(.85);
+    transition:transform .9s cubic-bezier(.16,1,.3,1);
+  }
+  .mascot>img{width:100%;height:100%;object-fit:contain;display:block;}
+  .mascot.is-stuck{transform:rotate(var(--rest-rotate, -6deg)) scale(1);}
+  /* マスコットのホバーは「ふわっと浮く」ペルバック寄りの持ち上げ */
+  .mascot:hover{transform:rotate(var(--rest-rotate, -6deg)) scale(1.14) translateY(-3px) !important;}
+  /* img読み込み失敗時のフォールバック：色付き円＋頭文字 */
+  .mascot.mascot--fb{background:var(--red);border-radius:50%;box-shadow:0 6px 14px rgba(27,27,27,0.25);}
+  .mascot.mascot--fb::after{content:attr(data-fb);position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mustard);font-family:var(--wordmark);font-size:1.4rem;}
+  [data-speed]{will-change:transform;}
+  @media (prefers-reduced-motion: reduce){.mascot{transition:none;transform:rotate(var(--rest-rotate, -6deg)) scale(1) !important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="#" class="logo">
+      <img src="PLACEHOLDER_logo.png" alt="SMASHD" onerror="this.style.display='none';if(this.nextElementSibling){this.nextElementSibling.style.display='inline';}">
+      <span style="display:none;">SMASHD</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#about">Burgers</a>
+      <a href="#layers">About</a>
+      <a href="#takeaway">Locations</a>
+    </nav>
+    <a href="#feel" class="nav-cta">Order</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-badges">
+      <span class="pill on-beige rot-l">Smashed Fresh</span>
+      <span class="pill on-beige rot-r">Bold Flavor</span>
+    </div>
+    <h1>THE BURGER</h1>
+    <div class="hero-wordmark"><span>SMASHD</span></div>
+    <div class="hero-photo-row reveal">
+      <div class="sticker" style="--rest-rotate:-2deg;"><div class="img-placeholder">[商品写真：バーガーのヒーローショット]<img src="PLACEHOLDER_burger-hero.png" alt="バーガーのヒーローショット" onerror="this.remove()"></div></div>
+    </div>
+    <div class="hero-copy reveal">
+      <p>Smashed hot on the flat top, our patties lock in ultimate juiciness under a caramelized crust.</p>
+      <p>Topped with melted cheddar and a glaze crafted to satisfy your cravings, every single time.</p>
+    </div>
+    <div class="hero-cta reveal"><a href="#feel" class="btn-primary">Order Now</a></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Top Classic</span>
+      <h2>Juicy Cheesy<br>Fully Loaded</h2>
+      <p>SMASHD is back and bolder than ever. Honoring our roots, we bring the ultimate smashed experience — hot, loaded, and crafted fresh.</p>
+      <div style="margin-top:24px;"><a href="#feel" class="btn-primary">Order Now</a></div>
+    </div>
+    <div class="collage-grid reveal" style="position:relative;">
+      <div class="mascot" data-fb="S" style="top:-34px;left:-10px;z-index:3;width:56px;height:56px;--rest-rotate:-8deg;">
+        <img src="PLACEHOLDER_mascot-1.png" alt="SMASHD マスコット" onerror="this.parentElement.classList.add('mascot--fb');this.remove();">
+      </div>
+      <div class="sticker"><div class="img-placeholder">[写真：調理シーン]<img src="PLACEHOLDER_cooking.png" alt="調理シーン" onerror="this.remove()"></div></div>
+      <div class="sticker"><div class="img-placeholder">[写真：チーズ接写]<img src="PLACEHOLDER_cheese.png" alt="チーズ接写" onerror="this.remove()"></div></div>
+      <div class="sticker"><div class="img-placeholder">[写真：店内]<img src="PLACEHOLDER_interior.png" alt="店内" onerror="this.remove()"></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="experience">
+  <div class="wave-top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--red)"/></svg></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-red rot-r" style="display:inline-block;">Experience</span>
+      <h2>Food That<br>Feels Good</h2>
+    </div>
+    <div class="exp-grid reveal" style="position:relative;">
+      <div class="mascot" data-fb="S" style="top:-44px;left:0;width:48px;height:48px;--rest-rotate:6deg;">
+        <img src="PLACEHOLDER_mascot-2.png" alt="SMASHD マスコット" onerror="this.parentElement.classList.add('mascot--fb');this.remove();">
+      </div>
+      <div class="exp-spec">450 KCAL<br>HIGH PROTEIN<br>FRESH INGREDIENTS</div>
+      <div class="exp-illustration" data-speed="0.06">SMASHD<br>★ ★ ★</div>
+      <div class="exp-spec right">100% REAL BEEF<br>NO SHORTCUTS<br>TRUE TASTE</div>
+    </div>
+  </div>
+  <div class="wave-top" style="transform:rotate(180deg);"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--beige)"/></svg></div>
+</section>
+
+<section class="full-photo" style="padding:0;">
+  <div class="img-placeholder">[写真：商品を持つ人物のライフスタイルショット]<img src="PLACEHOLDER_lifestyle.png" alt="ライフスタイルショット" onerror="this.remove()"></div>
+</section>
+
+<section class="layers" id="layers">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Pure Quality</span>
+    </div>
+    <div class="layer-headline reveal">
+      Every layer <span class="chip">[レタス]<img src="PLACEHOLDER_ingredient-lettuce.png" alt="レタス" onerror="this.remove()"></span> packed with <span class="chip">[トマト]<img src="PLACEHOLDER_ingredient-tomato.png" alt="トマト" onerror="this.remove()"></span> signature <span class="chip">[チーズ]<img src="PLACEHOLDER_ingredient-cheese.png" alt="チーズ" onerror="this.remove()"></span> flavor <span class="chip">[パティ]<img src="PLACEHOLDER_ingredient-patty.png" alt="パティ" onerror="this.remove()"></span>
+    </div>
+  </div>
+</section>
+
+<section class="takeaway" id="takeaway">
+  <div class="wave-top"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--mustard)"/></svg></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-mustard rot-r" style="display:inline-block;">Take Away</span>
+      <h2 style="color:var(--black);">Quality That<br>Travels With You</h2>
+      <p>Freshly packed, ready to go wherever you crave — from our flat-top to any corner of the globe.</p>
+    </div>
+    <div class="city-grid reveal">
+      <svg class="flight-svg" aria-hidden="true">
+        <path class="flight-path"></path>
+        <g class="plane">
+          <circle r="13" fill="var(--white)" stroke="var(--red)" stroke-width="2"></circle>
+          <path d="M8 0 L-6 -6 L-2.5 0 L-6 6 Z" fill="var(--red)"></path>
+        </g>
+      </svg>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Berlin]<img src="PLACEHOLDER_city-berlin.png" alt="Berlin" onerror="this.remove()"></div></div><div class="city-label">Berlin</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:London]<img src="PLACEHOLDER_city-london.png" alt="London" onerror="this.remove()"></div></div><div class="city-label">London</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:New York]<img src="PLACEHOLDER_city-newyork.png" alt="New York" onerror="this.remove()"></div></div><div class="city-label">New York</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Sydney]<img src="PLACEHOLDER_city-sydney.png" alt="Sydney" onerror="this.remove()"></div></div><div class="city-label">Sydney</div></div>
+      <div class="city-card"><div class="sticker"><div class="img-placeholder">[都市:Tokyo]<img src="PLACEHOLDER_city-tokyo.png" alt="Tokyo" onerror="this.remove()"></div></div><div class="city-label">Tokyo</div></div>
+    </div>
+  </div>
+  <div class="wave-top" style="transform:rotate(180deg);"><svg viewBox="0 0 1440 70" preserveAspectRatio="none"><path d="M0,35 C240,90 480,0 720,35 C960,70 1200,0 1440,35 L1440,70 L0,70 Z" fill="var(--beige)"/></svg></div>
+</section>
+
+<section class="feel" id="feel">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <span class="pill on-beige rot-l" style="display:inline-block;">Feel It</span>
+      <h2>Feel The Change</h2>
+      <p>Smashed for the bold, built for the hungry. Every crispy edge and juicy layer rules.</p>
+      <div style="margin-top:24px;"><a href="#" class="btn-primary">Order Now</a></div>
+    </div>
+    <div class="img-placeholder reveal" style="position:relative;" data-speed="0.04">[商品写真：最終CTA用]<img src="PLACEHOLDER_cta.png" alt="最終CTA用 商品写真" onerror="this.remove()">
+      <div class="mascot" data-fb="S" style="bottom:-28px;right:-20px;width:60px;height:60px;z-index:3;--rest-rotate:-10deg;">
+        <img src="PLACEHOLDER_mascot-3.png" alt="SMASHD マスコット" onerror="this.parentElement.classList.add('mascot--fb');this.remove();">
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-links">
+      <a href="#about">Home</a><a href="#about">Burgers</a><a href="#layers">About</a><a href="#takeaway">Locations</a>
+    </div>
+    <div class="footer-wordmark">SMASHD</div>
+    <div class="footer-bottom">
+      <span>© 2026 SMASHD — All rights reserved（架空ブランド／デモ用）</span>
+      <span>Hand-smashed patties · toasted buns · est. 2019</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ===== ① 慣性スクロール（3段フォールバック） =====
+  //  1) Lenis（cdnjs）が読めれば本格的な慣性スクロール
+  //  2) 読めなければ自前の軽量慣性スクロール（wheelをlerp）
+  //  3) reduced-motion／タッチ端末ではネイティブ即時スクロール
+  let lenis;
+  function startCustomInertia(){
+    if (window.matchMedia('(pointer: coarse)').matches) return; // タッチはネイティブのまま
+    let target = window.scrollY, current = window.scrollY, raf = null, active = false;
+    const maxY = () => document.documentElement.scrollHeight - window.innerHeight;
+    function loop(){
+      current += (target - current) * 0.12;
+      if (Math.abs(target - current) < 0.4){ current = target; window.scrollTo(0, current); raf = null; active = false; return; }
+      window.scrollTo(0, current);
+      raf = requestAnimationFrame(loop);
+    }
+    window.addEventListener('wheel', (e)=>{
+      if (e.ctrlKey) return; // ピンチズーム等は除外
+      e.preventDefault();
+      const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      target = Math.max(0, Math.min(maxY(), target + e.deltaY * unit));
+      active = true;
+      if (!raf) raf = requestAnimationFrame(loop);
+    }, { passive:false });
+    // キーボード／スクロールバー／アンカー移動時はターゲットを同期し直す
+    window.addEventListener('scroll', ()=>{ if (!active){ target = current = window.scrollY; } }, { passive:true });
+  }
+  if (!reduceMotion) {
+    if (window.Lenis) {
+      lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+      function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+      requestAnimationFrame(raf);
+    } else {
+      startCustomInertia();
+    }
+  }
+
+  // ===== スクロールでフェードイン =====
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+  },{threshold:0.12});
+  revealEls.forEach(el=>io.observe(el));
+
+  // ===== ① シールが「ペタッと貼られる」登場 =====
+  // 画面外では 25〜35deg（符号ランダム）で大きく傾けて待機 → 画面内(25%)で定位置へ。
+  const stickEls = document.querySelectorAll('.sticker, .mascot');
+  stickEls.forEach(el=>{
+    const sign = Math.random() < 0.5 ? -1 : 1;
+    const deg = (25 + Math.random() * 10) * sign; // 25〜35deg
+    el.style.setProperty('--enter-rotate', deg.toFixed(1) + 'deg');
+  });
+  const stickIo = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('is-stuck'); stickIo.unobserve(e.target); } });
+  },{threshold:0.25});
+  stickEls.forEach(el=>stickIo.observe(el));
+
+  // ===== ② 飛行機が点線パスに沿って動く（Take Away） =====
+  const flightSvg  = document.querySelector('.flight-svg');
+  const flightPath = document.querySelector('.flight-path');
+  const planeEl    = document.querySelector('.plane');
+  const takeaway   = document.querySelector('.takeaway');
+  const cityGrid   = document.querySelector('.city-grid');
+  let pathLen = 0;
+
+  function buildFlightPath(){
+    if(!cityGrid || !flightSvg) return;
+    const w = cityGrid.clientWidth, h = cityGrid.clientHeight;
+    if(w === 0 || h === 0) return;
+    const gr = cityGrid.getBoundingClientRect();
+    const cards = cityGrid.querySelectorAll('.city-card');
+    if(!cards.length) return;
+    // 各都市カード（変形しない安定要素）の写真上部・中央を結ぶ
+    const pts = [...cards].map(c=>{
+      const r = c.getBoundingClientRect();
+      return { x: r.left - gr.left + r.width/2, y: r.top - gr.top + 26 };
+    });
+    flightSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    flightSvg.setAttribute('width', w);
+    flightSvg.setAttribute('height', h);
+    // 滑らかな波状パス（中点経由・上下に弧）
+    let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
+    for(let i=1;i<pts.length;i++){
+      const p0 = pts[i-1], p1 = pts[i];
+      const mx = (p0.x + p1.x)/2;
+      const cy = Math.min(p0.y, p1.y) - 30; // 上方向へ弧を描いて飛ぶ
+      d += ` Q ${mx.toFixed(1)} ${cy.toFixed(1)} ${p1.x.toFixed(1)} ${p1.y.toFixed(1)}`;
+    }
+    flightPath.setAttribute('d', d);
+    pathLen = flightPath.getTotalLength();
+    setPlaneAt(planeProg);
+  }
+
+  // 飛行機をパス上の進捗度 prog(0〜1) の位置に置く（接線方向へ機首を向ける）
+  let planeProg = 0;
+  function setPlaneAt(prog){
+    if(!pathLen) return;
+    planeProg = Math.max(0, Math.min(1, prog));
+    const at = planeProg * pathLen;
+    const pt  = flightPath.getPointAtLength(at);
+    const pt2 = flightPath.getPointAtLength(Math.min(pathLen, at + 1.5));
+    const angle = Math.atan2(pt2.y - pt.y, pt2.x - pt.x) * 180 / Math.PI;
+    planeEl.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+  }
+
+  // 方針②：スクロール量連動をやめ、セクション到達をトリガーに
+  // 「1スクロール分」相当の固定時間（約900ms）でパスを一周だけ進める。
+  // スクロールでさらに進んでも伸びたり止まったりしない。
+  let planeRaf = null, planePlayed = false;
+  function animatePlane(){
+    if(reduceMotion){ setPlaneAt(1); return; } // モーション減設定時は即時表示
+    if(planeRaf) cancelAnimationFrame(planeRaf);
+    const dur = 900, start = performance.now();
+    const ease = t => 1 - Math.pow(1 - t, 3); // power3.out 近似
+    (function step(now){
+      const t = Math.min(1, (now - start) / dur);
+      setPlaneAt(ease(t));
+      planeRaf = t < 1 ? requestAnimationFrame(step) : null;
+    })(start);
+  }
+  if(takeaway){
+    const planeIo = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ if(!planePlayed){ planePlayed = true; animatePlane(); } }
+        else if(e.intersectionRatio === 0){ planePlayed = false; if(planeRaf){ cancelAnimationFrame(planeRaf); planeRaf = null; } setPlaneAt(0); }
+      });
+    },{ threshold:[0, 0.2] });
+    planeIo.observe(takeaway);
+  }
+
+  // ===== ③ パララックス（data-speed）：到達したセクション内のみ・移動量を小さく制限 =====
+  // window.scrollY全体ではなく、要素が画面内にある間だけ計算。移動量は ±MAX_PARALLAX に制限。
+  // 画面外に出たら値をリセットし、再入場時に同じ範囲で再度動く。
+  const MAX_PARALLAX = 30; // px
+  const parallaxEls = Array.from(document.querySelectorAll('[data-speed]'));
+  function resetParallax(el){ el.style.transform = el.dataset.baseTransform || 'translateY(0)'; }
+  const parallaxIo = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      e.target._inview = e.isIntersecting;
+      if(!e.isIntersecting) resetParallax(e.target);
+    });
+  },{ threshold:0 });
+  parallaxEls.forEach(el=>parallaxIo.observe(el));
+  function updateParallax(){
+    const vh = window.innerHeight;
+    parallaxEls.forEach(el=>{
+      if(!el._inview) return; // セクション未到達／通過後は動かさない
+      const speed = parseFloat(el.dataset.speed) || 0;
+      const rect = el.getBoundingClientRect();
+      const center = rect.top + rect.height/2 - vh/2;
+      let offset = -center * speed;
+      offset = Math.max(-MAX_PARALLAX, Math.min(MAX_PARALLAX, offset)); // 移動量を制限
+      el.style.transform = `translateY(${offset.toFixed(1)}px) ${el.dataset.baseTransform||''}`;
+    });
+  }
+
+  // ===== ヘッダー：スクロールで背景を濃く =====
+  const headerEl = document.querySelector('header');
+  function updateHeader(){
+    if(window.scrollY > 40) headerEl.classList.add('scrolled');
+    else headerEl.classList.remove('scrolled');
+  }
+
+  // ===== スクロール購読をまとめて配線（Lenis有無どちらでも動く） =====
+  // 飛行機はスクロール非連動（到達トリガー）になったため、ここでは扱わない。
+  function onScroll(){ updateHeader(); if(!reduceMotion) updateParallax(); }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  if(lenis){ lenis.on('scroll', onScroll); }
+
+  function onResize(){ buildFlightPath(); if(!reduceMotion) updateParallax(); }
+  window.addEventListener('resize', onResize);
+
+  // 初期化（フォント/画像が遅れて寸法が変わるケースに備えて再計算）
+  function init(){ buildFlightPath(); updateHeader(); if(!reduceMotion) updateParallax(); }
+  init();
+  window.addEventListener('load', init);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(buildFlightPath); }
+  window.addEventListener('load', ()=>{ setTimeout(buildFlightPath, 200); });
+</script>
+
+</body>
+</html>
