@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>コスモス行政書士事務所（サンプルサイト）｜建設業許可・法人設立・補助金申請</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1b2a4a;
+  --sumi:#2a2b2e;
+  --washi:#f6f6f2;
+  --line:#d8d6cd;
+  --shu:#a63a2b;
+  --sub:#5c6470;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN",serif;
+  --sans:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);color:var(--sumi);background:var(--washi);line-height:1.9;font-size:16px;-webkit-text-size-adjust:100%}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+section{padding:72px 0}
+h2{font-family:var(--serif);font-size:clamp(24px,3.2vw,32px);color:var(--ink);font-weight:600;letter-spacing:.08em;margin-bottom:8px}
+.h2-en{font-size:12px;letter-spacing:.28em;color:var(--sub);text-transform:uppercase;display:block;margin-bottom:6px}
+.h2-block{margin-bottom:40px;border-left:3px solid var(--ink);padding-left:18px}
+.sample-note{background:var(--ink);color:#fff;text-align:center;font-size:12px;letter-spacing:.12em;padding:6px 12px}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.head-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1040px;margin:0 auto}
+.brand{font-family:var(--serif);font-size:20px;color:var(--ink);font-weight:600;letter-spacing:.06em}
+.brand small{display:block;font-size:10px;letter-spacing:.2em;color:var(--sub);font-family:var(--sans)}
+.head-cta{display:flex;align-items:center;gap:16px}
+.tel{text-align:right;line-height:1.4}
+.tel strong{font-size:18px;color:var(--ink);letter-spacing:.04em}
+.tel span{display:block;font-size:11px;color:var(--sub)}
+.btn{display:inline-block;background:var(--shu);color:#fff;padding:12px 24px;border-radius:2px;font-weight:700;letter-spacing:.08em;font-size:14px;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.hero{background:linear-gradient(180deg,#fff 0%,var(--washi) 100%);padding:88px 0 72px;border-bottom:1px solid var(--line)}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center}
+.hero h1{font-family:var(--serif);font-size:clamp(28px,4.2vw,42px);color:var(--ink);font-weight:600;line-height:1.6;letter-spacing:.06em}
+.hero p.lead{margin-top:20px;color:var(--sub);font-size:15px}
+.hero-cta{margin-top:32px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+.hero-note{font-size:12px;color:var(--sub)}
+.portrait{background:#e9e8e1;border:1px solid var(--line);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:13px;letter-spacing:.1em;position:relative}
+.portrait::after{content:"サンプル";position:absolute;right:10px;bottom:10px;font-family:var(--serif);color:var(--shu);border:1.5px solid var(--shu);border-radius:2px;padding:2px 8px;font-size:12px;letter-spacing:.3em;opacity:.7;transform:rotate(-4deg)}
+.stats{background:#fff;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid var(--line)}
+.stat{border-right:1px solid var(--line);padding:36px 16px;text-align:center}
+.stat .num{font-family:var(--serif);font-size:clamp(34px,4.6vw,48px);color:var(--ink);font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.stat .unit{font-size:14px;color:var(--ink);margin-left:2px}
+.stat .label{font-size:13px;color:var(--sub);margin-top:6px;letter-spacing:.06em}
+.stats-note{text-align:center;font-size:11px;color:var(--sub);padding:0 20px 20px}
+.services{background:var(--washi)}
+.svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.svc{background:#fff;border:1px solid var(--line);padding:32px 26px}
+.svc h3{font-family:var(--serif);font-size:19px;color:var(--ink);font-weight:600;letter-spacing:.06em;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.svc p{font-size:14px;color:var(--sumi)}
+.svc .season{display:inline-block;margin-top:14px;font-size:12px;color:var(--ink);background:var(--washi);border:1px solid var(--line);padding:3px 10px;letter-spacing:.04em}
+.price table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line)}
+.price th,.price td{border:1px solid var(--line);padding:16px 18px;text-align:left;font-size:15px}
+.price th{background:var(--ink);color:#fff;font-weight:500;letter-spacing:.06em}
+.price td.amount{font-family:var(--serif);color:var(--ink);font-weight:600;white-space:nowrap}
+.price-note{font-size:12px;color:var(--sub);margin-top:12px}
+.flow ol{list-style:none;counter-reset:step}
+.flow li{background:#fff;border:1px solid var(--line);padding:24px 24px 24px 76px;position:relative;margin-bottom:16px}
+.flow li::before{counter-increment:step;content:counter(step);position:absolute;left:24px;top:24px;width:36px;height:36px;border:1.5px solid var(--ink);color:var(--ink);font-family:var(--serif);font-size:18px;display:flex;align-items:center;justify-content:center}
+.flow h3{font-family:var(--serif);font-size:17px;color:var(--ink);font-weight:600;margin-bottom:4px;letter-spacing:.06em}
+.flow p{font-size:14px;color:var(--sub)}
+.faq details{background:#fff;border:1px solid var(--line);margin-bottom:12px}
+.faq summary{cursor:pointer;padding:18px 22px;font-weight:700;color:var(--ink);letter-spacing:.04em;list-style:none;position:relative}
+.faq summary::after{content:"＋";position:absolute;right:20px;color:var(--sub)}
+.faq details[open] summary::after{content:"−"}
+.faq .a{padding:0 22px 18px;font-size:14px;color:var(--sumi)}
+.office dl{display:grid;grid-template-columns:160px 1fr;background:#fff;border:1px solid var(--line)}
+.office dt{padding:14px 18px;border-bottom:1px solid var(--line);background:var(--washi);font-weight:700;color:var(--ink);font-size:14px}
+.office dd{padding:14px 18px;border-bottom:1px solid var(--line);font-size:14px}
+.office dt:last-of-type,.office dd:last-of-type{border-bottom:none}
+.contact{background:var(--ink)}
+.contact h2,.contact .h2-en{color:#fff}
+.contact .h2-block{border-left-color:var(--shu)}
+.form{background:#fff;padding:36px;max-width:640px}
+.form label{display:block;font-size:14px;font-weight:700;color:var(--ink);margin:18px 0 6px}
+.form label:first-child{margin-top:0}
+.form input,.form textarea{width:100%;border:1px solid var(--line);padding:12px;font-size:16px;font-family:var(--sans);background:var(--washi)}
+.form textarea{min-height:120px}
+.form .btn{border:none;cursor:pointer;margin-top:24px;font-size:15px;width:100%;padding:16px}
+.form-note{font-size:12px;color:var(--sub);margin-top:10px;text-align:center}
+footer{background:#12203a;color:#c9cedb;font-size:12px;text-align:center;padding:28px 20px;letter-spacing:.06em;line-height:2}
+.sp-cta{display:none}
+@media (max-width:768px){
+  section{padding:56px 0}
+  .hero{padding:56px 0 48px}
+  .hero-grid{grid-template-columns:1fr;gap:28px}
+  .portrait{max-width:260px;margin:0 auto}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stat{border-bottom:1px solid var(--line)}
+  .svc-grid{grid-template-columns:1fr}
+  .office dl{grid-template-columns:1fr}
+  .office dt{border-bottom:none}
+  .head-cta .btn{display:none}
+  .form{padding:24px 18px}
+  .sp-cta{display:block;position:fixed;left:0;right:0;bottom:0;z-index:60}
+  .sp-cta a{display:block;background:var(--shu);color:#fff;text-align:center;padding:15px;font-weight:700;letter-spacing:.1em}
+  body{padding-bottom:52px}
+  .price table,.price th,.price td{font-size:13px}
+  .price th,.price td{padding:12px 10px}
+}
+@media (max-width:400px){
+  .tel strong{font-size:15px}
+  .brand{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="sample-note">本サイトは制作サンプルです。事務所名・数値・料金はすべて架空のものです。</div>
+
+<header>
+  <div class="head-inner">
+    <div class="brand">コスモス行政書士事務所<small>SAMPLE SITE / GYOSEI-SHOSHI OFFICE</small></div>
+    <div class="head-cta">
+      <div class="tel"><strong>00-0000-0000</strong><span>平日 9:00–18:00（サンプル）</span></div>
+      <a class="btn" href="#contact">無料相談を予約する</a>
+    </div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>許認可のこと、<br>手続の前に、まずご相談ください。</h1>
+      <p class="lead">建設業許可・法人設立・補助金申請を中心に、書類作成から行政への申請までを丁寧にお手伝いします。初回のご相談は無料です。</p>
+      <div class="hero-cta">
+        <a class="btn" href="#contact">無料相談を予約する</a>
+        <span class="hero-note">オンライン相談にも対応（サンプル表記）</span>
+      </div>
+    </div>
+    <div class="portrait">代表写真（ダミー枠）</div>
+  </div>
+</div>
+
+<section class="stats" aria-label="実績">
+  <div class="stats-grid">
+    <div class="stat"><div><span class="num" data-count="1250">0</span><span class="unit">件</span></div><div class="label">累計相談件数</div></div>
+    <div class="stat"><div><span class="num" data-count="98">0</span><span class="unit">%</span></div><div class="label">許可申請の受理率</div></div>
+    <div class="stat"><div><span class="num" data-count="15">0</span><span class="unit">年</span></div><div class="label">開業からの年数</div></div>
+    <div class="stat"><div><span class="num" data-count="320">0</span><span class="unit">社</span></div><div class="label">顧問・継続支援先</div></div>
+  </div>
+  <p class="stats-note">※数値はサンプル用の架空値です。実案件では根拠資料に基づく実数のみを掲載します。</p>
+</section>
+
+<section class="services">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">Services</span><h2>取扱業務</h2></div>
+    <div class="svc-grid">
+      <div class="svc">
+        <h3>補助金・助成金申請</h3>
+        <p>事業計画の整理から申請書類の作成まで支援します。公募要領の読み解きもお任せください。</p>
+        <span class="season">公募時期のご相談はお早めに</span>
+      </div>
+      <div class="svc">
+        <h3>建設業許可</h3>
+        <p>新規許可・更新・業種追加・決算変更届まで、継続的な許可管理をサポートします。</p>
+        <span class="season">更新期限の管理も対応</span>
+      </div>
+      <div class="svc">
+        <h3>会社設立・法人手続</h3>
+        <p>定款作成・認証と設立後の許認可をあわせてご案内します。創業期の手続を一括で支援します。</p>
+        <span class="season">創業融資の書類作成も支援</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="price">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">Fees</span><h2>報酬例</h2></div>
+    <table>
+      <tr><th>業務</th><th>報酬例（税込）</th><th>備考</th></tr>
+      <tr><td>建設業許可（新規・知事）</td><td class="amount">110,000円〜</td><td>証紙代等の実費は別途</td></tr>
+      <tr><td>会社設立（定款作成・認証）</td><td class="amount">66,000円〜</td><td>公証人手数料等の実費は別途</td></tr>
+      <tr><td>補助金申請支援</td><td class="amount">55,000円〜</td><td>内容により個別見積</td></tr>
+    </table>
+    <p class="price-note">※上記は代表的な報酬例です。案件の内容により変動します。正式なお見積りはご相談時にご提示します。印紙代・証紙代等の実費は別途申し受けます。</p>
+  </div>
+</section>
+
+<section class="flow">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">Flow</span><h2>ご相談の流れ</h2></div>
+    <ol>
+      <li><h3>お問い合わせ</h3><p>電話またはフォームからご連絡ください。折り返し日程をご案内します。</p></li>
+      <li><h3>無料相談（初回60分）</h3><p>状況とご希望をうかがい、必要な手続と進め方をご説明します。</p></li>
+      <li><h3>お見積り・ご契約</h3><p>業務内容と報酬を書面でご提示し、ご納得のうえでご契約いただきます。</p></li>
+      <li><h3>書類作成・申請</h3><p>必要書類の収集・作成・提出を進め、進捗を随時ご報告します。</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="faq">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">FAQ</span><h2>よくあるご質問</h2></div>
+    <details><summary>相談だけでも大丈夫ですか？</summary><div class="a">はい。初回相談は無料です。手続が必要かどうかの確認だけでもお気軽にご利用ください。</div></details>
+    <details><summary>費用はいつ支払いますか？</summary><div class="a">ご契約時に着手金、業務完了時に残金をお支払いいただく形が基本です。詳細はお見積り時にご説明します。</div></details>
+    <details><summary>対応エリアはどこまでですか？</summary><div class="a">○○県内を中心に対応しています。オンラインでのご相談は全国から承ります。（サンプル表記）</div></details>
+    <details><summary>登記や税務も頼めますか？</summary><div class="a">登記は司法書士、税務は税理士の業務のため、当事務所では取り扱えません。必要な場合は提携の専門家をご紹介します。</div></details>
+  </div>
+</section>
+
+<section class="office">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">Office</span><h2>事務所概要</h2></div>
+    <dl>
+      <dt>事務所名</dt><dd>コスモス行政書士事務所（架空）</dd>
+      <dt>代表</dt><dd>行政 太郎（架空・○○県行政書士会所属）</dd>
+      <dt>所在地</dt><dd>○○県○○市○○町1-2-3（サンプル）</dd>
+      <dt>営業時間</dt><dd>平日 9:00–18:00／土日祝は事前予約制</dd>
+    </dl>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="h2-block"><span class="h2-en">Contact</span><h2>無料相談のお申し込み</h2></div>
+    <div class="form">
+      <label for="f-name">お名前</label><input id="f-name" type="text" autocomplete="name">
+      <label for="f-tel">お電話番号</label><input id="f-tel" type="tel" autocomplete="tel">
+      <label for="f-msg">ご相談内容</label><textarea id="f-msg"></textarea>
+      <button class="btn" type="button" onclick="alert('サンプルサイトのため送信されません')">この内容で相談を申し込む</button>
+      <p class="form-note">※サンプルサイトのため送信機能は無効化しています。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  コスモス行政書士事務所（サンプルサイト）<br>
+  本サイトは制作サンプルです。掲載の事務所・人物・数値・料金はすべて架空であり、実在の事務所とは関係ありません。
+</footer>
+
+<div class="sp-cta"><a href="#contact">無料相談を予約する（無料）</a></div>
+
+<script>
+(function(){
+  var nums = document.querySelectorAll('.num[data-count]');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function setFinal(el){ el.textContent = Number(el.dataset.count).toLocaleString('ja-JP'); }
+  if (reduced || !('IntersectionObserver' in window)) {
+    nums.forEach(setFinal);
+    return;
+  }
+  var DURATION = 1200;
+  function animate(el){
+    var target = Number(el.dataset.count);
+    var start = null;
+    function frame(ts){
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / DURATION, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased).toLocaleString('ja-JP');
+      if (p < 1) requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { animate(e.target); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.4 });
+  nums.forEach(function(el){ io.observe(el); });
+})();
+</script>
+</body>
+</html>

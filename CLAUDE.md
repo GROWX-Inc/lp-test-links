@@ -39,6 +39,7 @@
 | testlog | テスト公開（検証用） |
 | growx | テスト公開 |
 | lp-chokatsu | テスト公開 |
+| gyosei-sample | テスト公開（社内サンプル・行政書士） |
 
 ## PRマージ後に必ずやること
 
