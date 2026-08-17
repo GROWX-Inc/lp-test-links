@@ -66,16 +66,18 @@ header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0
 .price th{background:var(--ink);color:#fff;font-weight:500;letter-spacing:.06em}
 .price td.amount{font-family:var(--serif);color:var(--ink);font-weight:600;white-space:nowrap}
 .price-note{font-size:12px;color:var(--sub);margin-top:12px}
-.flow ol{list-style:none;counter-reset:step;position:relative}
-.flow ol::before{content:"";position:absolute;left:41px;top:12px;bottom:12px;width:2px;background:var(--line);transform-origin:top;transition:transform 1.6s cubic-bezier(.22,.61,.36,1)}
-.flow ol.fx-init::before{transform:scaleY(0)}
-.flow ol.is-visible::before{transform:scaleY(1)}
+.flow ol{list-style:none;counter-reset:step}
 .flow li{background:#fff;border:1px solid var(--line);padding:24px 24px 24px 76px;position:relative;margin-bottom:16px}
-.flow ol.fx-init li{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.22,.61,.36,1)}
-.flow ol li.is-visible{opacity:1;transform:translateY(0)}
-.flow li::before{counter-increment:step;content:counter(step);position:absolute;left:24px;top:24px;width:36px;height:36px;border:1.5px solid var(--ink);color:var(--ink);font-family:var(--serif);font-size:18px;display:flex;align-items:center;justify-content:center;background:#fff;z-index:1}
+.flow li::before{counter-increment:step;content:counter(step);position:absolute;left:24px;top:24px;width:36px;height:36px;border:1.5px solid var(--ink);color:var(--ink);font-family:var(--serif);font-size:18px;display:flex;align-items:center;justify-content:center}
 .flow h3{font-family:var(--serif);font-size:17px;color:var(--ink);font-weight:600;margin-bottom:4px;letter-spacing:.06em}
 .flow p{font-size:14px;color:var(--sub)}
+/* エフェクト#002 相談フローのステップ表示 */
+.flow ol.fx-ready{position:relative}
+.flow ol.fx-ready::before{content:"";position:absolute;left:41px;top:12px;bottom:12px;width:2px;background:var(--line);transform:scaleY(0);transform-origin:top;transition:transform 1.6s cubic-bezier(.22,.61,.36,1)}
+.flow ol.fx-ready.is-visible::before{transform:scaleY(1)}
+.flow ol.fx-ready li{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.22,.61,.36,1)}
+.flow ol.fx-ready li.is-visible{opacity:1;transform:translateY(0)}
+.flow li::before{background:#fff;z-index:1}
 .faq details{background:#fff;border:1px solid var(--line);margin-bottom:12px}
 .faq summary{cursor:pointer;padding:18px 22px;font-weight:700;color:var(--ink);letter-spacing:.04em;list-style:none;position:relative}
 .faq summary::after{content:"＋";position:absolute;right:20px;color:var(--sub)}
@@ -121,8 +123,6 @@ footer{background:#12203a;color:#c9cedb;font-size:12px;text-align:center;padding
 }
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  .flow ol::before{transform:scaleY(1);transition:none}
-  .flow ol.fx-init li{opacity:1;transform:none;transition:none}
 }
 </style>
 </head>
@@ -203,7 +203,7 @@ footer{background:#12203a;color:#c9cedb;font-size:12px;text-align:center;padding
 <section class="flow">
   <div class="wrap">
     <div class="h2-block"><span class="h2-en">Flow</span><h2>ご相談の流れ</h2></div>
-    <ol id="flow-steps">
+    <ol id="consult-flow">
       <li><h3>お問い合わせ</h3><p>電話またはフォームからご連絡ください。折り返し日程をご案内します。</p></li>
       <li><h3>無料相談（初回60分）</h3><p>状況とご希望をうかがい、必要な手続と進め方をご説明します。</p></li>
       <li><h3>お見積り・ご契約</h3><p>業務内容と報酬を書面でご提示し、ご納得のうえでご契約いただきます。</p></li>
@@ -283,26 +283,24 @@ footer{background:#12203a;color:#c9cedb;font-size:12px;text-align:center;padding
   }, { threshold: 0.4 });
   nums.forEach(function(el){ io.observe(el); });
 })();
-
-/* エフェクト#002：相談フローのステップ表示（縦ライン＋180ms間隔の順次表示） */
 (function(){
-  var list = document.getElementById('flow-steps');
+  var list = document.getElementById('consult-flow');
   if (!list) return;
-  var items = list.querySelectorAll('li');
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced || !('IntersectionObserver' in window)) { list.classList.add('is-visible'); return; }
-  list.classList.add('fx-init');
-  var io = new IntersectionObserver(function(entries){
+  if (reduced || !('IntersectionObserver' in window)) return;
+  list.classList.add('fx-ready');
+  var items = list.querySelectorAll('li');
+  var io2 = new IntersectionObserver(function(entries){
     entries.forEach(function(e){
       if (!e.isIntersecting) return;
       list.classList.add('is-visible');
       items.forEach(function(li, i){
         setTimeout(function(){ li.classList.add('is-visible'); }, 200 + i * 180);
       });
-      io.unobserve(list);
+      io2.unobserve(list);
     });
   }, { threshold: 0.25 });
-  io.observe(list);
+  io2.observe(list);
 })();
 </script>
 </body>
