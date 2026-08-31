@@ -40,6 +40,7 @@
 | growx | テスト公開 |
 | lp-chokatsu | テスト公開 |
 | gyosei-sample | テスト公開（社内サンプル・行政書士） |
+| growx-alliance-partner | テスト公開（GROWX営業資料・アライアンスパートナー募集デッキ） |
 
 ## PRマージ後に必ずやること
 
