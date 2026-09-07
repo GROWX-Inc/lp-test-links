@@ -245,18 +245,9 @@
   }
 })();
 
-/* レスポンシブ対応：SP（〜767px）専用の追加処理。PCでは何もしない */
+/* レスポンシブ対応：SP（〜767px）専用の追加処理。PCでは何もしない（文節改行は assets/jp-wrap.js） */
 (function(){
   if(!matchMedia('(max-width:767px)').matches) return;
-  if(!window.__budouxJa) return;
-  /* 見出し・本文を文節単位で改行する。数値カウントアップ対象（.bigv/.cmpv）や計測表示（[data-lv]など）はJSが文字列を書き換えるため除外 */
-  var parser=window.__budouxJa();
-  var sel='h1,h2,.card h4,.slide p,.slide li,.gen .role,.gen .ana,.gen .verb,.gen .as,.gen .mtxt,.pat .desc,.bn .t,.incl-h,.incl-g b,.incl-g span:last-child,.incl-f,.note,.src,.dlab,.dname,.fc-hint';
-  document.querySelectorAll(sel).forEach(function(el){
-    if(el.closest('svg')) return;
-    if(el.querySelector('.bigv,.cmpv,[data-lv],#lvCount,#lvTime')) return;
-    try{ parser.applyToElement(el); }catch(e){}
-  });
   /* 05：主役（御社）が図の中央にあるため、横スクロールの初期位置を中央にする */
   document.querySelectorAll('.fig').forEach(function(f){
     var s=f.querySelector('svg[aria-label*="一社だけ"]'); if(!s) return;
