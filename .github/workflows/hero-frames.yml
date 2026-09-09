@@ -1,0 +1,64 @@
+# growx-alliance-partner ヒーロー背景用コマ画像の自動生成
+# Google Driveの動画（ヒーローページ.mp4）を取得し、WebPのコマ画像111枚を assets/hero/{pc|sp} に生成してコミットする。
+# ・手動実行：Actions タブ → このワークフロー → Run workflow（動画を差し替えたときはDriveのファイルIDを入力）
+# ・このファイルをpushしたときも自動実行される
+name: hero-frames (growx-alliance-partner)
+
+on:
+  workflow_dispatch:
+    inputs:
+      drive_file_id:
+        description: 'Google Driveの動画ファイルID（リンクの /d/ と /view の間）'
+        required: true
+        default: '1mgpqPVlPuUvRGKq4osRwHB85aDKxGO0m'
+      target:
+        description: '出力先（pc=横動画用 / sp=縦動画用）'
+        required: true
+        default: 'pc'
+  push:
+    branches: [fix/growx-alliance-partner-responsive]
+    paths: ['.github/workflows/hero-frames.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  frames:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: 入力値を確定（pushトリガ時は既定値）
+        id: cfg
+        run: |
+          echo "file_id=${{ github.event.inputs.drive_file_id || '1mgpqPVlPuUvRGKq4osRwHB85aDKxGO0m' }}" >> $GITHUB_OUTPUT
+          echo "target=${{ github.event.inputs.target || 'pc' }}" >> $GITHUB_OUTPUT
+
+      - name: Google Driveから動画を取得
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install --quiet gdown
+          gdown "${{ steps.cfg.outputs.file_id }}" -O hero.mp4
+          ls -la hero.mp4
+          ffprobe -v error -show_entries stream=width,height,nb_frames -of default=nw=1 hero.mp4
+
+      - name: コマ画像を生成（111枚・WebP）
+        run: |
+          T="${{ steps.cfg.outputs.target }}"
+          OUT="growx-alliance-partner/assets/hero/$T"
+          rm -rf "$OUT" && mkdir -p "$OUT"
+          # 6フレームに1枚（662フレーム → 111枚）。pcは横1600px、spは縦動画を想定して横720px
+          if [ "$T" = "sp" ]; then SCALE="scale=720:-2"; else SCALE="scale=1600:-2"; fi
+          ffmpeg -v error -i hero.mp4 -vf "select='not(mod(n\\,6))',$SCALE" -vsync vfr -start_number 0 -c:v libwebp -quality 72 -compression_level 6 "$OUT/f_%03d.webp"
+          ls "$OUT" | wc -l
+          du -sh "$OUT"
+
+      - name: ブランチへコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add growx-alliance-partner/assets/hero
+          git commit -m "growx-alliance-partner: ヒーロー背景用コマ画像を自動生成（${{ steps.cfg.outputs.target }}）" || echo "no changes"
+          git push
