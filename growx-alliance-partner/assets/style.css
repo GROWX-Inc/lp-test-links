@@ -599,3 +599,118 @@ body{background:#030306;position:relative;}
   .hero{min-height:100vh;min-height:100dvh;padding-top:42vh;padding-top:42dvh;}
   .hero .brandmark{display:none;}               /* バンドと重なるため非表示 */
 }
+
+/* =====================================================================
+   映像の上に資料を直接置くレイアウト（2026-09-09 第2版）
+   - スライドの箱（背景・枠・影）を外し、映像の上に文字を直接置く
+   - 画面左側だけを暗くする「覆い（veil）」で可読性を確保し、右側の主役は素通し
+   - 各スライドの内容は右側の主役ゾーンに入らないよう、右に余白を取る
+   - ライト（白背景）スライドはダーク配色に統一
+   ===================================================================== */
+#heroVeil{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(3,3,6,.80) 0%,rgba(3,3,6,.74) 42%,rgba(3,3,6,.30) 64%,rgba(3,3,6,0) 76%);}
+.deck{z-index:2;}
+@media (min-width:1024px){
+  .deck{max-width:1280px;margin:0 auto;}
+  .hero{margin-left:-16px;margin-right:-16px;width:auto;}
+  /* 箱を外す */
+  .slide,.slide:not(.light),.slide.cover,.slide.light{background:transparent;border-color:transparent;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0;overflow:visible;}
+  .slide::before,.slide::after,.slide .grid{display:none;}
+  /* 右側＝主役ゾーンを空ける（画面幅の72%より右に内容を置かない） */
+  .slide{padding-right:max(calc(640px - 20vw),calc(5.4*var(--u)));padding-top:calc(3.6*var(--u));padding-bottom:calc(3.6*var(--u));}
+  .slide.cover{padding-right:max(calc(640px - 20vw),calc(5.4*var(--u)));}
+  .slide.cover .orb,.slide.cover .orb2,.slide.cover .orb3{display:none;}
+  .num{right:auto;left:calc(5.4*var(--u));top:calc(1.4*var(--u));}
+  .deck{gap:calc(2*var(--u));}
+  /* ライトスライドをダーク配色に統一 */
+  .slide.light{color:var(--ink);}
+  .slide.light p,.slide.light li,.slide.light .hl,.slide.light li .hl,.slide.light p.lead,.slide.light td{color:var(--ink);}
+  .slide.light p{color:var(--muted);}
+  .slide.light p.lead,.slide.light .hl,.slide.light li .hl{color:var(--ink);}
+  .slide.light .src,.slide.light .note{color:var(--faint);}
+  .slide.light .num{color:var(--faint);}
+  .slide.light th,.slide.light td{border-bottom-color:var(--line);}
+  .slide.light .card{background:linear-gradient(168deg,rgba(255,255,255,.075),rgba(255,255,255,.028) 55%);border-color:var(--line);box-shadow:none;}
+  .slide.light .card.key{background-image:linear-gradient(#12121B,#12121B),var(--grad);}
+  .slide.light .card h4{color:var(--ink);}
+  .slide.light .card p{color:var(--muted);}
+  .slide.light .fig::after{color:var(--faint);}
+  /* 06 世代パネル */
+  .gen.past{background:rgba(255,255,255,.05);border-color:var(--line);}
+  .gen .name,.gen .verb,.gen .ana b{color:var(--ink);}
+  .gen .as,.gen .role,.gen .ana,.gen .mtxt,.gen .idx{color:var(--muted);}
+  .gen .verb{border-top-color:var(--line);}
+  .gen .mpill{background:rgba(255,255,255,.10);color:var(--ink);}
+  .gen .idx[style],.gen .as[style],.gen .role[style],.gen .verb[style]{color:var(--muted)!important;}
+  .gen .verb[style]{color:var(--ink)!important;}
+  .thumb{background:rgba(255,255,255,.06);}
+  /* 10 クイズ図（黒文字を白に） */
+  #quizSvg text[fill="#08080C"],#quizSvg text[fill="#5A5A68"]{fill:#F8F8FA;}
+  #quizSvg text[fill="#8A5FE0"]{fill:#C79BFF;}
+  #quizSvg rect[fill="#DEDEE8"]{fill:rgba(255,255,255,.12);}
+  #quizSvg rect[fill="#A8A8B8"]{fill:#6E6E82;}
+  #quizSvg path[stroke="#B67DFF"]{stroke:#B67DFF;}
+  /* 03 図（見出しラベル） */
+  .slide.light .fig svg text[fill="#6C6C7C"]{fill:#9C9CAA;}
+  /* 15 実績（白カードは維持。周囲の文字はダーク配色） */
+  .slide.light .bignums+p{color:var(--muted);}
+  /* 表紙（17）の連絡先 */
+  .slide.cover .metaline span{color:var(--muted);}
+}
+@media (max-width:767px){
+  #heroVeil{display:none;}
+}
+
+/* =====================================================================
+   カード枠をなくし、映像の上に資料を直接置くレイアウト（2026-09-09 v3）
+   - スライドの背景・枠・ノイズ・罫線をすべて除去。全スライドをダーク基調に統一
+   - PC：本文は左側（幅64vw・最大1000px）に配置し、右側の主役（指先・ホログラム）と重ねない
+   - ライト系スライド（03/06/10/13/15）の文字色・図解色をダーク用に置換
+   ===================================================================== */
+.slide,.slide.light,.slide.cover,.slide:not(.light){background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0;color:var(--ink);}
+.slide::before,.slide::after,.slide .grid{display:none;}
+.slide.light p{color:var(--muted);}
+.slide.light p.lead,.slide.light .hl,.slide.light li .hl{color:var(--ink);}
+.slide.light li{color:var(--muted);}
+.slide.light .num{color:var(--faint);}
+.slide.light .src,.slide.light .note{color:var(--faint);}
+.slide.light .card{background:linear-gradient(168deg,rgba(255,255,255,.075),rgba(255,255,255,.028) 55%);border-color:var(--line);box-shadow:none;}
+.slide.light .card.key{background-image:linear-gradient(#12121B,#12121B),var(--grad);}
+.slide.light th,.slide.light td{border-bottom-color:var(--line);}
+.slide.light td{color:var(--ink);}
+.slide.light .incl{background:rgba(255,255,255,.05);}
+.slide.light .card .k{color:var(--a2);}
+/* 06 世代パネル */
+.gen.past{background:rgba(255,255,255,.05);border-color:var(--line);}
+.gen .verb{border-top-color:rgba(255,255,255,.14);color:#E9E9F0;}
+.gen .role,.gen .as,.gen .mtxt{color:#B9B9C6;}
+.gen .ana{color:#B9B9C6;}
+.gen .ana b{color:#fff;}
+.gen .mpill{background:rgba(255,255,255,.12);color:#E9DFFF;}
+.gen .idx{color:#B9B9C6;}
+.thumb{background:rgba(255,255,255,.06);}
+.slide.light .gen.past .idx,.slide.light .gen.past .as,.slide.light .gen.past .role,.slide.light .gen.past .verb{color:#E9E9F0!important;}
+.slide.light .gen.past .thumb svg rect,.slide.light .gen.past .thumb svg path{fill:rgba(255,255,255,.18);}
+/* 03・10 の図解（ライト用の色をダーク用に） */
+.slide.light .fig svg text[fill="#08080C"]{fill:#F8F8FA;}
+.slide.light .fig svg text[fill="#3A3A48"]{fill:#F8F8FA;}
+.slide.light .fig svg text[fill="#5A5A68"],.slide.light .fig svg text[fill="#6C6C7C"]{fill:#B9B9C6;}
+.slide.light .fig svg text[fill="#8A5FE0"]{fill:#C79BFF;}
+.slide.light .fig svg rect[fill="#E6E6EE"],.slide.light .fig svg rect[fill="#DEDEE8"]{fill:rgba(255,255,255,.10);}
+.slide.light .fig svg g[stroke="#6C6C7C"]{stroke:#B9B9C6;}
+.slide.light .fig svg path[stroke="#B67DFF"]{stroke:#B67DFF;}
+/* 15 実績数字は白いタイルのまま（強調要素として残す） */
+
+@media (min-width:1024px){
+  .deck{max-width:none;margin:0;gap:0;}
+  .slide{width:min(64vw,1000px);padding:calc(7*var(--u)) 0 calc(7*var(--u)) max(calc(5.4*var(--u)),24px);margin-left:-16px;}
+  .slide.cover{padding-bottom:calc(9*var(--u));}
+  .num{right:auto;left:max(calc(5.4*var(--u)),24px);top:calc(2.2*var(--u));}
+  .hero{margin-left:-16px;}
+  .cover .orb,.cover .orb2,.cover .orb3{display:none;}
+}
+@media (max-width:767px){
+  .slide{padding:34px 16px 34px;}
+  .deck{gap:0;}
+  .num{top:10px;right:16px;}
+}
+
