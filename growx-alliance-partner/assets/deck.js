@@ -218,7 +218,7 @@
     if(cover){
       var cv=document.createElement('canvas');
       cv.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;';
-      var anchor=cover.querySelector('.orb2'); anchor.after(cv);
+      var anchor=cover.querySelector('.orb2')||cover.querySelector('.orb'); if(anchor) anchor.after(cv); else cover.prepend(cv);
       var ctx=cv.getContext('2d'),W,H,ps=[];
       /* レスポンシブ対応：SPでは devicePixelRatio を1.5上限にしてGPU負荷を抑える（PCは従来どおり） */
       var dpr=matchMedia('(max-width:767px)').matches?Math.min(devicePixelRatio,1.5):devicePixelRatio;

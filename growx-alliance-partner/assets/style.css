@@ -544,3 +544,36 @@ td.n{font-family:var(--disp);font-weight:700;text-align:right;font-size:max(var(
 @media (hover:none){
   .bn:hover{transform:none;}
 }
+
+
+/* =====================================================================
+   スクロール連動ヒーロー（2026-09 デザイン変更）
+   - 固定配置のcanvasに映像のコマを描き、ページ全体がその上をスクロールする
+   - ダークのスライドは半透明ガラスにして背景映像が透ける。ライトのスライドは不透明のまま
+   ===================================================================== */
+#heroCv{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;background:#030306;}
+body{background:#030306;position:relative;}
+.deck{position:relative;z-index:1;}
+.hero{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 calc(5.4*var(--u)) calc(6*var(--u));color:var(--ink);margin:-28px -16px 0;padding-left:max(calc(5.4*var(--u)),24px);padding-right:max(calc(5.4*var(--u)),24px);}
+.hero::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(3,3,6,.35) 0%,rgba(3,3,6,0) 30%,rgba(3,3,6,0) 55%,rgba(3,3,6,.72) 100%);pointer-events:none;}
+.hero .brandmark{position:absolute;top:calc(4*var(--u));left:max(calc(5.4*var(--u)),24px);font-family:var(--disp);font-size:max(var(--fmin),calc(1.25*var(--u)));font-weight:700;letter-spacing:.4em;}
+.hero .brandmark::after{content:"";display:block;margin-top:calc(.7*var(--u));height:2px;width:0;background:var(--grad);animation:brline 1.6s .6s cubic-bezier(.2,.7,.2,1) forwards;}
+.hero h1{max-width:min(1040px,88%);font-size:clamp(28px,4.2vw,58px);text-shadow:0 2px 24px rgba(0,0,0,.6);animation:heroIn 1.2s .2s cubic-bezier(.2,.7,.2,1) both;}
+.hero .metaline{margin-top:calc(3.4*var(--u));animation:heroIn 1.2s .6s cubic-bezier(.2,.7,.2,1) both;}
+.hero .metaline span{font-size:max(var(--fmin),calc(2.1*var(--u)));font-weight:700;color:#F8F8FA;white-space:nowrap;font-family:var(--jp);letter-spacing:.06em;}
+@keyframes heroIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.hero-scroll{position:absolute;right:max(calc(5.4*var(--u)),24px);bottom:calc(6*var(--u));font-family:var(--disp);font-size:11px;letter-spacing:.3em;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:8px;animation:heroIn 1.2s 1s both;}
+.hero-scroll i{display:block;width:1px;height:44px;background:linear-gradient(180deg,var(--a2),transparent);animation:scrollHint 1.8s ease-in-out infinite;}
+@keyframes scrollHint{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@media(prefers-reduced-motion:reduce){.hero h1,.hero .metaline,.hero-scroll{animation:none}.hero-scroll i{animation:none}}
+.slide:not(.light){background:rgba(7,7,12,.74);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);}
+.slide.cover{background:rgba(7,7,12,.74);}
+@media (max-width:767px){
+  .hero{margin:-10px -8px 0;padding:0 20px 44px;}
+  .hero .brandmark{top:28px;left:20px;font-size:12px;}
+  .hero h1{max-width:100%;font-size:clamp(24px,6.4vw,28px)!important;line-height:1.3;}
+  .hero .metaline{flex-wrap:wrap;gap:8px 16px;margin-top:22px;padding-top:14px;}
+  .hero .metaline span{font-size:13px!important;}
+  .hero-scroll{right:20px;bottom:44px;}
+  .slide:not(.light){background:rgba(7,7,12,.78);}
+}
