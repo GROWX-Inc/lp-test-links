@@ -577,3 +577,25 @@ body{background:#030306;position:relative;}
   .hero-scroll{right:20px;bottom:44px;}
   .slide:not(.light){background:rgba(7,7,12,.78);}
 }
+
+/* =====================================================================
+   映像の主役（指先・ホログラム）を隠さないレイアウト（2026-09-09）
+   - PC：資料を左側（幅60vw・最大920px）に寄せ、右側を映像の領域として空ける
+   - SP：映像を画面上部40%の固定バンドに置き、資料はその下をスクロールする
+   ===================================================================== */
+@media (min-width:1024px){
+  :root{--u:calc(1cqw + 1.5px);--fmin:12px;}    /* 資料が細くなるぶん基準単位を底上げ */
+  .deck{max-width:min(920px,60vw);margin:0 0 0 max(24px,4vw);}
+  .slide{aspect-ratio:auto;}                    /* 高さは内容に合わせる */
+  .slide h2{font-size:min(calc(4.7*var(--u)),5.4cqw);}      /* 見出しが1文字だけ折り返さないよう上限を設定 */
+  .slide.tight h2{font-size:min(calc(4.1*var(--u)),5.2cqw);}
+  html,body{overflow-x:clip;}
+  .hero{width:100vw;margin-left:calc(-16px - max(24px,4vw));margin-right:0;}
+}
+@media (max-width:767px){
+  #heroCv{height:40vh;height:40dvh;z-index:5;}   /* 上部バンド：資料の上に重ねて常に見える */
+  #heroCv::after{content:"";}
+  .hero-band-edge{position:fixed;left:0;right:0;top:calc(40vh - 28px);top:calc(40dvh - 28px);height:28px;z-index:6;pointer-events:none;background:linear-gradient(180deg,rgba(3,3,6,0),#030306);}
+  .hero{min-height:100vh;min-height:100dvh;padding-top:42vh;padding-top:42dvh;}
+  .hero .brandmark{display:none;}               /* バンドと重なるため非表示 */
+}
