@@ -2,17 +2,19 @@
    - ページ全体のスクロール量（0〜100%）をコマ番号に変換し、固定配置のcanvasに描く
    - 1枚目を最優先で表示 → 節目のコマ → 残りは現在位置に近い順に裏で読み込む
    - 隣り合う2コマを透明度で重ね、コマ落ち感を消す
-   - スマホ（〜767px）は縦向きに切り抜いた別セット（assets/hero/sp）を使う */
+   - PC：主役（指先とホログラム）が画面右側の空いた領域に来るよう映像を右寄せして描く（資料は左側に配置）
+   - SP：画面上部の固定バンドに映像を全体表示（資料はバンドの下をスクロール） */
 (function(){
   var cv=document.getElementById('heroCv'); if(!cv) return;
   var ctx=cv.getContext('2d',{alpha:false});
   var N=111;
   var SP=matchMedia('(max-width:767px)').matches;
-  /* 暫定：スマホ用の縦動画が届くまでは、スマホでもPC用コマを「切り抜かず全体表示」で使う。
-     縦動画を入れたら SP_FRAMES を 'sp' に変え、fit を 'cover' にする */
-  var SP_FRAMES='pc', SP_FIT='contain';
+  /* 暫定：スマホ用の縦動画が届くまでは、スマホでもPC用コマを使う。縦動画を入れたら SP_FRAMES を 'sp' に変える */
+  var SP_FRAMES='pc';
   var DIR='assets/hero/'+(SP?SP_FRAMES:'pc')+'/';
   var src=function(i){ return DIR+'f_'+String(i).padStart(3,'0')+'.webp'; };
+  /* PCで主役を置く位置：映像内の主役中心（横58%）を、画面幅の78%の位置に合わせる */
+  var SUBJECT_X=0.58, TARGET_X=0.78;
 
   var imgs=new Array(N), loading=new Array(N), loadedCount=0;
   var ANCHOR=10; /* 節目：0,10,20,...,110 */
@@ -44,18 +46,26 @@
   var W=0,H=0,dpr=1;
   function resize(){
     dpr=Math.min(devicePixelRatio||1, SP?1.5:2);
-    W=cv.width=Math.round(innerWidth*dpr); H=cv.height=Math.round(innerHeight*dpr);
+    var cssH=SP?cv.getBoundingClientRect().height:innerHeight;
+    W=cv.width=Math.round(innerWidth*dpr); H=cv.height=Math.round(cssH*dpr);
     scheduleDraw();
   }
 
-  /* 画面いっぱいに切り抜いて描く（object-fit: cover 相当） */
+  /* 描画位置の計算 */
   function drawCover(im,alpha){
-    var iw=im.naturalWidth, ih=im.naturalHeight;
-    var contain=SP&&SP_FIT==='contain';
-    var s=contain?Math.min(W/iw, H/ih):Math.max(W/iw, H/ih), dw=iw*s, dh=ih*s;
+    var iw=im.naturalWidth, ih=im.naturalHeight, s, dw, dh, dx, dy;
+    if(SP){
+      /* 上部バンド内に全体表示（object-fit: contain 相当） */
+      s=Math.min(W/iw, H/ih); dw=iw*s; dh=ih*s; dx=(W-dw)/2; dy=(H-dh)/2;
+    }else{
+      /* 画面高さに合わせて拡大し、主役が右側に来るよう横位置をずらす（左に空く部分は背景色） */
+      s=Math.max(W/iw, H/ih); dw=iw*s; dh=ih*s;
+      dx=W*TARGET_X-dw*SUBJECT_X;
+      if(dx<W-dw) dx=W-dw;   /* 右端が空かない範囲に制限 */
+      dy=(H-dh)/2;
+    }
     ctx.globalAlpha=alpha;
-    /* 全体表示のときは、下の見出しと重ならないよう少し上寄せ（42%の位置） */
-    ctx.drawImage(im,(W-dw)/2,contain?(H-dh)*0.42:(H-dh)/2,dw,dh);
+    ctx.drawImage(im,dx,dy,dw,dh);
   }
 
   /* 近くの読み込み済みコマを探す（未到着の間の代替表示） */
