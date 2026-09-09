@@ -1,0 +1,62 @@
+# growx-alliance-partner 05枚目（同業他社4サイト＋御社動画）の素材を Google Drive から取得・最適化して配置する
+# 実行結果はブランチ fix/growx-alliance-partner-s05 にコミットされる（その後PRでmainへ）
+name: s05-assets (growx-alliance-partner)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/s05-assets.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 依存ツール
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install --quiet gdown pillow
+
+      - name: Google Driveから素材を取得
+        run: |
+          mkdir -p src
+          gdown 12WW3tlbCWT7vtxrrbJxyC2X-IcwFa8wH -O src/c1.png
+          gdown 1VAdaZyMCUNGV6IKPJ2JdLmFCuY4IwJAT -O src/c2.png
+          gdown 18ptwxpmL1kbHLia5tCJ5XRqJkxUFMmZG -O src/c3.png
+          gdown 1vTi5BDB_ydZDsSlBl8TibbFDdoH_X63X -O src/c4.png
+          gdown 19MVXYRwL_FimEGBvR5ZOXbwjTOFCdxxq -O src/ours.mp4
+          ls -la src
+
+      - name: 最適化（WebP 720px幅・モックアップ枠・動画640px）
+        run: |
+          OUT=growx-alliance-partner/assets/s05
+          mkdir -p $OUT
+          python3 - <<'PY'
+          from PIL import Image, ImageDraw
+          D='growx-alliance-partner/assets/s05/'
+          for i in range(1,5):
+              im=Image.open(f'src/c{i}.png').convert('RGB').resize((720,480),Image.LANCZOS)
+              im.save(D+f'c{i}.webp','WEBP',quality=80,method=6)
+          fr=Image.open('src/c1.png').convert('RGB')
+          ImageDraw.Draw(fr).rectangle([197,57,1342,795],fill=(8,8,14))   # 画面部分を塗りつぶして枠だけにする
+          fr.resize((720,480),Image.LANCZOS).save(D+'frame.webp','WEBP',quality=80,method=6)
+          PY
+          ffmpeg -v error -y -i src/ours.mp4 -an -vf "scale=640:-2" -c:v libx264 -crf 30 -preset slow -pix_fmt yuv420p -movflags +faststart $OUT/ours.mp4
+          ffmpeg -v error -y -i src/ours.mp4 -vf "select='eq(n\\,30)',scale=640:-2" -frames:v 1 -c:v libwebp -quality 78 $OUT/ours.webp
+          ls -la $OUT && du -sh $OUT
+
+      - name: ブランチへコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B fix/growx-alliance-partner-s05
+          git add growx-alliance-partner/assets/s05
+          git commit -m "growx-alliance-partner: 05枚目の素材（他社4サイト＋御社動画）を最適化して配置" || echo "no changes"
+          git push -f origin fix/growx-alliance-partner-s05
