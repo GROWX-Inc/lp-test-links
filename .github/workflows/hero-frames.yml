@@ -39,7 +39,7 @@ jobs:
       - name: Google Driveから動画を取得
         run: |
           pip install --quiet gdown
-          gdown --id "${{ steps.cfg.outputs.file_id }}" -O hero.mp4
+          gdown "${{ steps.cfg.outputs.file_id }}" -O hero.mp4
           ls -la hero.mp4
           ffprobe -v error -show_entries stream=width,height,nb_frames -of default=nw=1 hero.mp4
 
