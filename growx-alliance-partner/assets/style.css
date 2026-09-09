@@ -727,3 +727,7 @@ body{background:#030306;position:relative;}
   .site{flex:0 0 calc(50% - 5px);}
   .site.ours{flex:0 0 80%;order:-1;}
 }
+
+/* アイコンをマテリアルアイコン（塗り）に統一したため、線画前提の指定を解除 */
+.ico svg{fill:url(#ic);stroke:none;}
+.incl-g .ico svg{fill:url(#icg);stroke:none;}
