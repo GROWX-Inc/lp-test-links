@@ -946,3 +946,16 @@ svg[role="button"]:focus-visible{outline-offset:6px;}
 .gen1shot,.gen .thumb.gen1shot{overflow:hidden;padding:0;height:auto;aspect-ratio:536/361;position:relative;}
 /* c1.webp（720×480・モニター枠付き）から画面部分（x92〜628, y14〜375）だけを切り出して表示 */
 .gen .thumb.gen1shot img,.gen1shot img{position:absolute;height:auto!important;object-fit:unset;width:134.3%;height:auto;left:-17.2%;top:-2.6%;max-width:none;display:block;filter:saturate(.8);}
+
+/* =====================================================================
+   改行位置の整え（2026-09-11）— PC・SP共通
+   - 見出しは text-wrap:balance（行の長さを均等に。1文字だけ次行に落ちるのを防ぐ）
+   - 本文は text-wrap:pretty（最終行が短くなりすぎないよう調整）
+   - 文節の途中で折らない：word-break:keep-all（切れ目は assets/jp-wrap.js が文節判定で入れる）
+   - 幅はすべて親幅に追従（固定pxなし）
+   ===================================================================== */
+h1,h2,h3,h4,.card h4,.pat .ttl,.gen .name{text-wrap:balance;word-break:keep-all;overflow-wrap:anywhere;}
+.slide p,.slide li,.slide td,.slide th,.hero h1,.gen .role,.gen .ana,.gen .verb,.pat .desc,.bn .t,.incl-g b,.incl-g span,.incl-f,.note,.src{text-wrap:pretty;word-break:keep-all;overflow-wrap:anywhere;}
+.metaline span,.dbtn,.cta{text-wrap:balance;}
+.jw{display:inline-block;word-break:keep-all;overflow-wrap:anywhere;max-width:100%;}
+.slide.cover h1{text-wrap:pretty;}
