@@ -4,16 +4,15 @@
    - 1枚目を最優先で表示 → 節目のコマ → 残りは現在位置に近い順に裏で読み込む
    - 隣り合う2コマを透明度で重ね、コマ落ち感を消す
    - PC：主役（指先とホログラム）が画面右側に来るよう映像を右寄せして描く（表紙文字は左下）
-   - SP：横長のコマを全画面のヒーロー内に全体表示（縦動画が届いたら SP_FRAMES を 'sp' に） */
+   - SP：縦動画（9:16・139コマ）を全画面に表示（主役は常に中央） */
 (function(){
   var cv=document.getElementById('heroCv'); if(!cv) return;
   var pin=document.getElementById('heroPin'), stage=cv.parentNode;
   var ctx=cv.getContext('2d',{alpha:false});
-  var N=111;
   var SP=matchMedia('(max-width:767px)').matches;
-  /* 暫定：スマホ用の縦動画が届くまでは、スマホでもPC用コマを使う。縦動画を入れたら SP_FRAMES を 'sp' に変える */
-  var SP_FRAMES='pc';
-  var DIR='assets/hero/'+(SP?SP_FRAMES:'pc')+'/';
+  /* コマ数：PC=横動画111枚、SP=縦動画139枚（動画の長さが違うため枚数も違う） */
+  var N=SP?139:111;
+  var DIR='assets/hero/'+(SP?'sp':'pc')+'/';
   var src=function(i){ return DIR+'f_'+String(i).padStart(3,'0')+'.webp'; };
   /* PCで主役を置く位置：映像内の主役中心（横58%）を、画面幅の78%の位置に合わせる */
   var SUBJECT_X=0.58, TARGET_X=0.78;
@@ -57,9 +56,14 @@
   function drawCover(im,alpha){
     var iw=im.naturalWidth, ih=im.naturalHeight, s, dw, dh, dx, dy;
     if(SP){
-      /* 全画面のヒーロー内に全体表示（object-fit: contain 相当）。横長コマは画面上部42%の中に置き、下の表紙文字と重ねない */
-      s=Math.min(W/iw, H/ih); dw=iw*s; dh=ih*s; dx=(W-dw)/2;
-      dy= dh<H*0.42 ? (H*0.42-dh)/2 : (H-dh)/2;
+      if(ih>iw){
+        /* 縦動画：画面いっぱいに表示（object-fit: cover 相当）。主役は中央固定なので中央合わせでよい */
+        s=Math.max(W/iw, H/ih); dw=iw*s; dh=ih*s; dx=(W-dw)/2; dy=(H-dh)/2;
+      }else{
+        /* 横長コマが来た場合の保険：画面上部42%の中に全体表示 */
+        s=Math.min(W/iw, H/ih); dw=iw*s; dh=ih*s; dx=(W-dw)/2;
+        dy= dh<H*0.42 ? (H*0.42-dh)/2 : (H-dh)/2;
+      }
     }else{
       /* 画面高さに合わせて拡大し、主役が右側に来るよう横位置をずらす（左に空く部分は背景色） */
       s=Math.max(W/iw, H/ih); dw=iw*s; dh=ih*s;
