@@ -1,7 +1,7 @@
 /* 日本語の文節改行（PC・SP共通 / 2026-09-11 PCにも適用）
    BudouX（Google／Apache-2.0）の学習済みモデル assets/budoux-ja.json を読み込み、
    同じ判定アルゴリズムで文節の切れ目にゼロ幅スペースを入れる。
-   ・word-break:keep-all で「文節の途中」では折り返さない。幅に収まらない長い文節だけ overflow-wrap で最終的に折る
+   ・word-break:keep-all で「文節の途中」では折り返さない（「」や句読点の直後は通常どおり折り返し可）。幅に収まらない長い文節だけ overflow-wrap で最終的に折る
    ・SPでは、PC向けに打った <br>（長い文の途中の改行）を外し、文節単位の自動折り返しに任せる
    ・幅は固定pxで決めず、親幅に追従（改行位置は文節判定だけで決まる） */
 (function(){
@@ -50,16 +50,14 @@
       if(n.nodeValue && /\S/.test(n.nodeValue)) nodes.push(n);
     }
     nodes.forEach(function(tn){
-      var s=tn.nodeValue; if(tn.parentElement.classList.contains('jw')) return;
-      var b=boundaries(s);
+      var s=tn.nodeValue; if(s.indexOf(ZWSP)>=0) return;
+      var b=boundaries(s); if(!b.length) return;
       var parts=[], prev=0;
       b.forEach(function(i){ parts.push(s.slice(prev,i)); prev=i; });
       parts.push(s.slice(prev));
-      if(parts.length<2 && !/[、。」）”]/.test(s)) return;
-      /* 各文節を inline-block の <span class="jw"> で包む：文節の途中（「」や句読点の直後も含む）で折れなくなる */
-      var frag=document.createDocumentFragment();
-      parts.forEach(function(t){ if(!t) return; var sp=document.createElement('span'); sp.className='jw'; sp.textContent=t; frag.appendChild(sp); });
-      tn.parentNode.replaceChild(frag, tn);
+      /* 文節の切れ目に「見えない改行候補」（ゼロ幅スペース）を入れるだけ。文字は分割しないので
+         グラデーション文字（background-clip:text）でも Safari で確実に表示される */
+      tn.nodeValue=parts.join(ZWSP);
     });
     el.style.wordBreak='keep-all';
     el.style.overflowWrap='anywhere';
