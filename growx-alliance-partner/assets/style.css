@@ -927,3 +927,9 @@ svg[role="button"]:focus-visible{outline-offset:6px;}
 /* 07：体験カードの動画（2026-09-11）— SVGアイコンを実写動画に差し替え。親幅に追従し角丸で収める */
 .card.ic .scene video{display:block;width:100%;height:auto;border-radius:12px;background:#0A0A10;object-fit:cover;aspect-ratio:16/9;}
 @media (max-width:767px){ .card.ic .scene{width:100%;} }
+/* 07：スマホは1列にして動画を大きく（2026-09-11） */
+@media (max-width:767px){
+  .g5{grid-template-columns:1fr;gap:14px;}
+  .g5>.card:nth-child(5){grid-column:auto;}
+  .card.ic .scene,.slide.tight .g5>.card:nth-child(5) .scene,.g5>.card:nth-child(5) .scene{width:100%;}
+}
