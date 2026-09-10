@@ -781,8 +781,8 @@ body{background:#030306;position:relative;}
 
   /* 03：止まっているもの → ↓ → 動いているもの */
   #mediaSvg .hL{transform:translate(-20px,0);}
-  #mediaSvg .hA{transform:translate(220px,262px) rotate(90deg) scale(.55) translate(-478px,-132px);}
-  #mediaSvg .hR{transform:translate(-525px,305px);}
+  #mediaSvg .hA{transform:translate(220px,272px) rotate(90deg) scale(.5) translate(-478px,-132px);}
+  #mediaSvg .hR{transform:translate(-525px,340px);}
 
   /* 04：2列の縦チェーン（左＝動かない／右＝触れる） */
   #tapSvg .b1{transform:translate(4px,0);}
