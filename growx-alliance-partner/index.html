@@ -45,9 +45,9 @@
    <div class="rv"><div class="phone tall"><div class="notch"></div><div class="scr"><img src="assets/img/i0.svg" alt="体験型サイトの実画面"></div></div></div>
   </div>
   <div class="g3 rv mt2">
-    <div class="card fcard"><div class="fc-front"><h4 style="margin:0">触って動く<br>“次世代の体験型サイト”</h4><div class="fc-hint">▼ タップしてみてください</div></div><div class="fc-back"><h4 style="margin-top:0">触って動く<br>“次世代の体験型サイト”</h4><p>見るだけでなく、お客さん自身が触って、動かせるサイト。日本ではまだ、ほとんど流通していません。</p></div></div>
-    <div class="card key big fcard"><div class="fc-front"><div class="bigv" style="display:flex;align-items:baseline;justify-content:center">60<em>万</em></div><div class="fc-hint" style="color:#E9DFFF">▼ タップしてみてください</div></div><div class="fc-back"><div class="bigv" style="margin:calc(-1.2*var(--u)) 0 calc(.5*var(--u));display:flex;align-items:baseline">60<em>万</em></div><p>会社の“顔”が、まるごと変わる金額です。<br>「手が届かない」と思っていた見せ方は、もう大企業だけのものではありません。</p></div></div>
-    <div class="card fcard"><div class="fc-front"><h4 style="margin:0">ブランド創業者が、直接入ります</h4><div class="fc-hint">▼ タップしてみてください</div></div><div class="fc-back"><h4 style="margin-top:0">ブランド創業者が、直接入ります</h4><p>机上の空論ではありません。<br>事業をゼロから立ち上げ、数々のブランドを運営してきたプロが、御社のブランド体験を創出します。</p></div></div>
+    <div class="card fcard" role="button" tabindex="0"><div class="fc-front"><h4 style="margin:0">触って動く<br>“次世代の体験型サイト”</h4><div class="fc-hint">▼ タップしてみてください</div></div><div class="fc-back"><h4 style="margin-top:0">触って動く<br>“次世代の体験型サイト”</h4><p>見るだけでなく、お客さん自身が触って、動かせるサイト。日本ではまだ、ほとんど流通していません。</p></div></div>
+    <div class="card key big fcard" role="button" tabindex="0"><div class="fc-front"><div class="bigv" style="display:flex;align-items:baseline;justify-content:center">60<em>万</em></div><div class="fc-hint" style="color:#E9DFFF">▼ タップしてみてください</div></div><div class="fc-back"><div class="bigv" style="margin:calc(-1.2*var(--u)) 0 calc(.5*var(--u));display:flex;align-items:baseline">60<em>万</em></div><p>会社の“顔”が、まるごと変わる金額です。<br>「手が届かない」と思っていた見せ方は、もう大企業だけのものではありません。</p></div></div>
+    <div class="card fcard" role="button" tabindex="0"><div class="fc-front"><h4 style="margin:0">ブランド創業者が、直接入ります</h4><div class="fc-hint">▼ タップしてみてください</div></div><div class="fc-back"><h4 style="margin-top:0">ブランド創業者が、直接入ります</h4><p>机上の空論ではありません。<br>事業をゼロから立ち上げ、数々のブランドを運営してきたプロが、御社のブランド体験を創出します。</p></div></div>
   </div>
 </section>
 
@@ -133,7 +133,7 @@
         <g class="rs"><rect x="580" y="8" width="400" height="76" rx="12" fill="rgba(255,255,255,.045)" stroke="rgba(255,255,255,.10)"/>
         <text x="780" y="53" text-anchor="middle" font-size="24" font-weight="900" fill="#7A7A88">背景として、処理される</text></g>
         <!-- 下段：触れる -->
-        <g id="tapZone" style="cursor:pointer;pointer-events:all">
+        <g id="tapZone" role="button" tabindex="0" aria-label="タップして記憶の流れを見る" style="cursor:pointer;pointer-events:all">
         <rect x="0" y="126" width="212" height="76" rx="12" fill="rgba(182,125,255,.10)" stroke="rgba(182,125,255,.5)"><animate attributeName="stroke-opacity" values="1;.35;1" dur="1.6s" repeatCount="indefinite"/></rect>
         <g stroke="url(#gC)" stroke-width="3" fill="none"><rect x="26" y="144" width="46" height="40" rx="4"/><path d="M86 150h100M86 164h84"/><path d="M86 180h44"/></g>
         <g transform="translate(146,158) scale(1.5)" fill="url(#gC)"><path d="m18.19 12.44-3.24-1.62c1.29-1 2.12-2.56 2.12-4.32 0-3.03-2.47-5.5-5.5-5.5s-5.5 2.47-5.5 5.5c0 2.13 1.22 3.98 3 4.89v3.26c-2.15-.46-2.02-.44-2.26-.44-.53 0-1.03.21-1.41.59L4 16.22l5.09 5.09c.43.44 1.03.69 1.65.69h6.3c.98 0 1.81-.7 1.97-1.67l.8-4.71c.22-1.3-.43-2.58-1.62-3.18zm-.35 2.85-.8 4.71h-6.3c-.09 0-.17-.04-.24-.1l-3.68-3.68 4.25.89V6.5c0-.28.22-.5.5-.5s.5.22.5.5v6h1.76l3.46 1.73c.4.2.62.63.55 1.06zM8.07 6.5c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5c0 .95-.38 1.81-1 2.44V6.5a2.5 2.5 0 0 0-5 0v2.44c-.62-.63-1-1.49-1-2.44z"/></g>
@@ -203,7 +203,7 @@
       <div class="verb" style="color:#070707">“印象を残す”ことで、<br>記憶に定着させる</div>
     </div>
     <div class="gstep"><svg viewBox="0 0 24 24" style="width:calc(1.7*var(--u));height:auto"><path d="M6 3 L20 12 L6 21 z" fill="#B67DFF"/></svg></div>
-    <div class="gen now" id="gen3flip">
+    <div class="gen now" id="gen3flip" role="button" tabindex="0">
       <div class="g3back">
       <div class="thumb shot"><img src="assets/img/i2.svg" alt="体験型サイトの実画面"></div>
       <div class="mode"><span class="mpill"><svg viewBox="0 0 24 24" fill="currentColor"><path d="m18.19 12.44-3.24-1.62c1.29-1 2.12-2.56 2.12-4.32 0-3.03-2.47-5.5-5.5-5.5s-5.5 2.47-5.5 5.5c0 2.13 1.22 3.98 3 4.89v3.26c-2.15-.46-2.02-.44-2.26-.44-.53 0-1.03.21-1.41.59L4 16.22l5.09 5.09c.43.44 1.03.69 1.65.69h6.3c.98 0 1.81-.7 1.97-1.67l.8-4.71c.22-1.3-.43-2.58-1.62-3.18zm-.35 2.85-.8 4.71h-6.3c-.09 0-.17-.04-.24-.1l-3.68-3.68 4.25.89V6.5c0-.28.22-.5.5-.5s.5.22.5.5v6h1.76l3.46 1.73c.4.2.62.63.55 1.06zM8.07 6.5c0-1.93 1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5c0 .95-.38 1.81-1 2.44V6.5a2.5 2.5 0 0 0-5 0v2.44c-.62-.63-1-1.49-1-2.44z"/></svg>能動的</span><span class="mtxt">自分で触って、動かす</span></div>
@@ -303,7 +303,7 @@
   <div class="grid"></div><div class="num">09</div>
   <h2 class="rv">その広告費、掛け捨てですか？<br><span class="em">積立ですか？</span></h2>
   <div class="fig rv">
-    <svg id="bowlSvg" viewBox="0 0 980 330" data-sp-viewbox="0 0 440 480" class="rsvg" role="img" style="cursor:pointer" aria-label="同じ広告費でも、静的サイトでは記憶に残らず、体験型サイトでは記憶が蓄積し指名検索につながる">
+    <svg id="bowlSvg" role="button" tabindex="0" viewBox="0 0 980 330" data-sp-viewbox="0 0 440 480" class="rsvg" style="cursor:pointer" aria-label="同じ広告費でも、静的サイトでは記憶に残らず、体験型サイトでは記憶が蓄積し指名検索につながる">
       <defs>
         <linearGradient id="gW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8FA5FF"/><stop offset="1" stop-color="#B67DFF"/></linearGradient>
         <linearGradient id="gW2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6E8BFF"/><stop offset="1" stop-color="#B67DFF"/></linearGradient>
@@ -383,7 +383,7 @@
   <h2 class="rv">広告の成果の半分は、<br><span class="em">「何を見せるか」</span>で決まっています。</h2>
   <p class="lead rv mt2">約450件の広告キャンペーンを分析し、成果を左右した要因を調べた調査があります。<span style="white-space:nowrap">結果はこうでした。</span></p>
   <div class="fig rv">
-    <svg id="quizSvg" viewBox="0 0 980 224" data-sp-viewbox="0 0 440 285" class="rsvg" role="img" style="cursor:pointer" aria-label="何を見せるかの実際の貢献度は49%だが、広告主は19%だと考えている">
+    <svg id="quizSvg" viewBox="0 0 980 224" data-sp-viewbox="0 0 440 285" class="rsvg" role="button" tabindex="0" style="cursor:pointer" aria-label="何を見せるかの実際の貢献度は49%だが、広告主は19%だと考えている">
       <defs><linearGradient id="gN" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6E8BFF"/><stop offset="1" stop-color="#B67DFF"/></linearGradient></defs>
       <g font-family="'Noto Sans JP','Noto Sans CJK JP',sans-serif">
         <!-- SPでは棒を画面幅いっぱいにし、長い文は2行に分ける（.pcOnly/.spOnly を切替） -->
@@ -534,7 +534,7 @@
     <div class="bn"><div class="v">1,600<em>店舗</em></div><div class="t">Eagle Energyの日本総代理店をゼロから立ち上げ。1年半で全国1,600店舗導入、累計売上18万本</div></div>
     <div class="bn"><div class="v">28<em>万個</em></div><div class="t">認知度ゼロの自社D2Cブランドを、広告費ゼロのまま2年で累計28万個まで成長。食品カテゴリーで業界トップシェアを獲得</div></div>
     <div class="bn"><div class="v">6<em>億円</em></div><div class="t">人材事業をゼロから立ち上げ、到達した年商規模</div></div>
-    <div class="bn key zerocard"><div class="zc-front"><div class="t" style="margin-top:0">これらの事業すべてで、<br>広告出稿費は...</div><div style="font-size:max(var(--fmin),calc(1.06*var(--u)));font-weight:700;color:#5E8DEF;letter-spacing:.08em;margin-top:calc(1.2*var(--u))">▼ タップしてみてください</div></div><div class="zc-back"><div class="t">これらの事業すべてで、<br>広告出稿費は</div><div class="v" style="font-size:max(var(--fmin),calc(4.8*var(--u)));margin-top:calc(.5*var(--u))">0<em>円</em></div></div></div>
+    <div class="bn key zerocard" role="button" tabindex="0"><div class="zc-front"><div class="t" style="margin-top:0">これらの事業すべてで、<br>広告出稿費は...</div><div style="font-size:max(var(--fmin),calc(1.06*var(--u)));font-weight:700;color:#5E8DEF;letter-spacing:.08em;margin-top:calc(1.2*var(--u))">▼ タップしてみてください</div></div><div class="zc-back"><div class="t">これらの事業すべてで、<br>広告出稿費は</div><div class="v" style="font-size:max(var(--fmin),calc(4.8*var(--u)));margin-top:calc(.5*var(--u))">0<em>円</em></div></div></div>
   </div>
   <p class="rv mt2">広告が使えなかったぶん、<span class="hl">見せ方と導線と試す回数だけで数字をつくる方法</span>が手元に残りました。自分の金で買える露出がゼロの状態から、ここまで積み上げています。<span class="hl">その人間が、御社の“見せ方”を設計します。</span></p>
 </section>
@@ -557,12 +557,12 @@
       <div style="border-radius:12px;background:rgba(255,255,255,.05);padding:calc(2*var(--u));display:flex;flex-direction:column;justify-content:center">
         <div style="font-size:max(var(--fmin),calc(1.45*var(--u)));color:#9C9CAA;margin-bottom:calc(1.3*var(--u))">あなたが触った仕掛け　<span id="lvCount" style="color:#C79BFF;font-weight:900;font-size:max(var(--fmin),calc(1.8*var(--u)))">0 / 6</span></div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:calc(1.1*var(--u)) calc(1*var(--u));font-size:max(var(--fmin),calc(1.38*var(--u)));line-height:1.5">
-          <div data-lv="fcard" style="color:#6E6E7A;white-space:nowrap">○ 2枚目のカード</div>
-          <div data-lv="tap" style="color:#6E6E7A;white-space:nowrap">○ 4枚目の図解</div>
-          <div data-lv="gen3" style="color:#6E6E7A;white-space:nowrap">○ 6枚目の第3世代</div>
-          <div data-lv="bowl" style="color:#6E6E7A;white-space:nowrap">○ 9枚目の受け皿</div>
-          <div data-lv="quiz" style="color:#6E6E7A;white-space:nowrap">○ 10枚目のクイズ</div>
-          <div data-lv="zero" style="color:#6E6E7A;white-space:nowrap">○ 15枚目の0円</div>
+          <div data-lv="fcard" style="color:#B4B4C2;white-space:nowrap">○ 2枚目のカード</div>
+          <div data-lv="tap" style="color:#B4B4C2;white-space:nowrap">○ 4枚目の図解</div>
+          <div data-lv="gen3" style="color:#B4B4C2;white-space:nowrap">○ 6枚目の第3世代</div>
+          <div data-lv="bowl" style="color:#B4B4C2;white-space:nowrap">○ 9枚目の受け皿</div>
+          <div data-lv="quiz" style="color:#B4B4C2;white-space:nowrap">○ 10枚目のクイズ</div>
+          <div data-lv="zero" style="color:#B4B4C2;white-space:nowrap">○ 15枚目の0円</div>
         </div>
       </div>
     </div>
@@ -575,7 +575,11 @@
   <div class="grid"></div><div class="orb"></div><div class="num">17</div>
   <h1 class="rv">「こんなサイトにしたい」と<br>夢見ていた御社の“顔”を、<br><span class="em">現実にしませんか？</span></h1>
   <p class="lead rv mt2">御社の業種なら、お客さんに「何を触らせる」と記憶に残るか。<span class="hl">30分で、具体案を2〜3個お出しします。</span>聞くだけで、御社のサイトの伸びしろが分かります。</p>
-  <div class="metaline rv"><span>株式会社GROWX</span><span>代表取締役 岩本</span><span>電話：080-3938-8801</span><span>メール：iwamoto@growx.co.jp</span></div>
+  <div class="cta-row rv mt2">
+    <a class="cta" href="mailto:iwamoto@growx.co.jp?subject=%E4%BD%93%E9%A8%93%E5%9E%8B%E3%82%B5%E3%82%A4%E3%83%88%E3%81%AE%E3%81%94%E7%9B%B8%E8%AB%87">メールで問い合わせる</a>
+    <a class="cta ghost" href="tel:08039388801">電話をかける（080-3938-8801）</a>
+  </div>
+  <div class="metaline rv"><span>株式会社GROWX</span><span>代表取締役 岩本</span><span>電話：<a href="tel:08039388801">080-3938-8801</a></span><span>メール：<a href="mailto:iwamoto@growx.co.jp">iwamoto@growx.co.jp</a></span></div>
 </section>
 
 </div>
