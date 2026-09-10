@@ -941,3 +941,8 @@ svg[role="button"]:focus-visible{outline-offset:6px;}
 .dcol.key .dbtn{background:var(--grad);color:#0A0A10;border-color:transparent;}
 .dcol.key .dbtn:hover{filter:brightness(1.08);}
 @media (max-width:767px){ .dbtns{flex-direction:column;} .dbtn{width:100%;min-height:50px;font-size:15px;} }
+
+/* 06：第1世代のサムネを、05枚目で使った従来型サイトの実画像に差し替え（2026-09-11） */
+.gen1shot,.gen .thumb.gen1shot{overflow:hidden;padding:0;height:auto;aspect-ratio:536/361;position:relative;}
+/* c1.webp（720×480・モニター枠付き）から画面部分（x92〜628, y14〜375）だけを切り出して表示 */
+.gen .thumb.gen1shot img,.gen1shot img{position:absolute;height:auto!important;object-fit:unset;width:134.3%;height:auto;left:-17.2%;top:-2.6%;max-width:none;display:block;filter:saturate(.8);}
