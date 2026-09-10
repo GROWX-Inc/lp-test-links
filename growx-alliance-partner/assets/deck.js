@@ -92,12 +92,14 @@
   /* slide 09: tap pours money — left forgets, right remembers */
   (function(){
     var svg=document.getElementById('bowlSvg'); if(!svg) return;
-    var layer=document.getElementById('dropsLayer'), water=document.getElementById('waterR'), hint=document.getElementById('bowlHint');
+    var water=document.getElementById('waterR'), hint=document.getElementById('bowlHint');
+    /* 落ちる玉・札は左右それぞれの層（dropsL / dropsR）に入れる。SPで左右ブロックを縦に並べ替えても一緒に動く */
+    function layerFor(x){ return document.getElementById(x>490?'dropsR':'dropsL'); }
     var NS='http://www.w3.org/2000/svg', spend=0, taps=0;
     var LXc=[118,174,230,286,342], RXc=[638,694,750,806,862];
     var lvlL=[0,0,0,0,0], lvlR=[0,0,0,0,0], starDone=[0,0,0,0,0], starDoneL=[0,0,0,0,0];
     function star(cx){
-      var layer2=document.getElementById('starsR'); if(!layer2) return;
+      var layer2=document.getElementById(cx>490?'starsR':'starsL'); if(!layer2) return;
       var p=document.createElementNS(NS,'path');
       p.setAttribute('d','M'+cx+' 160 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 z');
       p.setAttribute('fill','#EDE4FF'); layer2.appendChild(p);
@@ -111,14 +113,14 @@
       requestAnimationFrame(step); }
     function dot(x,leak,color,onEnd){
       var c=document.createElementNS(NS,'circle');
-      c.setAttribute('r',5.5); c.setAttribute('fill',color); layer.appendChild(c);
+      c.setAttribute('r',5.5); c.setAttribute('fill',color); layerFor(x).appendChild(c);
       anim(c, leak?1300:900, function(p){ var e=p*p;
         var y=124+e*(leak?200:96); var o=(leak&&p>.72)?1-(p-.72)/.28:1;
         c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('opacity',o); }, onEnd); }
     function bill(x,leak){
       var g=document.createElementNS(NS,'g');
       g.innerHTML='<rect x="-12" y="-7" width="24" height="14" rx="2.5" fill="#E8C97A" stroke="#B8964F" stroke-width="1"/><text y="4.5" text-anchor="middle" font-size="10" font-weight="900" fill="#6b5320">¥</text>';
-      layer.appendChild(g);
+      layerFor(x).appendChild(g);
       anim(g, leak?1500:1000, function(p){ var e=p*p;
         var y=124+e*(leak?196:90), rot=Math.sin(p*7)*28, o=1;
         if(leak&&p>.6) o=1-(p-.6)/.4; if(!leak&&p>.85) o=1-(p-.85)/.15;
@@ -189,6 +191,35 @@
       });
       var c=document.getElementById('lvCount'); if(c) c.textContent=n+' / 6';
     },1000);
+  })();
+  /* slide 10: tap to reveal the advertisers' guess (19%) */
+  (function(){
+    var svg=document.getElementById('quizSvg'); if(!svg) return;
+    var bar=document.getElementById('qzBar'), pct=document.getElementById('qzPct'), ask=document.getElementById('qzAsk'), msg=document.getElementById('qzMsg');
+    var fired=false;
+    svg.addEventListener('click',function(){
+      if(fired) return; fired=true;
+      ask.style.transition='opacity .3s'; ask.style.opacity=0;
+      var sp=matchMedia('(max-width:767px)').matches;
+      var full=sp?440:730, target=Math.round(full*0.19), t0=null;
+      function step(ts){ if(!t0) t0=ts; var p=Math.min(1,(ts-t0)/900), e=1-Math.pow(1-p,3);
+        bar.setAttribute('width',Math.round(target*e));
+        pct.textContent=Math.round(19*e)+'%';
+        if(p<1) requestAnimationFrame(step); else { msg.style.opacity=1; } }
+      pct.style.transition='opacity .3s'; pct.style.opacity=1;
+      requestAnimationFrame(step);
+    });
+  })();
+  /* responsive SVG: on SP swap the viewBox to the portrait one (parts are re-arranged by CSS transforms) */
+  (function(){
+    var mq=matchMedia('(max-width:767px)');
+    function apply(){
+      document.querySelectorAll('svg.rsvg[data-sp-viewbox]').forEach(function(sv){
+        if(!sv.dataset.pcViewbox) sv.dataset.pcViewbox=sv.getAttribute('viewBox');
+        sv.setAttribute('viewBox', mq.matches ? sv.dataset.spViewbox : sv.dataset.pcViewbox);
+      });
+    }
+    apply(); if(mq.addEventListener) mq.addEventListener('change',apply);
   })();
   /* reading progress */
   (function(){
