@@ -831,3 +831,46 @@ body{background:#030306;position:relative;}
   #cmpSvg .b2c{transform:translate(-662px,402px);}
   #cmpSvg .a2a line,#cmpSvg .a2b line{stroke:#B67DFF;} /* 縦にするとグラデーション線が消えるため単色に */
 }
+
+/* =====================================================================
+   スマホ共通レスポンシブルール（2026-09-11 v6）— 全セクション共通
+   - 左右の余白は親コンテナ（.deck）だけで管理：--gutter = clamp(15px, 4.5vw, 20px)
+   - 各セクション（.slide）は width:100%・左右padding 0。内部要素は親幅に追従（固定幅禁止）
+   - 画像・動画・SVG・表・カードはすべて max-width:100%。nowrap は解除して折り返す
+   - どの画面幅でも横スクロールを出さない（html/body で横方向をクリップ）
+   ===================================================================== */
+@media (max-width:767px){
+  :root{--gutter:clamp(15px,4.5vw,20px);}
+  html,body{overflow-x:clip;max-width:100%;}
+  body{padding:0;}
+  .hero-pin{margin:0;width:100%;}
+  .hero-stage .hero{padding-left:var(--gutter)!important;padding-right:var(--gutter)!important;}
+  .hero-stage .hero .brandmark{left:var(--gutter);}
+  .hero-stage .hero-scroll{right:var(--gutter);}
+  /* 親コンテナ：ここだけが左右余白を持つ */
+  .deck{width:100%;max-width:none;margin:0;padding:0 var(--gutter) 40px;box-sizing:border-box;gap:0;}
+  /* セクション：親幅いっぱい・左右余白なし */
+  .slide{width:100%;max-width:100%;margin:0;padding-left:0;padding-right:0;border-radius:0;box-sizing:border-box;}
+  .slide.cover{overflow:hidden;}
+  .num{right:0;}
+  /* 内部要素：親幅に追従（固定幅の禁止） */
+  .slide *{min-width:0;max-width:100%;box-sizing:border-box;}
+  .slide img,.slide video,.slide iframe,.slide canvas{width:100%;height:auto;display:block;}
+  .slide .fig svg{width:100%;height:auto;}
+  .slide table{width:100%;table-layout:fixed;}
+  .slide th,.slide td{overflow-wrap:anywhere;}
+  .slide h1,.slide h2,.slide h3,.slide h4,.slide p,.slide li,.slide span,.slide b,.slide div{overflow-wrap:anywhere;}
+  .slide [style*="white-space:nowrap"],.slide [style*="white-space: nowrap"],.slide .nowrap{white-space:normal!important;}
+  .bn.zerocard .zc-front>div:last-child{white-space:normal;}
+  .slide [style*="grid-template-columns"]{grid-template-columns:1fr!important;}
+  .slide [style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:1fr 1fr!important;}
+  .slide [style*="display:flex"]{flex-wrap:wrap;}
+  /* 幅を%基準に（端末幅が狭いほど縮む） */
+  .phone.tall,.slide.tight .phone.tall{width:min(150px,60%);}
+  .demo2 .phone{width:min(118px,42%);}
+  .demo2 .phone.mid{width:min(150px,50%);}
+  .site{flex:1 1 calc(50% - 5px);}
+  .site.ours{flex:1 1 80%;}
+  .cover .orb,.cover .orb2,.cover .orb3{max-width:none;}
+  .cover .orb3{right:-20%;}
+}
