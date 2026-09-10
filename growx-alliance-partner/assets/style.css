@@ -874,3 +874,52 @@ body{background:#030306;position:relative;}
   .cover .orb,.cover .orb2,.cover .orb3{max-width:none;}
   .cover .orb3{right:-20%;}
 }
+
+/* =====================================================================
+   視認性・アクセシビリティ（2026-09-11 v7）— Material Design / WCAG AA 準拠
+   - 補助文字の色を 4.5:1 以上に引き上げ（背景に溶ける薄グレーを廃止）
+   - 文字サイズの下限：14px（ラベル含む）。本文16px、見出しは段階スケール
+   - CTA（塗りボタン）・連絡先リンク・フォーカスリング・動きを減らす設定への対応
+   ===================================================================== */
+:root{--faint:#A2A2B2;--muted:#B4B4C2;}            /* faint 8.8:1 / muted 10.9:1（背景 #030306 上） */
+.slide .src,.slide .note,.num{color:var(--faint);}
+/* SVG内の薄い文字（旧 #7A7A88 / #8A8A98 / #6C6C7C）を明るく */
+.fig svg text[fill="#7A7A88"],.fig svg text[fill="#8A8A98"],.fig svg text[fill="#6C6C7C"],.fig svg text[fill="#5A5A68"]{fill:#B4B4C2;}
+.fig svg text[fill="#57576A"]{fill:#9C9CAA;}
+/* SVG内の小さなラベルは14単位以上に（viewBox 440 基準で実寸約12.4〜14px） */
+.fig svg text[font-size="11.5"],.fig svg text[font-size="13"],.fig svg text[font-size="13.5"]{font-size:14px;}
+#quizSvg #qzAsk tspan{font-size:14px;}
+/* フォーカスリング（キーボード操作時のみ） */
+[role="button"]:focus-visible,a:focus-visible{outline:3px solid #D9C2FF;outline-offset:3px;border-radius:6px;}
+svg[role="button"]:focus-visible{outline-offset:6px;}
+/* CTA（17枚目） */
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:calc(2.4*var(--u));}
+.cta{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 28px;border-radius:999px;background:var(--grad);color:#0A0A10;font-weight:900;font-size:max(16px,calc(1.7*var(--u)));text-decoration:none;letter-spacing:.02em;box-shadow:0 8px 24px rgba(150,120,255,.28);transition:transform .15s,box-shadow .15s;}
+.cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(150,120,255,.38);}
+.cta.ghost{background:transparent;color:var(--ink);border:2px solid rgba(255,255,255,.55);box-shadow:none;}
+.cta.ghost:hover{border-color:#fff;background:rgba(255,255,255,.06);}
+.metaline a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;display:inline-block;min-height:44px;line-height:44px;}
+/* 動きを減らす設定 */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}
+}
+/* PC：文字の下限を14pxに（従来12px） */
+@media (min-width:1024px){ :root{--fmin:14px;} }
+/* スマホ：6段階タイプスケール（14 / 16 / 18 / 20 / 24 / 28） */
+@media (max-width:767px){
+  :root{--fmin:14px;}
+  h1{font-size:clamp(26px,7vw,30px)!important;line-height:1.3;}
+  h2{font-size:clamp(24px,6.6vw,28px)!important;line-height:1.36;}
+  .slide p,.slide li,.slide.tight p,.slide td,.slide th,.slide.tight th,.slide.tight td,.slide.tight .g2 th,.slide.tight .g2 td,.slide .card p,.slide.tight .card p,.slide.tight .g2 .card p,.slide.tight .g4 .card p,.slide.tight .card.sm p,.slide .card.ic p{font-size:16px;line-height:1.75;}
+  .slide p.lead,.slide.tight p.lead,.slide.tight .lead{font-size:18px;line-height:1.7;}
+  .slide .card h4,.slide.tight .card h4,.slide.tight .g2 .card h4,.slide.tight .g4 .card h4,.slide.tight .card.sm h4,.slide .card.ic h4{font-size:18px;}
+  .slide .src,.slide .note,.slide.tight .note,.num,.fcard .fc-hint,.metaline span,.dlab,.dname,.dcol .url,.bn .t,.gen .as,.gen.now .as,.gen .mtxt,.gen .mpill,.incl-f,.slide.tight .incl-f,.incl-g span:last-child,.slide.tight .incl-g span:last-child,.pat .cond span,.slide.tight .pat .cond span,.bn.zerocard .zc-front>div:last-child{font-size:14px!important;line-height:1.6;}
+  .gen .role,.gen.now .role,.gen .ana,.gen.now .ana,.gen .verb,.gen.now .verb,.pat .desc,.slide.tight .pat .desc,.incl-g b,.slide.tight .incl-g b,.incl-h,.slide.tight .incl-h{font-size:16px;line-height:1.7;}
+  .gen .name{font-size:18px;} .gen.now .name{font-size:20px;}
+  .pat .ttl,.slide.tight .pat .ttl{font-size:20px;}
+  .slide td.n{font-size:17px;}
+  .hero-scroll{font-size:14px;color:var(--muted);}
+  .cta{width:100%;min-height:56px;font-size:17px;}
+  .metaline a{min-height:48px;line-height:48px;}
+}
+@media (max-width:767px){ .cover .orb,.cover .orb2,.cover .orb3{opacity:.35;} } /* 17：装飾リングが見出しに被って読みにくくならないよう薄く */

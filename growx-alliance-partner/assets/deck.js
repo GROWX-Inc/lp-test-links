@@ -285,3 +285,26 @@
     f.scrollLeft=Math.max(0,(f.scrollWidth-f.clientWidth)/2);
   });
 })();
+
+/* ===== アクセシビリティ（2026-09-11）=====
+   - キーボード操作：role=button の要素は Enter / Space でクリックと同じ動作
+   - 文字サイズの下限：画面上のすべての文字（SVG内を除く）を14px未満にしない（Material Design の本文14sp基準） */
+(function(){
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Enter'&&e.key!==' ') return;
+    var t=e.target; if(!t||!t.getAttribute||t.getAttribute('role')!=='button') return;
+    if(t.tagName==='A'||t.tagName==='BUTTON') return;
+    e.preventDefault(); t.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+  });
+  var MIN=14;
+  function enforce(){
+    document.querySelectorAll('.deck *').forEach(function(el){
+      if(el.closest('svg')) return;
+      var has=false; for(var i=0;i<el.childNodes.length;i++){ if(el.childNodes[i].nodeType===3&&el.childNodes[i].textContent.trim()){has=true;break;} }
+      if(!has) return;
+      var fs=parseFloat(getComputedStyle(el).fontSize);
+      if(fs<MIN) el.style.setProperty('font-size',MIN+'px','important');
+    });
+  }
+  enforce(); addEventListener('resize',enforce);
+})();
