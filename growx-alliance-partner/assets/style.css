@@ -765,3 +765,69 @@ body{background:#030306;position:relative;}
   .hero-stage .hero .brandmark{display:block;}
   #heroVeil{display:block;background:linear-gradient(180deg,rgba(3,3,6,.30) 0%,rgba(3,3,6,0) 30%,rgba(3,3,6,0) 50%,rgba(3,3,6,.82) 100%);}
 }
+
+/* =====================================================================
+   図解SVGのスマホ縦組み（2026-09-10 v5）
+   - 横スクロールを廃止。SPでは各SVGの viewBox を縦長に切り替え（deck.js）、
+     中のパーツをCSSの transform で縦に並べ替える（同じDOM・同じIDのまま）
+   ===================================================================== */
+.spOnly{display:none;}
+@media (max-width:767px){
+  .fig{overflow:visible;padding-bottom:0;}
+  .fig::after{content:none;}
+  .slide .fig svg,.slide.tight .fig svg{min-width:0;width:100%;max-height:none;display:block;}
+  .pcOnly{display:none;} .spOnly{display:initial;}
+  .rsvg *{transform-box:view-box;transform-origin:0 0;}
+
+  /* 03：止まっているもの → ↓ → 動いているもの */
+  #mediaSvg .hL{transform:translate(-20px,0);}
+  #mediaSvg .hA{transform:translate(220px,262px) rotate(90deg) scale(.55) translate(-478px,-132px);}
+  #mediaSvg .hR{transform:translate(-525px,305px);}
+
+  /* 04：2列の縦チェーン（左＝動かない／右＝触れる） */
+  #tapSvg .b1{transform:translate(4px,0);}
+  #tapSvg .a1{transform:translate(110px,112px) rotate(90deg) scale(.7,1) translate(-226px,-46px);}
+  #tapSvg .br{transform:translate(-300px,179px);}
+  #tapSvg .a2{transform:translate(110px,292px) rotate(90deg) scale(.7,1) translate(-466px,-46px);}
+  #tapSvg .rs rect{x:4px;y:368px;width:212px;}
+  #tapSvg .rs text{transform:translate(-670px,360px);font-size:18px;}
+  #tapSvg #tapZone{transform:translate(224px,-118px);}
+  #tapSvg #tapHint{transform:translate(0,-135px);}
+  #tapSvg #tr1{transform:translate(330px,112px) rotate(90deg) scale(.7,1) translate(-226px,-164px);}
+  #tapSvg #tr2{transform:translate(-80px,61px);}
+  #tapSvg #tr3{transform:translate(330px,292px) rotate(90deg) scale(.7,1) translate(-466px,-164px);}
+  #tapSvg #memCard rect{x:224px;y:368px;width:212px;}
+  #tapSvg #memCard text{transform:translate(-450px,242px);font-size:18px;}
+  #tapSvg #memCard{transform-origin:330px 406px!important;}
+
+  /* 09：見出し → 静的サイト → 体験型サイト */
+  #bowlSvg .hH{transform:translate(-270px,0);}
+  #bowlSvg .dv{display:none;}
+  #bowlSvg .hL{transform:translate(-10px,-40px);}
+  #bowlSvg .hR{transform:translate(-530px,165px);}
+
+  /* 10：棒グラフを画面幅いっぱいに */
+  #quizSvg .r1l{transform:translate(0,12px);}
+  #quizSvg .bg1{x:0;y:80px;width:440px;height:42px;}
+  #quizSvg .fl1{x:0;y:80px;width:216px;height:42px;}
+  #quizSvg .t49{transform:translate(-321px,41px);font-size:18px;}
+  #quizSvg .r2l{transform:translate(0,14px);}
+  #quizSvg .bg2{x:0;y:160px;width:440px;height:42px;}
+  #quizSvg #qzBar{x:0;y:160px;height:42px;}
+  #quizSvg #qzPct{transform:translate(-277px,43px);font-size:18px;}
+  #quizSvg #qzAsk{transform:translate(-240px,43px);font-size:15px;}
+  #quizSvg #qzAsk tspan{font-size:13px;}
+
+  /* 12：比較される側／指名される側を縦に */
+  #cmpSvg .l1,#cmpSvg .b1a{transform:translate(76px,0);}
+  #cmpSvg .a1a{transform:translate(220px,82px) rotate(90deg) scale(.55,1) translate(-300px,-51px);}
+  #cmpSvg .b1b{transform:translate(-316px,104px);}
+  #cmpSvg .a1b{transform:translate(220px,186px) rotate(90deg) scale(.55,1) translate(-692px,-51px);}
+  #cmpSvg .b1c{transform:translate(-662px,208px);}
+  #cmpSvg .l2,#cmpSvg .b2a{transform:translate(76px,194px);}
+  #cmpSvg .a2a{transform:translate(220px,382px) rotate(90deg) scale(.55,1) translate(-300px,-157px);}
+  #cmpSvg .b2b{transform:translate(-316px,298px);}
+  #cmpSvg .a2b{transform:translate(220px,486px) rotate(90deg) scale(.55,1) translate(-692px,-157px);}
+  #cmpSvg .b2c{transform:translate(-662px,402px);}
+  #cmpSvg .a2a line,#cmpSvg .a2b line{stroke:#B67DFF;} /* 縦にするとグラデーション線が消えるため単色に */
+}
