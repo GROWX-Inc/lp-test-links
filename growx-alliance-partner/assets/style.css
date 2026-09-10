@@ -731,3 +731,37 @@ body{background:#030306;position:relative;}
 /* アイコンをマテリアルアイコン（塗り）に統一したため、線画前提の指定を解除 */
 .ico svg{fill:url(#ic);stroke:none;}
 .incl-g .ico svg{fill:url(#icg);stroke:none;}
+
+/* =====================================================================
+   ヒーロー内で完結するスクロール連動映像（2026-09-10 v4）
+   - .hero-pin：画面5枚分の高さの透明な箱。中の .hero-stage を sticky で画面に貼り付ける
+   - 箱の中を進んだ割合（0〜100%）で映像のコマを進める（hero.js）
+   - 表紙文字は箱の先頭20%を過ぎると徐々に消え、以降は映像だけを見せる
+   - 箱を抜けると02枚目以降が通常スクロールで現れる（映像なし・ダーク背景・PCは中央寄せ）
+   ===================================================================== */
+.hero-pin{position:relative;z-index:2;height:500vh;margin:-28px -16px 0;}
+.hero-stage{position:-webkit-sticky;position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;background:#030306;}
+#heroCv{position:absolute!important;inset:0;width:100%!important;height:100%!important;z-index:0;}
+#heroVeil{position:absolute;inset:0;z-index:1;display:block;}
+.hero-stage .hero{position:absolute;inset:0;z-index:2;margin:0!important;width:auto!important;min-height:0;height:100%;}
+.hero-stage .hero::after{z-index:-1;}
+/* 表紙文字のフェード（hero.js が --hero-fade を 1→0 に更新） */
+.hero-stage .hero .brandmark,.hero-stage .hero h1,.hero-stage .hero .metaline,.hero-stage .hero-scroll{opacity:var(--hero-fade,1);transition:none;}
+.hero-stage.faded .hero h1,.hero-stage.faded .hero .metaline,.hero-stage.faded .hero .brandmark,.hero-stage.faded .hero-scroll{animation:none;}
+.deck{position:relative;z-index:3;background:#030306;padding-top:calc(2*var(--u));}
+@media (min-width:1024px){
+  .hero-pin{margin-left:-16px;margin-right:-16px;}
+  .hero-stage .hero{margin-left:0!important;}
+  /* 02〜17枚目：映像がなくなるため中央寄せ（最大幅1000px） */
+  .deck{max-width:1000px;margin:0 auto;}
+  .slide{width:auto;margin-left:0;padding-left:max(calc(2.7*var(--u)),16px);padding-right:max(calc(2.7*var(--u)),16px);} /* 左右合計は左寄せ時と同じ＝折り返し位置を変えない */
+  .num{left:max(calc(2.7*var(--u)),16px);}
+}
+@media (max-width:767px){
+  .hero-pin{height:400vh;margin:-10px -8px 0;}
+  #heroCv{height:100%!important;z-index:0!important;}
+  .hero-band-edge{display:none;}
+  .hero-stage .hero{padding-top:0!important;justify-content:flex-end;}
+  .hero-stage .hero .brandmark{display:block;}
+  #heroVeil{display:block;background:linear-gradient(180deg,rgba(3,3,6,.30) 0%,rgba(3,3,6,0) 30%,rgba(3,3,6,0) 50%,rgba(3,3,6,.82) 100%);}
+}
