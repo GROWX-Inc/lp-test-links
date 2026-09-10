@@ -725,7 +725,7 @@ body{background:#030306;position:relative;}
 @media (max-width:767px){
   .sites{flex-wrap:wrap;justify-content:center;gap:10px;}
   .site{flex:0 0 calc(50% - 5px);}
-  .site.ours{flex:0 0 80%;order:-1;}
+  .site.ours{flex:0 0 80%;order:1;margin-top:6px;}  /* SPは他社4サイトを上、御社を下に */
 }
 
 /* アイコンをマテリアルアイコン（塗り）に統一したため、線画前提の指定を解除 */
