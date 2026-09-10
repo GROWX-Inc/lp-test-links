@@ -923,3 +923,7 @@ svg[role="button"]:focus-visible{outline-offset:6px;}
   .metaline a{min-height:48px;line-height:48px;}
 }
 @media (max-width:767px){ .cover .orb,.cover .orb2,.cover .orb3{opacity:.35;} } /* 17：装飾リングが見出しに被って読みにくくならないよう薄く */
+
+/* 07：体験カードの動画（2026-09-11）— SVGアイコンを実写動画に差し替え。親幅に追従し角丸で収める */
+.card.ic .scene video{display:block;width:100%;height:auto;border-radius:12px;background:#0A0A10;object-fit:cover;aspect-ratio:16/9;}
+@media (max-width:767px){ .card.ic .scene{width:100%;} }
