@@ -16,19 +16,23 @@
 <linearGradient id="ic" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6E8BFF"/><stop offset="1" stop-color="#B67DFF"/></linearGradient>
 <linearGradient id="icg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8FA5FF"/><stop offset="1" stop-color="#C79BFF"/></linearGradient>
 </defs></svg>
-<canvas id="heroCv" aria-hidden="true"></canvas>
-<div class="hero-band-edge" aria-hidden="true"></div>
-<div id="heroVeil" aria-hidden="true"></div>
 <div id="readbar"></div>
-<div class="deck">
 
-<!-- 01 ヒーロー（スクロール連動の背景映像の上に表紙の文字を最初から表示） -->
+<!-- 01 ヒーロー：背の高い箱（.hero-pin）の中に映像＋表紙文字を貼り付け（sticky）、箱の中のスクロール量でコマを進める。箱を抜けると02枚目以降が通常スクロールで現れる -->
+<div class="hero-pin" id="heroPin">
+<div class="hero-stage">
+<canvas id="heroCv" aria-hidden="true"></canvas>
+<div id="heroVeil" aria-hidden="true"></div>
 <section class="hero">
   <div class="brandmark">GROWX</div>
   <h1>触れた瞬間、<br>ブランド体験は記憶になる。<br><br>日本にまだない<span class="em">“体験型サイト”</span>で、<br>届けたかったブランド体験を、現実に。</h1>
   <div class="metaline" style="letter-spacing:.06em"><span>株式会社GROWX</span><span>体験型サイトのご案内</span><span>2026</span></div>
   <div class="hero-scroll" aria-hidden="true">SCROLL<i></i></div>
 </section>
+</div>
+</div>
+
+<div class="deck">
 
 <!-- 02 -->
 <section class="slide tight">
