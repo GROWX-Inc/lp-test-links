@@ -1,0 +1,55 @@
+# growx-alliance-partner 07枚目（5つの体験カード）の動画を Google Drive から取得・最適化して配置する
+# ・手動実行：Actions → このワークフロー → Run workflow（ブランチ gap-s07-videos を選ぶ）
+# ・このファイルを gap-s07-videos ブランチへpushしたときも自動実行される
+name: s07-videos (growx-alliance-partner)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [gap-s07-videos]
+    paths: ['.github/workflows/s07-videos.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: 依存ツール
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install --quiet gdown
+
+      - name: Google Driveから動画を取得
+        run: |
+          mkdir -p src
+          gdown 157q2MvNQcONJ5KpEyIBB6VascFWilhMt -O src/kosuru.mp4
+          gdown 1G7ciA8k3n3yPa0n6Tt3qh-zcA1D2FyS4 -O src/mekuru.mp4
+          gdown 1UGUeoR0khts2PIzRCBfom_0xwOO3xDIZ -O src/kumikaeru.mp4
+          gdown 1w4sFPLYAH3NhdiTLUStJFdXE13qEMmGB -O src/kirikaeru.mp4
+          gdown 13bQ2DzDhc4PSWXR7yTvdkaSAaIckphx5 -O src/mawasu.mp4
+          ls -la src
+          for f in src/*.mp4; do echo "$f"; ffprobe -v error -show_entries stream=width,height,nb_frames,duration -of default=nw=1 "$f"; done
+
+      - name: 最適化（無音・幅480px・H.264・ポスター画像）
+        run: |
+          OUT=growx-alliance-partner/assets/s07
+          mkdir -p $OUT
+          for n in kosuru mekuru kumikaeru kirikaeru mawasu; do
+            ffmpeg -v error -y -i src/$n.mp4 -an -vf "scale=480:-2" -c:v libx264 -crf 30 -preset slow -pix_fmt yuv420p -movflags +faststart $OUT/$n.mp4
+            ffmpeg -v error -y -i src/$n.mp4 -vf "select='eq(n\\,0)',scale=480:-2" -frames:v 1 -c:v libwebp -quality 78 $OUT/$n.webp
+          done
+          ls -la $OUT && du -sh $OUT
+
+      - name: ブランチへコミット
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add growx-alliance-partner/assets/s07
+          git commit -m "growx-alliance-partner: 07枚目の体験カード動画（5本）を最適化して配置" || echo "no changes"
+          git push
