@@ -933,3 +933,11 @@ svg[role="button"]:focus-visible{outline-offset:6px;}
   .g5>.card:nth-child(5){grid-column:auto;}
   .card.ic .scene,.slide.tight .g5>.card:nth-child(5) .scene,.g5>.card:nth-child(5) .scene{width:100%;}
 }
+
+/* 08：デモのURL文字列を遷移ボタンに（2026-09-11）— タップで別タブに開く。高さ48px以上 */
+.dbtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:calc(1*var(--u));}
+.dbtn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border-radius:999px;border:2px solid rgba(182,125,255,.6);background:rgba(182,125,255,.10);color:var(--ink);font-weight:700;font-size:max(14px,calc(1.3*var(--u)));text-decoration:none;line-height:1.3;text-align:center;transition:background .15s,border-color .15s;}
+.dbtn:hover{background:rgba(182,125,255,.22);border-color:#C79BFF;}
+.dcol.key .dbtn{background:var(--grad);color:#0A0A10;border-color:transparent;}
+.dcol.key .dbtn:hover{filter:brightness(1.08);}
+@media (max-width:767px){ .dbtns{flex-direction:column;} .dbtn{width:100%;min-height:50px;font-size:15px;} }
