@@ -959,3 +959,6 @@ h1,h2,h3,h4,.card h4,.pat .ttl,.gen .name{text-wrap:balance;word-break:keep-all;
 .metaline span,.dbtn,.cta{text-wrap:balance;}
 .jw{display:inline-block;word-break:keep-all;overflow-wrap:anywhere;max-width:100%;}
 .slide.cover h1{text-wrap:pretty;}
+
+/* 17：見出しを親幅いっぱいに（「」で括った語を途中で折らないため） */
+@media (min-width:1024px){ .slide.cover h1{max-width:100%;} }
