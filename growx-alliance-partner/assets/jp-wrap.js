@@ -1,4 +1,4 @@
-/* 日本語の改行位置の制御（PC・SP共通）— 2026-09-12 v3「句点 ＞ 読点 ＞ 文節」の優先順位で改行する
+/* 日本語の改行位置の制御（PC・SP共通）— 2026-09-12 v4「1行に収まるなら改行しない」
    仕組み（噛み砕き）
    1. 文を BudouX（Google／Apache-2.0）の学習済みモデル assets/budoux-ja.json で「文節」に分ける
    2. 各文節の末尾に優先度を付ける：「。！？」＝3（句点） ＞ 「、」＝2（読点） ＞ それ以外＝1（文節）
@@ -6,10 +6,11 @@
    4. 入りきらない位置で改行するとき、その行の中の候補から「優先度が高い切れ目」を選ぶ
       ・句点は行の25%以上、読点は行の35%以上の位置にあれば優先して採用（短すぎる行を避ける）
       ・どちらも無ければ、最も奥の文節の切れ目で折る。単語の途中では絶対に折らない
+      ・行頭に句読点・閉じカッコ・小書き文字・単独の助詞（「で、」など）が来る位置では折らない（禁則処理）
    5. 最終行が極端に短い（25%未満）場合は、直前の行の切れ目を手前の読点・句点（15%以上の位置）にずらして整える
    6. 決めた位置に <br> を入れる。画面幅が変わったら元に戻して計算し直す（レスポンシブ）
-   ・見出し内の元からある <br>（短い2行構成）は「必ず改行する位置」として尊重する
-   ・長い文の途中に打たれた見た目用の <br>（前の行が12文字以上）は外して、上の計算に任せる */
+   ・HTMLに書かれた <br> は「必ず改行する場所」ではなく「入りきらないときに優先して使う候補」として扱う
+     → 1行に収まるなら改行しない（PC・SP共通）。連続した <br><br>（空行）だけは、意図的な間として必ず残す */
 (function(){
   var ZWSP='\u200B';
   var SKIP_INSIDE='.bigv,.cmpv,[data-lv],#lvCount,#lvTime';
@@ -44,22 +45,26 @@
   }
   function measure(text,f){ ctx.font=f.font; return ctx.measureText(text).width + f.ls*text.length; }
 
-  /* ---- 長い行の途中に打たれた <br> を外す（見出しの短い2行構成は残す） ---- */
-  function relaxBr(el){
-    el.querySelectorAll('br').forEach(function(br){
-      var prev='', n=br.previousSibling;
-      while(n){ prev=(n.textContent||'')+prev; n=n.previousSibling; }
-      var line=prev.split('\n').pop().replace(/\s/g,'');
-      if(line.length>=12){ br.parentNode.removeChild(br); }
-    });
+  /* ---- <br> の分類：連続した <br><br>（空行）は必ず残す。単独の <br> は候補にするだけで外す ---- */
+  function isHardBr(br){
+    var p=br.previousSibling, n=br.nextSibling;
+    var prevIsBr=p && p.nodeType===1 && p.tagName==='BR';
+    var nextIsBr=n && n.nodeType===1 && n.tagName==='BR';
+    return prevIsBr || nextIsBr;
   }
 
   /* ---- 要素を「文節トークン」の列にする ---- */
-  function tokenize(el, boundaries){
+  function tokenize(el, boundaries, softBrs){
     var tokens=[]; /* {node, start, end, text, w, pri} */
     var walker=document.createTreeWalker(el, NodeFilter.SHOW_ALL, null); var n;
     while((n=walker.nextNode())){
-      if(n.nodeType===1){ if(n.tagName==='BR'){ tokens.push({br:true,pri:4,w:0}); } continue; }
+      if(n.nodeType===1){
+        if(n.tagName==='BR'){
+          if(isHardBr(n)){ tokens.push({br:true,pri:4,w:0}); }
+          else { softBrs.push(n); if(tokens.length) tokens[tokens.length-1].pri=3; } /* 直前の文節を「優先度の高い候補」に格上げ */
+        }
+        continue;
+      }
       if(n.nodeType!==3) continue;
       var p=n.parentElement; if(!p||p.closest('svg')) continue;
       var s=n.nodeValue; if(!s||!/\S/.test(s)) continue;
@@ -69,14 +74,19 @@
         var t=s.slice(cuts[i],cuts[i+1]); if(!t) continue;
         var last=t.replace(/[\s\u200B]+$/,'').slice(-1);
         var pri=/[。！？!?]/.test(last)?3:(/[、，]/.test(last)?2:1);
-        tokens.push({node:n,start:cuts[i],end:cuts[i+1],text:t,w:measure(t,f),pri:pri});
+        /* 禁則：この文節が行頭に来てはいけない場合は nb=true（直前では折らない） */
+        var head=t.charAt(0);
+        var body=t.replace(/[\s\u200B]/g,'');
+        var nb=/[、。，．・！？!?」』）〉》】〕”’ぁぃぅぇぉっゃゅょゎー]/.test(head)
+             || (body.length<=2 && /^[でをにはがもとのへやかねよ]/.test(body));
+        tokens.push({node:n,start:cuts[i],end:cuts[i+1],text:t,w:measure(t,f),pri:pri,nb:nb});
       }
     }
     return tokens;
   }
 
   /* ---- 行の組み立て：幅に収まる範囲で、優先度の高い切れ目を選ぶ ---- */
-  function layoutPara(tokens, from, to, W, breaks){ /* [from,to) の範囲＝元からの <br> で区切られた1段落 */
+  function layoutPara(tokens, from, to, W, breaks){ /* [from,to) の範囲＝<br><br> で区切られた1段落 */
     var paraBreaks=[], lineStart=from;
     while(lineStart<to){
       var acc=0, i=lineStart;
@@ -84,9 +94,10 @@
       if(i>=to) break; /* 最後の行 */
       var cut=i-1, best=-1, w=0, pos=[];
       for(var k=lineStart;k<=cut;k++){ w+=tokens[k].w; pos.push(w); }
-      for(var k2=cut;k2>=lineStart;k2--){ if(tokens[k2].pri===3 && pos[k2-lineStart]>=W*MIN_KUTEN){ best=k2; break; } }
-      if(best<0){ for(var k3=cut;k3>=lineStart;k3--){ if(tokens[k3].pri===2 && pos[k3-lineStart]>=W*MIN_TOUTEN){ best=k3; break; } } }
-      if(best<0) best=cut;
+      var ok=function(k){ return !(tokens[k+1] && tokens[k+1].nb); }; /* 次の文節が行頭に来られるか */
+      for(var k2=cut;k2>=lineStart;k2--){ if(tokens[k2].pri===3 && ok(k2) && pos[k2-lineStart]>=W*MIN_KUTEN){ best=k2; break; } }
+      if(best<0){ for(var k3=cut;k3>=lineStart;k3--){ if(tokens[k3].pri===2 && ok(k3) && pos[k3-lineStart]>=W*MIN_TOUTEN){ best=k3; break; } } }
+      if(best<0){ best=cut; while(best>lineStart && !ok(best)) best--; }
       paraBreaks.push(best); lineStart=best+1;
     }
     /* 最終行が極端に短いときは、直前の改行を手前の読点／句点にずらす（段落の中だけで判断） */
@@ -132,14 +143,16 @@
     if(el.querySelector(SKIP_INSIDE)) return;
     if(!originals.has(el)) originals.set(el, el.innerHTML);
     else el.innerHTML=originals.get(el);
-    if(el.matches('.slide p, .slide li')) relaxBr(el);
     /* flex/grid の中で「中身の幅」に縮んでいる要素は、親幅いっぱいに広げてから測る（幅は親に追従・固定pxなし） */
     el.style.alignSelf='stretch'; el.style.justifySelf='stretch';
     var cs=getComputedStyle(el);
     var W=el.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0);
     if(W<=0) return;
-    var tokens=tokenize(el, parser);
+    var softBrs=[];
+    var tokens=tokenize(el, parser, softBrs);
     if(!tokens.length) return;
+    /* 候補にした単独の <br> はいったん外す（必要な位置だけ後で入れ直す） */
+    softBrs.forEach(function(br){ if(br.parentNode) br.parentNode.removeChild(br); });
     var breaks=layout(tokens, W);
     /* ブラウザ側の自動改行は「単語の途中で折らない」保険としてだけ残す */
     el.style.wordBreak='keep-all'; el.style.overflowWrap='anywhere'; el.style.textWrap='wrap';
