@@ -1,0 +1,16 @@
+
+/* 17：会社情報を「項目＋内容」の対で揃える（2026-09-12）
+   ・項目名を上、内容を下に置き、列で左端をそろえる
+   ・幅は固定pxを使わず、画面幅に応じて列数が変わる（PC4列 → タブレット2列 → スマホ2列） */
+.metaline.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:calc(1.6*var(--u)) calc(2.4*var(--u));align-items:start;}
+.metaline.info .mi{display:flex;flex-direction:column;gap:calc(.5*var(--u));min-width:0;}
+.metaline.info .mi-k{font-family:var(--jp);font-size:max(14px,calc(1.05*var(--u)));letter-spacing:.04em;color:var(--faint);}
+.metaline.info .mi-v{font-family:var(--jp);font-size:max(15px,calc(1.35*var(--u)));letter-spacing:.02em;color:var(--ink);font-weight:700;overflow-wrap:anywhere;}
+.metaline.info .mi-v a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;display:inline-block;min-height:0;line-height:1.5;}
+@media (max-width:767px){
+  .metaline.info{grid-template-columns:1fr 1fr;gap:14px 16px;}
+  .metaline.info .mi:nth-child(4){grid-column:1 / -1;}
+  .metaline.info .mi-k{font-size:14px;}
+  .metaline.info .mi-v{font-size:15px;}
+  .metaline.info .mi-v a{padding:9px 0;line-height:1.5;}
+}
