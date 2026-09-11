@@ -962,3 +962,7 @@ h1,h2,h3,h4,.card h4,.pat .ttl,.gen .name{text-wrap:balance;word-break:keep-all;
 
 /* 17：見出しを親幅いっぱいに（「」で括った語を途中で折らないため） */
 @media (min-width:1024px){ .slide.cover h1{max-width:100%;} }
+
+/* 14枚目：0円のカードをタップするまで、下の段落は隠す（2026-09-12） */
+.zc-after{display:none;}
+.zc-after.show{display:block;animation:heroIn .6s ease both;}

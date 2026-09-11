@@ -83,6 +83,7 @@
     var z=document.querySelector('.zerocard');
     if(z) z.addEventListener('click',function(){
       halfFlip(z, z.querySelector('.zc-front'), z.querySelector('.zc-back'), '0,1,0', 600, 800);
+      var za=document.getElementById('zcAfter'); if(za){ setTimeout(function(){ za.classList.add('show'); },700); } /* 14枚目：0円を見せてから、下の段落を表示 */
     },{once:true});
     var f=document.getElementById('gen3flip');
     if(f) f.addEventListener('click',function(){
