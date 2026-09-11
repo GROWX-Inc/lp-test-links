@@ -1,23 +1,20 @@
-/* 日本語の文節改行（PC・SP共通 / 2026-09-11 PCにも適用）
-   BudouX（Google／Apache-2.0）の学習済みモデル assets/budoux-ja.json を読み込み、
-   同じ判定アルゴリズムで文節の切れ目にゼロ幅スペースを入れる。
-   ・word-break:keep-all で「文節の途中」では折り返さない（「」や句読点の直後は通常どおり折り返し可）。幅に収まらない長い文節だけ overflow-wrap で最終的に折る
-   ・SPでは、PC向けに打った <br>（長い文の途中の改行）を外し、文節単位の自動折り返しに任せる
-   ・幅は固定pxで決めず、親幅に追従（改行位置は文節判定だけで決まる） */
+/* 日本語の改行位置の制御（PC・SP共通）— 2026-09-12 v3「句点 ＞ 読点 ＞ 文節」の優先順位で改行する
+   仕組み（噛み砕き）
+   1. 文を BudouX（Google／Apache-2.0）の学習済みモデル assets/budoux-ja.json で「文節」に分ける
+   2. 各文節の末尾に優先度を付ける：「。！？」＝3（句点） ＞ 「、」＝2（読点） ＞ それ以外＝1（文節）
+   3. 要素の実際の幅（親幅に追従・固定pxなし）と実際のフォントで文字幅を測り、1行に入る範囲を求める
+   4. 入りきらない位置で改行するとき、その行の中の候補から「優先度が高い切れ目」を選ぶ
+      ・句点は行の25%以上、読点は行の35%以上の位置にあれば優先して採用（短すぎる行を避ける）
+      ・どちらも無ければ、最も奥の文節の切れ目で折る。単語の途中では絶対に折らない
+   5. 最終行が極端に短い（25%未満）場合は、直前の行の切れ目を手前の読点・句点（15%以上の位置）にずらして整える
+   6. 決めた位置に <br> を入れる。画面幅が変わったら元に戻して計算し直す（レスポンシブ）
+   ・見出し内の元からある <br>（短い2行構成）は「必ず改行する位置」として尊重する
+   ・長い文の途中に打たれた見た目用の <br>（前の行が12文字以上）は外して、上の計算に任せる */
 (function(){
-  var SP=matchMedia('(max-width:767px)').matches;
   var ZWSP='\u200B';
-
-  /* 長い行の途中に打たれた <br> を外す（PC・SP共通）（前の行が12文字以上なら「PC用の見た目改行」とみなす）。
-     見出しの2行構成など短い行の <br> は残す */
-  function relaxBr(el){
-    el.querySelectorAll('br').forEach(function(br){
-      var prev='', n=br.previousSibling;
-      while(n){ prev=(n.textContent||'')+prev; n=n.previousSibling; }
-      var line=prev.split('\n').pop().replace(/\s/g,'');
-      if(line.length>=12){ br.parentNode.replaceChild(document.createTextNode(''), br); }
-    });
-  }
+  var SKIP_INSIDE='.bigv,.cmpv,[data-lv],#lvCount,#lvTime';
+  var SEL='h1,h2,.card h4,.slide p,.slide li,.gen .role,.gen .ana,.gen .verb,.gen .as,.gen .mtxt,.pat .desc,.bn .t,.incl-h,.incl-g b,.incl-g span:last-child,.incl-f,.note,.src,.dlab,.dname,.fc-hint';
+  var MIN_KUTEN=0.25, MIN_TOUTEN=0.35, MIN_LAST=0.25, MIN_ALT=0.15;
 
   /* ---- 判定器（BudouX parser.ts と同じ計算） ---- */
   function makeParser(model){
@@ -39,84 +36,122 @@
     };
   }
 
-  /* ---- 要素内のテキストノードに区切りを入れる ---- */
-  function apply(el, boundaries){
-    var walker=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
-    var nodes=[]; var n;
-    while((n=walker.nextNode())){
-      var p=n.parentElement;
-      if(!p || p.closest('svg')) continue;
-      if(getComputedStyle(p).whiteSpace==='nowrap') continue; /* nowrap指定の箇所は触らない */
-      if(n.nodeValue && /\S/.test(n.nodeValue)) nodes.push(n);
-    }
-    nodes.forEach(function(tn){
-      var s=tn.nodeValue; if(s.indexOf(ZWSP)>=0) return;
-      var b=boundaries(s); if(!b.length) return;
-      var parts=[], prev=0;
-      b.forEach(function(i){ parts.push(s.slice(prev,i)); prev=i; });
-      parts.push(s.slice(prev));
-      /* 文節の切れ目に「見えない改行候補」（ゼロ幅スペース）を入れるだけ。文字は分割しないので
-         グラデーション文字（background-clip:text）でも Safari で確実に表示される */
-      /* 文節の内側にある「」）、などの直後は、ブラウザ標準の折り返し候補になるため WORD JOINER（見えない結合記号）で塞ぐ */
-      parts=parts.map(function(t){ return t.replace(/([、」』）”])(?=.)/g, '$1\u2060'); });
-      tn.nodeValue=parts.join(ZWSP);
-    });
-    el.style.wordBreak='keep-all';
-    el.style.overflowWrap='anywhere';
-  }
-
-  /* ---- 見出しのルール（2026-09-12）：1文＝1行 ----
-     ① 見出し（h1/h2）は文の切れ目（。！？）で必ず改行する（文の途中では改行しない）
-     ② スマホで1文が1行に収まらないときは、収まるまで文字サイズを段階的に下げる（下限 HEAD_MIN）
-     ③ それでも収まらない長文だけ、文節で折り返す（文字は分割しない） */
-  var HEAD_MIN = SP ? 20 : 24;
-  function sentenceBreaks(el){
-    var walker=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes=[], n;
-    while((n=walker.nextNode())){ if(!n.parentElement.closest('svg') && /[。！？]/.test(n.nodeValue)) nodes.push(n); }
-    nodes.forEach(function(tn){
-      var parts=tn.nodeValue.split(/(?<=[。！？])/).filter(function(x){return x.length;});
-      if(parts.length<2) return;
-      var frag=document.createDocumentFragment();
-      parts.forEach(function(t,i){
-        frag.appendChild(document.createTextNode(t));
-        if(i<parts.length-1 && /\S/.test(parts[i+1])) frag.appendChild(document.createElement('br'));
-      });
-      tn.parentNode.replaceChild(frag,tn);
-    });
-  }
-  var meter=null;
-  function lineWidths(el){
-    if(!meter){ meter=document.createElement('span'); meter.style.cssText='position:absolute;left:-99999px;top:0;white-space:nowrap;visibility:hidden;pointer-events:none;'; document.body.appendChild(meter); }
+  /* ---- 文字幅の測定（要素の実フォントで測る） ---- */
+  var canvas=document.createElement('canvas'), ctx=canvas.getContext('2d');
+  function fontOf(el){
     var cs=getComputedStyle(el);
-    meter.style.font=cs.font; meter.style.letterSpacing=cs.letterSpacing; meter.style.fontFeatureSettings=cs.fontFeatureSettings;
-    var lines=(el.innerText||'').replace(/[\u200B\u2060]/g,'').split('\n').map(function(t){return t.trim();}).filter(Boolean);
-    return lines.map(function(t){ meter.textContent=t; return meter.getBoundingClientRect().width; });
+    return {font:cs.fontStyle+' '+cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily, ls:parseFloat(cs.letterSpacing)||0};
   }
-  function fitHeading(el){
-    if(!el.dataset.baseFs){ el.dataset.baseFs=parseFloat(getComputedStyle(el).fontSize); }
-    var base=parseFloat(el.dataset.baseFs);
-    el.style.setProperty('font-size', base+'px', 'important');
-    var avail=el.clientWidth; if(!avail) return;
-    var max=Math.max.apply(null, lineWidths(el).concat([0]));
-    if(max<=avail) return;
-    var fs=Math.max(HEAD_MIN, Math.floor(base*avail/max*10)/10);
-    el.style.setProperty('font-size', fs+'px', 'important');
-  }
-  var HEADS='.slide h2, .slide h1, .hero h1';
-  function fitAll(){ document.querySelectorAll(HEADS).forEach(function(el){ if(el.closest('svg')) return; try{ fitHeading(el); }catch(e){} }); }
-  var rt; addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(fitAll,120); });
+  function measure(text,f){ ctx.font=f.font; return ctx.measureText(text).width + f.ls*text.length; }
 
-  var sel='h1,h2,.card h4,.slide p,.slide li,.gen .role,.gen .ana,.gen .verb,.gen .as,.gen .mtxt,.pat .desc,.bn .t,.incl-h,.incl-g b,.incl-g span:last-child,.incl-f,.note,.src,.dlab,.dname,.fc-hint';
+  /* ---- 長い行の途中に打たれた <br> を外す（見出しの短い2行構成は残す） ---- */
+  function relaxBr(el){
+    el.querySelectorAll('br').forEach(function(br){
+      var prev='', n=br.previousSibling;
+      while(n){ prev=(n.textContent||'')+prev; n=n.previousSibling; }
+      var line=prev.split('\n').pop().replace(/\s/g,'');
+      if(line.length>=12){ br.parentNode.removeChild(br); }
+    });
+  }
+
+  /* ---- 要素を「文節トークン」の列にする ---- */
+  function tokenize(el, boundaries){
+    var tokens=[]; /* {node, start, end, text, w, pri} */
+    var walker=document.createTreeWalker(el, NodeFilter.SHOW_ALL, null); var n;
+    while((n=walker.nextNode())){
+      if(n.nodeType===1){ if(n.tagName==='BR'){ tokens.push({br:true,pri:4,w:0}); } continue; }
+      if(n.nodeType!==3) continue;
+      var p=n.parentElement; if(!p||p.closest('svg')) continue;
+      var s=n.nodeValue; if(!s||!/\S/.test(s)) continue;
+      var f=fontOf(p);
+      var b=boundaries(s); var cuts=[0].concat(b).concat([s.length]);
+      for(var i=0;i<cuts.length-1;i++){
+        var t=s.slice(cuts[i],cuts[i+1]); if(!t) continue;
+        var last=t.replace(/[\s\u200B]+$/,'').slice(-1);
+        var pri=/[。！？!?]/.test(last)?3:(/[、，]/.test(last)?2:1);
+        tokens.push({node:n,start:cuts[i],end:cuts[i+1],text:t,w:measure(t,f),pri:pri});
+      }
+    }
+    return tokens;
+  }
+
+  /* ---- 行の組み立て：幅に収まる範囲で、優先度の高い切れ目を選ぶ ---- */
+  function layoutPara(tokens, from, to, W, breaks){ /* [from,to) の範囲＝元からの <br> で区切られた1段落 */
+    var paraBreaks=[], lineStart=from;
+    while(lineStart<to){
+      var acc=0, i=lineStart;
+      for(; i<to; i++){ if(acc+tokens[i].w > W && i>lineStart) break; acc+=tokens[i].w; }
+      if(i>=to) break; /* 最後の行 */
+      var cut=i-1, best=-1, w=0, pos=[];
+      for(var k=lineStart;k<=cut;k++){ w+=tokens[k].w; pos.push(w); }
+      for(var k2=cut;k2>=lineStart;k2--){ if(tokens[k2].pri===3 && pos[k2-lineStart]>=W*MIN_KUTEN){ best=k2; break; } }
+      if(best<0){ for(var k3=cut;k3>=lineStart;k3--){ if(tokens[k3].pri===2 && pos[k3-lineStart]>=W*MIN_TOUTEN){ best=k3; break; } } }
+      if(best<0) best=cut;
+      paraBreaks.push(best); lineStart=best+1;
+    }
+    /* 最終行が極端に短いときは、直前の改行を手前の読点／句点にずらす（段落の中だけで判断） */
+    if(paraBreaks.length){
+      var lastBreak=paraBreaks[paraBreaks.length-1], tail=0;
+      for(var t=lastBreak+1;t<to;t++) tail+=tokens[t].w;
+      if(tail>0 && tail<W*MIN_LAST){
+        var prevStart=paraBreaks.length>=2?paraBreaks[paraBreaks.length-2]+1:from, acc2=0, alt=-1;
+        for(var q=prevStart;q<lastBreak;q++){ acc2+=tokens[q].w; if(tokens[q].pri>=2 && acc2>=W*MIN_ALT) alt=q; }
+        if(alt>=0){
+          var rest=0; for(var r=alt+1;r<to;r++) rest+=tokens[r].w;
+          if(rest<=W) paraBreaks[paraBreaks.length-1]=alt;
+        }
+      }
+    }
+    paraBreaks.forEach(function(x){ breaks.push(x); });
+  }
+  function layout(tokens, W){
+    var breaks=[], from=0;
+    for(var i=0;i<=tokens.length;i++){
+      if(i===tokens.length || tokens[i].br){ layoutPara(tokens, from, i, W, breaks); from=i+1; }
+    }
+    return breaks;
+  }
+
+  /* ---- 決めた位置に <br> を入れる ---- */
+  function insertBreaks(tokens, breaks){
+    /* 後ろから処理するとノード分割で位置がずれない */
+    for(var i=breaks.length-1;i>=0;i--){
+      var tk=tokens[breaks[i]]; if(tk.br) continue;
+      var node=tk.node;
+      var after=node.splitText(tk.end);
+      var br=document.createElement('br'); br.className='jwbr';
+      node.parentNode.insertBefore(br, after);
+    }
+  }
+
+  var originals=new WeakMap();
+  var parser=null;
+
+  function process(el){
+    if(el.closest('svg')) return;
+    if(el.querySelector(SKIP_INSIDE)) return;
+    if(!originals.has(el)) originals.set(el, el.innerHTML);
+    else el.innerHTML=originals.get(el);
+    if(el.matches('.slide p, .slide li')) relaxBr(el);
+    /* flex/grid の中で「中身の幅」に縮んでいる要素は、親幅いっぱいに広げてから測る（幅は親に追従・固定pxなし） */
+    el.style.alignSelf='stretch'; el.style.justifySelf='stretch';
+    var cs=getComputedStyle(el);
+    var W=el.clientWidth-(parseFloat(cs.paddingLeft)||0)-(parseFloat(cs.paddingRight)||0);
+    if(W<=0) return;
+    var tokens=tokenize(el, parser);
+    if(!tokens.length) return;
+    var breaks=layout(tokens, W);
+    /* ブラウザ側の自動改行は「単語の途中で折らない」保険としてだけ残す */
+    el.style.wordBreak='keep-all'; el.style.overflowWrap='anywhere'; el.style.textWrap='wrap';
+    insertBreaks(tokens, breaks);
+  }
+
+  function run(){ document.querySelectorAll(SEL).forEach(function(el){ try{ process(el); }catch(e){} }); }
 
   fetch('assets/budoux-ja.json').then(function(r){ return r.json(); }).then(function(model){
-    var boundaries=makeParser(model);
-    document.querySelectorAll(sel).forEach(function(el){
-      if(el.closest('svg')) return;
-      /* 数値カウントアップ対象（.bigv/.cmpv）や計測表示（[data-lv]など）はJSが文字列を書き換えるため除外 */
-      if(el.querySelector('.bigv,.cmpv,[data-lv],#lvCount,#lvTime')) return;
-      try{ if(el.matches('.slide p, .slide li')) relaxBr(el); if(el.matches(HEADS)) sentenceBreaks(el); apply(el, boundaries); }catch(e){}
-    });
-    fitAll();
-    if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+    parser=makeParser(model);
+    var ready=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+    ready.then(run);
+    var t=0; addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(run,150); });
   }).catch(function(){});
 })();
