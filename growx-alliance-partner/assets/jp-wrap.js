@@ -57,11 +57,54 @@
       parts.push(s.slice(prev));
       /* 文節の切れ目に「見えない改行候補」（ゼロ幅スペース）を入れるだけ。文字は分割しないので
          グラデーション文字（background-clip:text）でも Safari で確実に表示される */
+      /* 文節の内側にある「」）、などの直後は、ブラウザ標準の折り返し候補になるため WORD JOINER（見えない結合記号）で塞ぐ */
+      parts=parts.map(function(t){ return t.replace(/([、」』）”])(?=.)/g, '$1\u2060'); });
       tn.nodeValue=parts.join(ZWSP);
     });
     el.style.wordBreak='keep-all';
     el.style.overflowWrap='anywhere';
   }
+
+  /* ---- 見出しのルール（2026-09-12）：1文＝1行 ----
+     ① 見出し（h1/h2）は文の切れ目（。！？）で必ず改行する（文の途中では改行しない）
+     ② スマホで1文が1行に収まらないときは、収まるまで文字サイズを段階的に下げる（下限 HEAD_MIN）
+     ③ それでも収まらない長文だけ、文節で折り返す（文字は分割しない） */
+  var HEAD_MIN = SP ? 20 : 24;
+  function sentenceBreaks(el){
+    var walker=document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes=[], n;
+    while((n=walker.nextNode())){ if(!n.parentElement.closest('svg') && /[。！？]/.test(n.nodeValue)) nodes.push(n); }
+    nodes.forEach(function(tn){
+      var parts=tn.nodeValue.split(/(?<=[。！？])/).filter(function(x){return x.length;});
+      if(parts.length<2) return;
+      var frag=document.createDocumentFragment();
+      parts.forEach(function(t,i){
+        frag.appendChild(document.createTextNode(t));
+        if(i<parts.length-1 && /\S/.test(parts[i+1])) frag.appendChild(document.createElement('br'));
+      });
+      tn.parentNode.replaceChild(frag,tn);
+    });
+  }
+  var meter=null;
+  function lineWidths(el){
+    if(!meter){ meter=document.createElement('span'); meter.style.cssText='position:absolute;left:-99999px;top:0;white-space:nowrap;visibility:hidden;pointer-events:none;'; document.body.appendChild(meter); }
+    var cs=getComputedStyle(el);
+    meter.style.font=cs.font; meter.style.letterSpacing=cs.letterSpacing; meter.style.fontFeatureSettings=cs.fontFeatureSettings;
+    var lines=(el.innerText||'').replace(/[\u200B\u2060]/g,'').split('\n').map(function(t){return t.trim();}).filter(Boolean);
+    return lines.map(function(t){ meter.textContent=t; return meter.getBoundingClientRect().width; });
+  }
+  function fitHeading(el){
+    if(!el.dataset.baseFs){ el.dataset.baseFs=parseFloat(getComputedStyle(el).fontSize); }
+    var base=parseFloat(el.dataset.baseFs);
+    el.style.setProperty('font-size', base+'px', 'important');
+    var avail=el.clientWidth; if(!avail) return;
+    var max=Math.max.apply(null, lineWidths(el).concat([0]));
+    if(max<=avail) return;
+    var fs=Math.max(HEAD_MIN, Math.floor(base*avail/max*10)/10);
+    el.style.setProperty('font-size', fs+'px', 'important');
+  }
+  var HEADS='.slide h2, .slide h1, .hero h1';
+  function fitAll(){ document.querySelectorAll(HEADS).forEach(function(el){ if(el.closest('svg')) return; try{ fitHeading(el); }catch(e){} }); }
+  var rt; addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(fitAll,120); });
 
   var sel='h1,h2,.card h4,.slide p,.slide li,.gen .role,.gen .ana,.gen .verb,.gen .as,.gen .mtxt,.pat .desc,.bn .t,.incl-h,.incl-g b,.incl-g span:last-child,.incl-f,.note,.src,.dlab,.dname,.fc-hint';
 
@@ -71,7 +114,9 @@
       if(el.closest('svg')) return;
       /* 数値カウントアップ対象（.bigv/.cmpv）や計測表示（[data-lv]など）はJSが文字列を書き換えるため除外 */
       if(el.querySelector('.bigv,.cmpv,[data-lv],#lvCount,#lvTime')) return;
-      try{ if(el.matches('.slide p, .slide li')) relaxBr(el); apply(el, boundaries); }catch(e){}
+      try{ if(el.matches('.slide p, .slide li')) relaxBr(el); if(el.matches(HEADS)) sentenceBreaks(el); apply(el, boundaries); }catch(e){}
     });
+    fitAll();
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
   }).catch(function(){});
 })();
