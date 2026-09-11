@@ -14,3 +14,21 @@
   .metaline.info .mi-v{font-size:15px;}
   .metaline.info .mi-v a{padding:9px 0;line-height:1.5;}
 }
+
+/* =====================================================================
+   12枚目の料金表（2026-09-12）— 列幅を中身に合わせる
+   原因：スマホ用に table-layout:fixed を掛けていたため、列幅が中身を無視して
+        左右50%ずつに固定され、左の「ホームページ（5ページ）」だけ折り返していた
+   対策：table-layout:auto に戻し、金額の列は中身の幅だけ（縮まない）、
+        品名の列が残り全部を取る。固定pxは使わない
+   ===================================================================== */
+.slide table{table-layout:auto;width:100%;}
+.slide td.n{width:1%;white-space:nowrap;text-align:right;padding-left:calc(1.2*var(--u));}
+.slide table td:first-child{width:auto;word-break:keep-all;overflow-wrap:normal;}
+@media (max-width:767px){
+  .slide table td:first-child{overflow-wrap:anywhere;} /* 極端に狭い端末だけ、最後の手段として折る */
+}
+/* 17枚目の会社情報は新しい .mi-k/.mi-v で大きさを決めるので、旧 .metaline の縮小指定を効かせない */
+@media (max-width:767px){
+  .metaline.info span{font-size:inherit!important;}
+}
