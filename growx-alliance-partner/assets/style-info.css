@@ -60,21 +60,23 @@
 .slide .o2-c,.slide.tight .o2-c,.slide.light .o2-c{margin-top:calc(.8*var(--u));font-size:max(14px,calc(1.3*var(--u)));line-height:1.65;color:var(--muted);word-break:keep-all;overflow-wrap:anywhere;}
 .o2-cta{margin-top:calc(1.6*var(--u));transform-origin:left center;will-change:transform;}
 /* 限定CTAの間欠パルス（2026-09-12）
-   ・数秒おきに1回だけ膨らむ。ボタン本体ではなくラッパーを動かしているのは、
+   ・2秒周期で、拡大→やや縮小→再拡大と振れる。ボタン本体ではなくラッパーを動かしているのは、
      .cta:hover の translateY を潰さないため（transform は1要素に1つしか効かない）
    ・.slide.in が付いてから動き出す（画面に入る前は動かさない）
    ・WCAG 2.2.2 の観点ではグレー（全体としては5秒を超えて動き続けると解釈されうる）。
      承知のうえで採用した判断。停止ボタンは置いていない。仕様変更時はこの点を再確認すること
    ・prefers-reduced-motion が有効な環境では動かさない
-   ・黄色と同じく、ここ以外のCTAには付けないこと（増やすと目立たなくなる） */
+   ・黄色と同じく、ここ以外のCTAには付けないこと（増やすと目立たなくなる）
+   ・倍率を上げるときは、カード枠からのはみ出しと横スクロールの有無を必ず測り直すこと */
 @keyframes o2pulse{
-  0%,70%{transform:scale(1);}
-  76%{transform:scale(1.035);}
-  82%{transform:scale(1);}
-  88%{transform:scale(1.025);}
-  94%,100%{transform:scale(1);}
+  0%,40%{transform:scale(1);}
+  52%{transform:scale(1.085);}
+  64%{transform:scale(.975);}
+  76%{transform:scale(1.045);}
+  88%{transform:scale(.995);}
+  100%{transform:scale(1);}
 }
-.slide.in .o2-cta{animation:o2pulse 6.5s ease-in-out infinite;}
+.slide.in .o2-cta{animation:o2pulse 2s ease-in-out infinite;}
 @media (prefers-reduced-motion:reduce){
   .slide.in .o2-cta{animation:none;}
 }
