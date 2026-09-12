@@ -154,3 +154,58 @@
 .price .amt,.o2-p b{font-family:'Oswald',var(--jp);}
 .price .amt,.slide .o2-now,.slide.tight .o2-now{font-weight:700;}
 .price .yen,.slide .o2-was,.slide.tight .o2-was,.slide .o2-arw,.slide.tight .o2-arw,.slide .o2-tax,.slide.tight .o2-tax{font-weight:500;}
+
+/* =====================================================================
+   デザイン4原則にもとづく全体調整（2026-09-12）
+   このブロックだけを削除すれば、変更前の状態に完全に戻せる（style.css は無変更）
+
+   【なぜ必要だったか：実測で判明した問題】
+   ・反復の破綻：.tight クラスの有無で、同じ階層の見出しが 44px と 50px の
+     2サイズで描かれていた（tight 9枚／非tight 5枚）。リード文も 19px と 23px。
+     読み手が「どれが重要か」を学習できず、全体が散らかって見える原因だった
+   ・近接の欠如：見出し→リードが15px、リード→本体が18px。差が3pxしかなく、
+     「見出し＋リードが1つの塊」であることが距離で表現できていなかった
+   ・対比の不足：デッキ全体で文字サイズが17種類。とくに14〜20pxに7種類が密集し、
+     階層として機能せず、ただのばらつきとして見えていた
+   ・整列は問題なし：全スライドの左端が179pxで一致していたため、ここは触っていない
+
+   【方針】
+   ・44 / 22 / 17 / 14 の4段に整理する（カード見出しのみ20pxで中間に置く）。
+     金額・インパクト数字（58px等）は「強調」として別枠で残す
+   ・見出しとリードは近づけ（--sp-pair）、ブロック間は離す（--sp-block）
+   ・大きい方（50px）ではなく小さい方（44px）に揃えた。すでに9枚が44pxで
+     破綻なく動いており、逆に50pxへ揃えると情報量の多いスライドが溢れるため
+   ・スマホ幅はもともとほぼ統一されていたので、値を変えず現状維持している
+   ・直書きの style="font-size:..." を上書きする必要がある箇所のみ !important を使う
+   ・.card.ic（7枚目の5列カード）は列が狭く溢れるため、本文・見出しの拡大から除外
+   ===================================================================== */
+:root{
+  --fs-h2:max(26px,min(calc(4.1*var(--u)),5.2cqw));
+  --fs-lead:max(18px,calc(2.05*var(--u)));
+  --fs-body:max(16px,calc(1.6*var(--u)));
+  --fs-cardh:max(18px,calc(1.85*var(--u)));
+  --sp-pair:max(8px,calc(.9*var(--u)));   /* 見出し→リード：近づける */
+  --sp-block:max(22px,calc(3*var(--u)));  /* ブロック間：離す */
+  --sp-sub:max(14px,calc(1.6*var(--u)));  /* ブロック内の小さい区切り */
+}
+/* PC幅では下限を引き上げる。16枚目（cover）は右側にオーブを置くぶん内容幅が狭く、
+   同じ計算式だと文字が他スライドより一段小さく出てしまうため */
+@media (min-width:1024px){
+  :root{--fs-lead:max(20px,calc(2.05*var(--u)));--sp-block:max(26px,calc(3*var(--u)));}
+}
+.slide h2,.slide.tight h2,.hero2 h2{font-size:var(--fs-h2);margin-bottom:0;}
+.slide p.lead,.slide.tight p.lead,.slide.tight .lead{font-size:var(--fs-lead);}
+.slide>p:not(.lead){font-size:var(--fs-body)!important;}
+.slide .card:not(.ic) p,.slide.tight .g2 .card:not(.ic) p,.slide.tight .g4 .card:not(.ic) p{font-size:var(--fs-body);} /* .slide.tight .g2 .card p が4クラスで勝つため、同じ強さの指定を並べている */
+.slide .card:not(.ic) h4{font-size:var(--fs-cardh)!important;}
+.slide .card.ic p{font-size:max(14px,calc(1.35*var(--u)))!important;} /* 5列カードは列が狭いので別枠。14px下限だけは必ず守る（既存の .slide.tight .g5 .card p が12pxまで下げるため !important が必要） */
+.slide .mt1{margin-top:var(--sp-sub);}
+.slide .mt2,.slide.tight .mt2{margin-top:var(--sp-block);}
+.slide p.lead.mt2,.slide.tight p.lead.mt2{margin-top:var(--sp-pair);}
+/* mt クラスが付いていないブロックも、同じ間隔トークンに揃える */
+.slide>.fig,.slide>.sites,.slide>.gens,.slide>.demo2,.slide>.bignums,
+.slide.light>.fig,.slide.tight>.fig{margin-top:var(--sp-block);} /* .slide.light .fig が3クラスで勝つため、同じ強さの指定を足している */
+/* 12枚目の料金カード注記は span に font-size が直書きされており、
+   PC幅で12px相当まで落ちて14px下限を割っていた。span側の指定を無効化して本文サイズに揃える
+   （.g2 .card p.mt1 span は12枚目の2箇所だけに一致する） */
+.slide .g2 .card p.mt1 span{font-size:inherit!important;}
