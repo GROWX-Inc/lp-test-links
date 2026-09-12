@@ -139,3 +139,18 @@
 @media (max-width:360px){
   .o2-cta .cta{padding-left:14px;padding-right:14px;}
 }
+
+/* =====================================================================
+   金額の数字フォント（2026-09-12）
+   ・数字だけ Oswald（Google Fonts）、日本語は Noto Sans JP のまま
+     → Oswald には日本語グリフが無いので「万円」「通常」「（税別）」は自動的に後ろのフォントに落ちる
+   ・読み込みは数字とカンマ・ピリオドだけに絞っている（&text=0123456789,.）。数KBで済む
+     金額にカンマ等を足す場合は index.html の text= パラメータも更新すること
+   ・Oswald の実在ウェイトは 200〜700。元の指定は 900 でブラウザが疑似太字を合成していたため、
+     700 と 500 に直している。ここを 900 に戻すと文字がにじむので不可
+   ・この指定を外すときは、料金表と限定オファーの両方を同時に変えること
+     （片方だけ変えると資料内で数字の字形が混在する）
+   ===================================================================== */
+.price .amt,.o2-p b{font-family:'Oswald',var(--jp);}
+.price .amt,.slide .o2-now,.slide.tight .o2-now{font-weight:700;}
+.price .yen,.slide .o2-was,.slide.tight .o2-was,.slide .o2-arw,.slide.tight .o2-arw,.slide .o2-tax,.slide.tight .o2-tax{font-weight:500;}
