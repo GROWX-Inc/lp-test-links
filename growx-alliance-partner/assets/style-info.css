@@ -98,3 +98,44 @@
    ・装飾目的では増やさない。主要CTAだけに1つずつ
    ===================================================================== */
 .cta .cta-i{width:1.15em;height:1.15em;margin-right:.5em;flex:none;}
+
+/* =====================================================================
+   12枚目の料金表を読みやすくする（2026-09-12）
+   ・金額のジャンプ率：数字を項目名の約2.2倍にする。単位は数字の44%（ただし14px下限）
+   ・単位に span を使わないこと。td.n span{font-size:.8em!important}（1023px以下）に
+     潰されて10px台になる。必ず <b class="yen"> で組む
+   ・行の上下余白は .slide.tight .g2 td の .72u（デッキ内で最も詰まった値）を 1.5u に戻す
+   ・区切り線は --line（rgba(255,255,255,.09)）だと背景と同化するため .14 に上げる
+   ・「万円」の #8C8C98 はコントラスト3.3:1で基準未達。--muted（6.9:1）に変える
+   ・黄色は限定オファー専用の孤立色。おすすめピルには使わず既存の紫グラデを使う
+   ===================================================================== */
+.slide.tight .g2 .card{padding:calc(2.2*var(--u));}
+.slide.tight .g2 table.price th,
+.slide.tight .g2 table.price td{padding:calc(1.5*var(--u)) calc(.6*var(--u));border-bottom-color:rgba(255,255,255,.14);}
+.slide.tight .g2 table.price tr:last-child td{border-bottom:none;padding-bottom:calc(.6*var(--u));}
+.slide .g2 table.price td:first-child,
+.slide.tight .g2 table.price td:first-child{font-size:max(15px,calc(1.5*var(--u)));line-height:1.5;color:var(--ink);}
+.slide .g2 table.price td.n,
+.slide.tight .g2 table.price td.n{vertical-align:baseline;}
+.price .amt{display:inline-flex;align-items:baseline;gap:.14em;font-size:max(30px,calc(3.3*var(--u)));font-weight:900;line-height:1.05;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
+.price .yen{font-size:max(14px,.44em);font-weight:600;letter-spacing:0;color:var(--muted);}
+.reco{display:inline-block;margin-left:calc(1*var(--u));padding:calc(.2*var(--u)) calc(.9*var(--u));border-radius:100px;background:var(--grad);color:#0A0A10;font-size:max(14px,calc(1.14*var(--u)));font-weight:900;letter-spacing:.04em;vertical-align:middle;white-space:nowrap;}
+@media (max-width:767px){
+  .slide.tight .g2 .card{padding:18px 16px;}
+  .slide.tight .g2 table.price th,
+  .slide.tight .g2 table.price td{padding:14px 0;}
+  .slide.tight .g2 table.price tr:last-child td{padding-bottom:6px;}
+  .slide .g2 table.price td:first-child,
+  .slide.tight .g2 table.price td:first-child{font-size:16px;}
+  .price .amt{font-size:32px;}
+  .reco{font-size:14px;margin-left:8px;}
+}
+/* 限定オファー：取り消し線を赤・2pxにし、特別価格をさらに大きくする
+   文字色まで赤にすると警告色として読まれ、黄色の120万円と視線を奪い合うため、線だけ赤にする */
+.slide .o2-was,.slide.tight .o2-was{text-decoration-color:#FF6B6B;text-decoration-thickness:2px;text-underline-offset:0;}
+.slide .o2-now,.slide.tight .o2-now{font-size:max(40px,calc(5.4*var(--u)));font-variant-numeric:tabular-nums;}
+/* 320px級の端末でCTAの文言が語中で割れるため、左右paddingだけ詰めて1行に収める
+   （文字サイズは下げない。14px下限と可読性を優先） */
+@media (max-width:360px){
+  .o2-cta .cta{padding-left:14px;padding-right:14px;}
+}
