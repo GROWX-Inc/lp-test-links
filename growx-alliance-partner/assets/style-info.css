@@ -1,4 +1,3 @@
-
 /* 17：会社情報を「項目＋内容」の対で揃える（2026-09-12）
    ・項目名を上、内容を下に置き、列で左端をそろえる
    ・幅は固定pxを使わず、画面幅に応じて列数が変わる（PC4列 → タブレット2列 → スマホ2列） */
@@ -31,4 +30,30 @@
 /* 17枚目の会社情報は新しい .mi-k/.mi-v で大きさを決めるので、旧 .metaline の縮小指定を効かせない */
 @media (max-width:767px){
   .metaline.info span{font-size:inherit!important;}
+}
+
+/* =====================================================================
+   12枚目：体験型サイトLPの限定価格（毎月5社限定）
+   ・このスライドは 768〜1023px で白背景、〜767px と 1024px〜 でダーク配色になる。
+     両方で文字のコントラスト 4.5:1 以上を満たす色を指定している。色を変えるときは必ず再計算すること
+   ・文字サイズは打ち消し線の旧価格も含めて 14px 以上を確保している
+   ===================================================================== */
+.lim{display:flex;flex-wrap:wrap;align-items:center;gap:calc(.5*var(--u)) calc(.8*var(--u));margin:calc(.9*var(--u)) 0 calc(.3*var(--u));}
+.lim-b{flex:0 0 auto;background:#4A5FD8;color:#fff;font-weight:800;letter-spacing:.04em;line-height:1.5;border-radius:100px;padding:calc(.3*var(--u)) calc(1*var(--u));font-size:max(14px,calc(1.16*var(--u)));white-space:nowrap;}
+.lim-t{flex:1 1 100%;min-width:0;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere;}
+/* 条件文は .note を併用して jp-wrap.js の改行制御に載せている。 .note 側の色・文字サイズより後に来る必要があるため、セレクタの詳細度を合わせている */
+.slide .lim-t,.slide.tight .lim-t{font-size:max(14px,calc(1.16*var(--u)));}
+.slide.light .lim-t{color:#54545F;}
+/* td.n span{font-size:.8em!important} が入れ子のspanに重ねがけされるため、ここはspanを使わない */
+.pw{font-size:max(14px,1em);display:inline-flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:0 calc(.7*var(--u));}
+.pw .was{color:#6B6B78;font-weight:600;text-decoration:line-through;font-size:max(14px,.8em);}
+.pw .now{color:#3F51C9;}
+.pw .yen{font-size:.72em;font-weight:500;}
+@media (min-width:1024px){
+  .slide.light .lim-t,.slide.light .pw .was{color:var(--muted);}
+  .slide.light .pw .now{color:#6E8BFF;}
+}
+@media (max-width:767px){
+  .slide.light .lim-t,.slide.light .pw .was{color:var(--muted);}
+  .slide.light .pw .now{color:#6E8BFF;}
 }
