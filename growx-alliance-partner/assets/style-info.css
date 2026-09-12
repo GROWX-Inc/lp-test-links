@@ -144,8 +144,6 @@
    金額の数字フォント（2026-09-12）
    ・数字だけ Oswald（Google Fonts）、日本語は Noto Sans JP のまま
      → Oswald には日本語グリフが無いので「万円」「通常」「（税別）」は自動的に後ろのフォントに落ちる
-   ・読み込みは数字とカンマ・ピリオドだけに絞っている（&text=0123456789,.）。数KBで済む
-     金額にカンマ等を足す場合は index.html の text= パラメータも更新すること
    ・Oswald の実在ウェイトは 200〜700。元の指定は 900 でブラウザが疑似太字を合成していたため、
      700 と 500 に直している。ここを 900 に戻すと文字がにじむので不可
    ・この指定を外すときは、料金表と限定オファーの両方を同時に変えること
@@ -168,30 +166,43 @@
    ・対比の不足：デッキ全体で文字サイズが17種類。とくに14〜20pxに7種類が密集し、
      階層として機能せず、ただのばらつきとして見えていた
    ・整列は問題なし：全スライドの左端が179pxで一致していたため、ここは触っていない
+   ・書体が3つ（Noto Sans JP／Space Grotesk／Oswald）あり、しかも数字の書体が
+     料金表だけ Oswald、他は Space Grotesk と混在していた
+   ・余白の実測値が 10 / 17 / 23 / 26px など半端で、8の倍数のグリッドに乗っていなかった
 
    【方針】
-   ・44 / 22 / 17 / 14 の4段に整理する（カード見出しのみ20pxで中間に置く）。
+   ・書体は2つだけにする。数字・英字＝Oswald、日本語＝Noto Sans JP。
+     Space Grotesk は廃止し、読み込みも外した（＝ダウンロード量も減る）
+   ・文字サイズは 見出し / 20 / 16 / 14 の4段。カード見出しのみ18〜20pxで中間に置く。
      金額・インパクト数字（58px等）は「強調」として別枠で残す
-   ・見出しとリードは近づけ（--sp-pair）、ブロック間は離す（--sp-block）
-   ・大きい方（50px）ではなく小さい方（44px）に揃えた。すでに9枚が44pxで
+   ・余白は 8 / 16 / 24 / 32 の8の倍数だけを使う（Material Design の8dpグリッド）
+   ・見出しとリードは近づけ（8px）、ブロック間は離す（PC 32px／スマホ 24px）
+   ・見出しは大きい方（50px）ではなく小さい方（44px）に揃えた。すでに9枚が44pxで
      破綻なく動いており、逆に50pxへ揃えると情報量の多いスライドが溢れるため
-   ・スマホ幅はもともとほぼ統一されていたので、値を変えず現状維持している
    ・直書きの style="font-size:..." を上書きする必要がある箇所のみ !important を使う
    ・.card.ic（7枚目の5列カード）は列が狭く溢れるため、本文・見出しの拡大から除外
+   ・SVG図版の中の「投下した広告費　0円」のように日本語と数字が1つの文字列に
+     混在する箇所は、文中で書体を切り替えない原則から Noto Sans JP のままにしている
    ===================================================================== */
 :root{
+  /* 書体は2つだけ：数字・英字＝Oswald（--disp）、日本語＝Noto Sans JP（--jp）。
+     Space Grotesk は廃止し、読み込みも index.html から外した */
+  --disp:'Oswald','Noto Sans JP','Hiragino Kaku Gothic ProN','Noto Sans CJK JP','Yu Gothic',Meiryo,sans-serif;
+
+  /* 文字サイズは4段だけ。画面幅で変わるのは見出しのみ */
   --fs-h2:max(26px,min(calc(4.1*var(--u)),5.2cqw));
-  --fs-lead:max(18px,calc(2.05*var(--u)));
-  --fs-body:max(16px,calc(1.6*var(--u)));
-  --fs-cardh:max(18px,calc(1.85*var(--u)));
-  --sp-pair:max(8px,calc(.9*var(--u)));   /* 見出し→リード：近づける */
-  --sp-block:max(22px,calc(3*var(--u)));  /* ブロック間：離す */
-  --sp-sub:max(14px,calc(1.6*var(--u)));  /* ブロック内の小さい区切り */
+  --fs-lead:20px;
+  --fs-body:16px;
+  --fs-cardh:18px;
+
+  /* 余白は8の倍数のみ（Material Design の8dpグリッドに合わせる）。
+     10px・17px・23px・26px のような半端な値は使わない */
+  --sp-pair:8px;    /* 見出し→リード：近づける */
+  --sp-sub:16px;    /* ブロック内の小さい区切り */
+  --sp-block:24px;  /* ブロック間：離す */
 }
-/* PC幅では下限を引き上げる。16枚目（cover）は右側にオーブを置くぶん内容幅が狭く、
-   同じ計算式だと文字が他スライドより一段小さく出てしまうため */
 @media (min-width:1024px){
-  :root{--fs-lead:max(20px,calc(2.05*var(--u)));--sp-block:max(26px,calc(3*var(--u)));}
+  :root{--fs-cardh:20px;--sp-block:32px;}
 }
 .slide h2,.slide.tight h2,.hero2 h2{font-size:var(--fs-h2);margin-bottom:0;}
 .slide p.lead,.slide.tight p.lead,.slide.tight .lead{font-size:var(--fs-lead);}
@@ -204,7 +215,7 @@
 .slide p.lead.mt2,.slide.tight p.lead.mt2{margin-top:var(--sp-pair);}
 /* mt クラスが付いていないブロックも、同じ間隔トークンに揃える */
 .slide>.fig,.slide>.sites,.slide>.gens,.slide>.demo2,.slide>.bignums,
-.slide.light>.fig,.slide.tight>.fig{margin-top:var(--sp-block);} /* .slide.light .fig が3クラスで勝つため、同じ強さの指定を足している */
+.slide.light>.fig,.slide.tight>.fig,.slide .metaline.info{margin-top:var(--sp-block);} /* .slide.light .fig が3クラスで勝つため、同じ強さの指定を足している */
 /* 12枚目の料金カード注記は span に font-size が直書きされており、
    PC幅で12px相当まで落ちて14px下限を割っていた。span側の指定を無効化して本文サイズに揃える
    （.g2 .card p.mt1 span は12枚目の2箇所だけに一致する） */
