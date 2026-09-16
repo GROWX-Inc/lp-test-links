@@ -966,3 +966,18 @@ h1,h2,h3,h4,.card h4,.pat .ttl,.gen .name{text-wrap:balance;word-break:keep-all;
 /* 14枚目：0円のカードをタップするまで、下の段落は隠す（2026-09-12） */
 .zc-after{display:none;}
 .zc-after.show{display:block;animation:heroIn .6s ease both;}
+
+/* =====================================================================
+   ページ番号の自動採番と、料金ページの表示切替
+   - .num の数字はCSSが出す。display:none のページは番号を消費しないため、
+     料金ページを隠すと 02〜15、戻すと 02〜16 に自動で揃う
+   - 復活させるときは index.html の <body class="hide-pricing"> から
+     class="hide-pricing" を削除するだけでよい
+   ===================================================================== */
+.deck{counter-reset:slidenum 1;}
+.deck .slide{counter-increment:slidenum;}
+.deck .slide .num::before{content:counter(slidenum,decimal-leading-zero);}
+body.hide-pricing .pricing-slide{display:none;}
+.n-hidden{display:none;}
+body.hide-pricing .n-shown{display:none;}
+body.hide-pricing .n-hidden{display:inline;}
