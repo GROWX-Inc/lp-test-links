@@ -41,6 +41,7 @@
 | lp-chokatsu | テスト公開 |
 | gyosei-sample | テスト公開（社内サンプル・行政書士） |
 | growx-alliance-partner | テスト公開（GROWX営業資料・アライアンスパートナー募集デッキ） |
+| aozora-kensetsu | テスト公開（名刺営業AI 検証用の架空会社サイト。実在しない） |
 
 ## PRマージ後に必ずやること
 
