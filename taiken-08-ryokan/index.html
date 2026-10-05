@@ -6,6 +6,7 @@
 <title>湯宿 月白｜比べられる画面を破ると（体験デモ）</title>
 <meta name="description" content="最初に出るのは予約比較サイト風の一覧。右端から引っ張って破ると、旅館の世界が現れる体験型サイトのデモ。GROWX 体験カタログ 08。">
 <meta name="robots" content="noindex">
+<script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
@@ -37,7 +38,9 @@ svg{display:block}
 .section *{min-width:0;max-width:100%}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
-  background:var(--lamp);color:#2A1A06;font:700 var(--fs-body)/1.3 var(--body);text-decoration:none;cursor:pointer}
+  background:var(--lamp);color:#2A1A06;font:700 var(--fs-body)/1.3 var(--body);text-decoration:none;cursor:pointer;transition:transform .15s}
+@media (hover:hover){.btn:hover{transform:translateY(-2px)}}
+.btn:active{transform:translateY(1px) scale(.98)}
 .btn:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FFE2B5;outline-offset:3px}
 
 /* ===== 体験ステージ ===== */
@@ -56,6 +59,19 @@ svg{display:block}
 .torn .copy{opacity:1;transform:none}
 .copy small{display:block;font-size:var(--fs-label);letter-spacing:.4em;color:var(--lamp);margin-bottom:6px}
 .copy h1{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(34px,10vw,52px);letter-spacing:.18em;line-height:1.3}
+.copy h1 span{display:inline-block;opacity:0;transform:translateY(16px);filter:blur(6px);transition:opacity 1s,transform 1s cubic-bezier(.16,1,.3,1),filter 1s;transition-delay:calc(.35s + var(--c)*.14s)}
+.torn .copy h1 span{opacity:1;transform:none;filter:none}
+/* 破ったあとの世界：窓の灯りが順に点き、提灯が揺らぎ、蛍が舞う */
+.win{opacity:.08;transition:opacity .6s}
+.torn .win{opacity:1}
+.lan{animation:flicker 2.6s infinite}
+@keyframes flicker{0%,100%{opacity:1}18%{opacity:.82}22%{opacity:1}55%{opacity:.9}60%{opacity:.7}64%{opacity:1}}
+.lan.h{animation-delay:-1.3s}
+.ff{position:absolute;width:5px;height:5px;border-radius:50%;background:#FFE7A8;box-shadow:0 0 10px 3px rgba(255,214,130,.55);opacity:0;pointer-events:none;
+  transition:opacity 1.2s 1.2s;animation:drift var(--d,7s) ease-in-out infinite alternate}
+.torn .ff{opacity:.9}
+@keyframes drift{0%{transform:translate(0,0)}50%{transform:translate(var(--x1),var(--y1))}100%{transform:translate(var(--x2),var(--y2))}}
+.layer{will-change:transform}
 .copy p{margin:12px 0 0;color:var(--muted);font-size:var(--fs-lead);font-family:var(--display)}
 .reserve{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 28px);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
   opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .8s .6s,transform .8s .6s}
@@ -83,6 +99,19 @@ svg{display:block}
 .inn .tg span{font-size:var(--fs-label);line-height:1.5;padding:0 6px;border-radius:4px;background:#FBEAEA;color:var(--p-hot)}
 .inn .tg span.pt{background:#E6F2F1;color:var(--p-acc)}
 .inn.ours .ph{background:linear-gradient(135deg,#B9C3CF,#8796A8)}
+/* 比べられる画面のざわつき：残り室数が点滅し、価格が動く */
+.inn .tg span.hurry{animation:hurry 1.4s ease-in-out infinite}
+@keyframes hurry{50%{opacity:.4}}
+.inn .pr.tick{animation:tick 1s ease-out}
+@keyframes tick{0%{background:#FFE89A}100%{background:rgba(255,232,154,0)}}
+/* 破れ目の白い繊維（紙の断面） */
+.fiber{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:2}
+.fiber polyline{fill:none;stroke:#FBFAF6;stroke-linejoin:round;stroke-linecap:round}
+.fiber .f1{stroke-width:4}
+.fiber .f2{stroke-width:1.6;stroke-dasharray:1 4;opacity:.85}
+/* ちぎれて落ちる紙片 */
+.bit{position:absolute;z-index:7;background:#F2F3F5;pointer-events:none;box-shadow:0 2px 4px rgba(0,0,0,.25);animation:bitfall 1.2s cubic-bezier(.45,0,.9,.6) forwards}
+@keyframes bitfall{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
 
 /* 破るきっかけ */
 .grip{position:absolute;right:0;top:0;bottom:0;width:22px;z-index:6;pointer-events:none;
@@ -121,6 +150,9 @@ h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-heig
 .form .note{margin:0;font-size:var(--fs-label);color:var(--faint)}
 .form .btn{justify-self:start}
 
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*90ms)}
+.js .rv.in{opacity:1;transform:none}
+
 footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
 footer p{margin:0 0 6px}
 
@@ -145,31 +177,39 @@ footer p{margin:0 0 6px}
         <radialGradient id="glow"><stop offset="0" stop-color="#FFC877" stop-opacity=".55"/><stop offset="1" stop-color="#FFC877" stop-opacity="0"/></radialGradient>
       </defs>
       <rect x="-3000" width="6400" height="700" fill="url(#nsky)"/>
-      <circle cx="318" cy="258" r="40" fill="url(#moon)"/>
-      <circle cx="318" cy="258" r="18" fill="#FBF6EA"/>
-      <path d="M-3000 420 L-120 400 L-20 330 L70 380 L150 300 L240 372 L320 318 L420 390 L520 340 L3400 410 V700 H-3000Z" fill="#141626"/>
-      <path d="M-3000 470 L-60 455 L40 418 L130 452 L230 410 L330 448 L460 420 L3400 460 V700 H-3000Z" fill="#0F111D"/>
+      <g id="moonG"><circle cx="318" cy="258" r="40" fill="url(#moon)"/>
+      <circle cx="318" cy="258" r="18" fill="#FBF6EA"/></g>
+      <path id="mtFar" d="M-3000 420 L-120 400 L-20 330 L70 380 L150 300 L240 372 L320 318 L420 390 L520 340 L3400 410 V700 H-3000Z" fill="#141626"/>
+      <path id="mtNear" d="M-3000 470 L-60 455 L40 418 L130 452 L230 410 L330 448 L460 420 L3400 460 V700 H-3000Z" fill="#0F111D"/>
       <!-- 旅館 -->
+      <g id="innG">
       <ellipse cx="200" cy="520" rx="200" ry="70" fill="url(#glow)"/>
       <g transform="translate(200 520)">
         <path d="M-150 -40 L-118 -78 L118 -78 L150 -40Z" fill="#1B1A22"/>
         <path d="M-160 -40 L160 -40 L150 -32 L-150 -32Z" fill="#2A2630"/>
         <rect x="-136" y="-32" width="272" height="56" fill="#17161D"/>
-        <g fill="#F2C27A"><rect x="-120" y="-24" width="30" height="20"/><rect x="-80" y="-24" width="30" height="20"/><rect x="-40" y="-24" width="30" height="20"/>
-          <rect x="10" y="-24" width="30" height="20"/><rect x="50" y="-24" width="30" height="20"/><rect x="90" y="-24" width="30" height="20"/></g>
+        <g fill="#F2C27A"><rect class="win" style="transition-delay:1.34s" x="-120" y="-24" width="30" height="20"/><rect class="win" style="transition-delay:0.90s" x="-80" y="-24" width="30" height="20"/><rect class="win" style="transition-delay:1.78s" x="-40" y="-24" width="30" height="20"/>
+          <rect class="win" style="transition-delay:1.12s" x="10" y="-24" width="30" height="20"/><rect class="win" style="transition-delay:2.00s" x="50" y="-24" width="30" height="20"/><rect class="win" style="transition-delay:1.56s" x="90" y="-24" width="30" height="20"/></g>
         <path d="M-96 -78 L-70 -104 L70 -104 L96 -78Z" fill="#141319"/>
         <rect x="-14" y="2" width="28" height="22" fill="#F7D498"/>
-        <circle cx="-30" cy="10" r="7" fill="#E46A3A"/><circle cx="30" cy="10" r="7" fill="#E46A3A"/>
-        <circle cx="-30" cy="10" r="16" fill="#E46A3A" opacity=".18"/><circle cx="30" cy="10" r="16" fill="#E46A3A" opacity=".18"/>
+        <circle class="lan" cx="-30" cy="10" r="7" fill="#E46A3A"/><circle class="lan h" cx="30" cy="10" r="7" fill="#E46A3A"/>
+        <circle class="lan" cx="-30" cy="10" r="16" fill="#E46A3A" fill-opacity=".18"/><circle class="lan h" cx="30" cy="10" r="16" fill="#E46A3A" fill-opacity=".18"/>
       </g>
       <rect x="-3000" y="544" width="6400" height="160" fill="#0A0B13"/>
       <ellipse cx="200" cy="560" rx="150" ry="10" fill="#F2C27A" opacity=".12"/>
+      </g>
     </svg>
-    <div class="steam"><i></i><i></i><i></i></div>
+    <div class="steam layer" id="steam"><i></i><i></i><i></i></div>
+    <i class="ff" style="left:18%;top:62%;--d:6s;--x1:22px;--y1:-18px;--x2:-10px;--y2:-34px"></i>
+    <i class="ff" style="left:30%;top:74%;--d:8s;--x1:-16px;--y1:-26px;--x2:14px;--y2:-12px"></i>
+    <i class="ff" style="left:68%;top:66%;--d:7s;--x1:18px;--y1:-20px;--x2:-20px;--y2:-30px"></i>
+    <i class="ff" style="left:80%;top:78%;--d:9s;--x1:-24px;--y1:-14px;--x2:8px;--y2:-28px"></i>
+    <i class="ff" style="left:50%;top:84%;--d:6.5s;--x1:12px;--y1:-22px;--x2:-16px;--y2:-8px"></i>
+    <i class="ff" style="left:10%;top:82%;--d:7.5s;--x1:16px;--y1:-12px;--x2:26px;--y2:-26px"></i>
   </div>
   <div class="copy">
     <small>TSUKISHIRO</small>
-    <h1>湯宿 月白</h1>
+    <h1 aria-label="湯宿 月白"><span aria-hidden="true" style="--c:0">湯</span><span aria-hidden="true" style="--c:1">宿</span> <span aria-hidden="true" style="--c:2">月</span><span aria-hidden="true" style="--c:3">白</span></h1>
     <p>比べる前に、<br>ここで過ごす夜を。</p>
   </div>
   <div class="reserve">
@@ -182,14 +222,14 @@ footer p{margin:0 0 6px}
     <div class="bar"><b>やどくらべ</b><span>ログイン</span></div>
     <div class="cond"><span><b>箱根</b>・1泊2食・2名</span><span>並び順：<b>料金の安い順</b></span></div>
     <div class="list">
-      <div class="inn"><i class="ph"></i><div><b>温泉旅館 はなみずき</b><span class="st"><em>★4.1</em>（862件）</span><div class="pr">¥16,800<small>〜／人</small></div><div class="tg"><span>残り1室</span><span class="pt">ポイント10%</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>温泉旅館 はなみずき</b><span class="st"><em>★4.1</em>（862件）</span><div class="pr">¥16,800<small>〜／人</small></div><div class="tg"><span class="hurry">残り1室</span><span class="pt">ポイント10%</span></div></div></div>
       <div class="inn"><i class="ph"></i><div><b>箱根リゾート 翠</b><span class="st"><em>★4.3</em>（1,204件）</span><div class="pr">¥17,200<small>〜／人</small></div><div class="tg"><span class="pt">ポイント5%</span></div></div></div>
-      <div class="inn ours"><i class="ph"></i><div><b>湯宿 月白</b><span class="st"><em>★4.6</em>（318件）</span><div class="pr">¥18,400<small>〜／人</small></div><div class="tg"><span>残り2室</span></div></div></div>
+      <div class="inn ours"><i class="ph"></i><div><b>湯宿 月白</b><span class="st"><em>★4.6</em>（318件）</span><div class="pr">¥18,400<small>〜／人</small></div><div class="tg"><span class="hurry">残り2室</span></div></div></div>
       <div class="inn"><i class="ph"></i><div><b>旅籠 かえで亭</b><span class="st"><em>★3.9</em>（540件）</span><div class="pr">¥18,900<small>〜／人</small></div><div class="tg"><span class="pt">ポイント10%</span></div></div></div>
-      <div class="inn"><i class="ph"></i><div><b>山のホテル こもれび</b><span class="st"><em>★4.0</em>（975件）</span><div class="pr">¥19,500<small>〜／人</small></div><div class="tg"><span>本日限定</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>山のホテル こもれび</b><span class="st"><em>★4.0</em>（975件）</span><div class="pr">¥19,500<small>〜／人</small></div><div class="tg"><span class="hurry">本日限定</span></div></div></div>
       <div class="inn"><i class="ph"></i><div><b>湯の宿 しらさぎ</b><span class="st"><em>★4.2</em>（410件）</span><div class="pr">¥20,100<small>〜／人</small></div><div class="tg"><span class="pt">ポイント5%</span></div></div></div>
     </div>
-  </div></div>
+  </div><svg class="fiber" id="fiberA" aria-hidden="true"><polyline class="f1"/><polyline class="f2"/></svg></div>
   <div class="flap" id="flap" aria-hidden="true"></div>
   <i class="grip" aria-hidden="true"></i>
   <button class="hint" type="button" id="hint"><span class="ar" aria-hidden="true">←</span>右端をつかんで、左へ引っ張る</button>
@@ -198,29 +238,29 @@ footer p{margin:0 0 6px}
 <main>
   <div class="container">
     <section class="section block">
-      <p class="eyebrow">ROOMS</p>
-      <h2 class="h">星の数では、<br>伝わらないもの。</h2>
-      <p class="lead">客室は、全部で8室だけ。<br>どの部屋からも、湯けむりと山の稜線が見えます。</p>
+      <p class="eyebrow rv">ROOMS</p>
+      <h2 class="h rv" style="--i:1">星の数では、<br>伝わらないもの。</h2>
+      <p class="lead rv" style="--i:2">客室は、全部で8室だけ。<br>どの部屋からも、湯けむりと山の稜線が見えます。</p>
       <div class="rooms">
-        <div class="room"><div class="pic"></div><div class="tx"><b>離れ「凪」</b><p>源泉かけ流しの露天風呂付き。2名まで。</p></div></div>
-        <div class="room"><div class="pic b"></div><div class="tx"><b>本館 和室「月見」</b><p>窓辺から月が昇るのを眺める、10畳の和室。</p></div></div>
+        <div class="room rv" style="--i:3"><div class="pic"></div><div class="tx"><b>離れ「凪」</b><p>源泉かけ流しの露天風呂付き。2名まで。</p></div></div>
+        <div class="room rv" style="--i:4"><div class="pic b"></div><div class="tx"><b>本館 和室「月見」</b><p>窓辺から月が昇るのを眺める、10畳の和室。</p></div></div>
       </div>
     </section>
 
     <section class="section block">
-      <p class="eyebrow">DIRECT</p>
-      <h2 class="h">公式サイトから、<br>ご予約の方だけに。</h2>
+      <p class="eyebrow rv">DIRECT</p>
+      <h2 class="h rv" style="--i:1">公式サイトから、<br>ご予約の方だけに。</h2>
       <ul class="perks">
-        <li><span class="k">壱</span><div><b>湯上がりの地酒を一献</b><p>夕食前に、地元の酒蔵の一杯をお出しします。</p></div></li>
-        <li><span class="k">弐</span><div><b>チェックアウトは11時</b><p>朝風呂のあとも、慌てずにお過ごしください。</p></div></li>
-        <li><span class="k">参</span><div><b>ご要望を、事前に直接</b><p>記念日やお食事のご相談は、宿が直接うかがいます。</p></div></li>
+        <li class="rv" style="--i:2"><span class="k">壱</span><div><b>湯上がりの地酒を一献</b><p>夕食前に、地元の酒蔵の一杯をお出しします。</p></div></li>
+        <li class="rv" style="--i:3"><span class="k">弐</span><div><b>チェックアウトは11時</b><p>朝風呂のあとも、慌てずにお過ごしください。</p></div></li>
+        <li class="rv" style="--i:4"><span class="k">参</span><div><b>ご要望を、事前に直接</b><p>記念日やお食事のご相談は、宿が直接うかがいます。</p></div></li>
       </ul>
     </section>
 
     <section class="section block" id="book">
-      <p class="eyebrow">RESERVATION</p>
-      <h2 class="h">空室を見る</h2>
-      <form class="form" id="bookForm">
+      <p class="eyebrow rv">RESERVATION</p>
+      <h2 class="h rv" style="--i:1">空室を見る</h2>
+      <form class="form rv" style="--i:2" id="bookForm">
         <div class="two">
           <label>チェックイン<input type="date" id="ci"></label>
           <label>泊数<select><option>1泊</option><option>2泊</option><option>3泊</option></select></label>
@@ -248,6 +288,9 @@ footer p{margin:0 0 6px}
 
   /* 破れる側の紙：同じ画面を複製して重ねる（見た目だけ） */
   var copy=portal.cloneNode(true); copy.removeAttribute('id'); flap.appendChild(copy);
+  /* 破れ目の白い繊維：残る側（fiberA）と、めくれる側（fiberB）に同じ線を描く */
+  var fiberA=document.getElementById('fiberA'), fiberB=fiberA.cloneNode(true); fiberB.removeAttribute('id'); flap.appendChild(fiberB);
+  var fibers=[fiberA,fiberB].map(function(f){ return f.querySelectorAll('polyline'); });
 
   /* ギザギザの破れ目（毎回少し違う形） */
   var N=26, jag=[];
@@ -260,17 +303,21 @@ footer p{margin:0 0 6px}
     for(var i=0;i<=N;i++){ var y=H*i/N; pts.push([x + jag[i] + (i/N-.5)*28, y]); }
     return pts;
   }
-  function draw(x){ /* x：破れ目の位置（右端＝W） */
-    var e=edge(x), pull=W-x;
+  function draw(x,fall,rel){ /* x：破れ目の位置（右端＝W）／fall：手を離したあとの落下（0〜1）／rel：離した瞬間の状態 */
+    var e=edge(x), pull=W-x; fall=fall||0;
     var left='polygon(0px 0px,'+e.map(function(p){return p[0]+'px '+p[1]+'px'}).join(',')+',0px '+H+'px)';
     var right='polygon('+e.map(function(p){return p[0]+'px '+p[1]+'px'}).join(',')+','+(W+40)+'px '+H+'px,'+(W+40)+'px 0px)';
     portal.style.clipPath=left; portal.style.webkitClipPath=left;
     copy.style.clipPath=right; copy.style.webkitClipPath=right;
-    /* 破れた側は、引っ張るほど下へめくれ落ちる */
-    var k=pull/W;
-    flap.style.transformOrigin=x+'px 0px';
-    flap.style.transform='translate('+(k*W*.06)+'px,'+(k*H*.35)+'px) rotate('+(k*22)+'deg)';
-    flap.style.opacity=pull<1?0:Math.max(0,1-k*1.1);
+    var pts=e.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' ');
+    var pts2=e.map(function(p,i){return (p[0]+(i%2?2:-1.5)).toFixed(1)+','+p[1].toFixed(1)}).join(' ');
+    fibers.forEach(function(f){ f[0].setAttribute('points',pts); f[1].setAttribute('points',pts2); });
+    fiberA.style.opacity=pull<1?0:1;
+    /* 破れた側は、引っ張るほど下へめくれる。手を離すと重力で回りながら落ちる */
+    var k=rel?rel.k:pull/W, ox=rel?rel.x:x;
+    flap.style.transformOrigin=ox+'px 0px';
+    flap.style.transform='translate('+(k*W*.06+fall*W*.1)+'px,'+(k*H*.35+fall*fall*H*1.3)+'px) rotate('+(k*22+fall*fall*34)+'deg)';
+    flap.style.opacity=pull<1?0:Math.max(0,1-k*.6)*(1-Math.pow(fall,4));
   }
 
   function animateTo(from,to,dur,done){
@@ -281,11 +328,58 @@ footer p{margin:0 0 6px}
       if(k<1) requestAnimationFrame(f); else done&&done();
     })(t0);
   }
+  function bits(x){ /* 破れ目から紙片がちぎれて落ちる */
+    if(reduce) return;
+    for(var i=0;i<10;i++){
+      var b=document.createElement('i'), sz=6+Math.random()*10, y=H*(.1+Math.random()*.8);
+      b.className='bit'; b.style.left=(x+jag[i]-sz/2)+'px'; b.style.top=y+'px'; b.style.width=sz+'px'; b.style.height=(sz*(.5+Math.random()*.7))+'px';
+      b.style.clipPath='polygon(0 '+(Math.random()*40)+'%,100% 0,'+(70+Math.random()*30)+'% 100%,0 100%)';
+      b.style.setProperty('--dx',((Math.random()-.5)*120)+'px'); b.style.setProperty('--dy',(H*.5+Math.random()*H*.4)+'px'); b.style.setProperty('--r',((Math.random()-.5)*540)+'deg');
+      b.style.animationDelay=(Math.random()*.15)+'s';
+      stage.appendChild(b); setTimeout(function(el){ return function(){ el.remove(); }; }(b),1500);
+    }
+  }
   function complete(fromX){
-    stage.classList.remove('pulling');
-    animateTo(fromX,-60,700,function(){
-      paper.style.display='none'; flap.style.display='none'; torn=true; stage.classList.add('torn');
-    });
+    stopJitter(); bits(fromX);   /* 落ち切るまで pulling のまま（ヒントを出さない） */
+    var rel={k:(W-fromX)/W,x:fromX}, t0=performance.now(), dur=reduce?1:1000;
+    (function f(now){
+      var k=Math.max(0,Math.min(1,(now-t0)/dur)), xe=1-Math.pow(1-Math.min(1,k*2.2),3);
+      draw(fromX+(-60-fromX)*xe, k, rel);
+      if(k<1) requestAnimationFrame(f);
+      else { paper.style.display='none'; flap.style.display='none'; torn=true; stage.classList.remove('pulling'); stage.classList.add('torn'); startParallax(); }
+    })(t0);
+  }
+
+  /* 破る前：比較サイトの価格がときどき動く（同じ変化を、めくれる側の複製にも反映） */
+  var prA=portal.querySelectorAll('.pr'), prB=copy.querySelectorAll('.pr'), jt=null;
+  function jitter(){
+    var i=Math.floor(Math.random()*prA.length), node=prA[i].firstChild, v=+node.textContent.replace(/[^0-9]/g,'');
+    v+= (Math.random()<.5?-1:1)*(1+Math.floor(Math.random()*3))*100;
+    var txt='¥'+v.toLocaleString('ja-JP');
+    [prA[i],prB[i]].forEach(function(el){ el.firstChild.textContent=txt; el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick'); });
+    jt=setTimeout(jitter,1500+Math.random()*1300);
+  }
+  function stopJitter(){ clearTimeout(jt); jt=null; }
+  if(!reduce) jt=setTimeout(jitter,1800);
+
+  /* 破ったあと：指（マウス）の位置で、月・山・旅館・湯気が別々の速さでずれる。触らないときはゆっくり揺れる */
+  var LAY=[[document.getElementById('moonG'),4],[document.getElementById('mtFar'),7],[document.getElementById('mtNear'),11],[document.getElementById('innG'),16]];
+  var steam=document.getElementById('steam'), tx=0,ty=0,cx=0,cy=0,lastMove=-1e9,live=false;
+  stage.addEventListener('pointermove',function(e){
+    if(!torn) return; var r=stage.getBoundingClientRect(); tx=(e.clientX-r.left)/r.width*2-1; ty=(e.clientY-r.top)/r.height*2-1; lastMove=performance.now();
+  });
+  function frame(now){
+    if(!live) return;
+    var idle=now-lastMove>2500, t=now/1000, gx=idle?Math.sin(t*.3)*.5:tx, gy=idle?Math.sin(t*.23)*.3:ty;
+    cx+=(gx-cx)*.06; cy+=(gy-cy)*.06;
+    LAY.forEach(function(l){ l[0].setAttribute('transform','translate('+(-cx*l[1]).toFixed(2)+' '+(-cy*l[1]*.25).toFixed(2)+')'); });
+    steam.style.transform='translateX(calc(-50% + '+(-cx*22).toFixed(1)+'px))';
+    requestAnimationFrame(frame);
+  }
+  function startParallax(){
+    if(reduce) return;
+    live=true; requestAnimationFrame(frame);
+    if('IntersectionObserver' in window) new IntersectionObserver(function(es){ var v=es[0].isIntersecting; if(v&&!live){ live=true; requestAnimationFrame(frame); } live=v; }).observe(stage);
   }
 
   /* ドラッグ（指・マウス共通） */
@@ -297,7 +391,7 @@ footer p{margin:0 0 6px}
   addEventListener('pointermove',function(e){
     if(startX===null) return;
     var pull=Math.max(0,startX-e.clientX);
-    if(pull>6) stage.classList.add('pulling');
+    if(pull>6){ stage.classList.add('pulling'); stopJitter(); }
     curX=W-pull; draw(curX);
   });
   addEventListener('pointerup',end); addEventListener('pointercancel',end);
@@ -305,7 +399,7 @@ footer p{margin:0 0 6px}
     if(startX===null) return; startX=null;
     var pull=W-curX;
     if(pull>W*.35) complete(curX);                         /* 3分の1以上引っ張ったら、最後まで破れる */
-    else { stage.classList.remove('pulling'); animateTo(curX,W,350); }
+    else { stage.classList.remove('pulling'); animateTo(curX,W,350,function(){ if(!reduce&&!jt) jt=setTimeout(jitter,1500); }); }
   }
   /* ボタン（キーボード操作・引っ張れない人向け）でも破れる */
   document.getElementById('hint').addEventListener('click',function(){ if(!torn){ stage.classList.add('pulling'); animateTo(W,W*.55,500,function(){complete(W*.55)}); } });
@@ -316,6 +410,12 @@ footer p{margin:0 0 6px}
   fit();
   addEventListener('resize',function(){ size(); fit(); if(!torn) draw(W); });
   size(); draw(W);
+
+  /* 下層：画面に入ったら浮かび上がる */
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{rootMargin:'0px 0px -10% 0px',threshold:.15});
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
 
   /* 予約フォーム（デモ） */
   var d=new Date(); d.setDate(d.getDate()+14);
