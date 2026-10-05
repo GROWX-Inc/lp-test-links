@@ -6,6 +6,7 @@
 <title>ハコブネ物流｜御社の荷物で見る、発送代行（体験デモ）</title>
 <meta name="description" content="社名を入れると、その名前の荷物が入荷から出荷まで運ばれていく体験型サイトのデモ。GROWX 体験カタログ 06。">
 <meta name="robots" content="noindex">
+<script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
@@ -38,16 +39,22 @@ a{color:inherit}
 .section *{min-width:0;max-width:100%}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
-  background:var(--safety);color:#1D1600;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap}
+  background:var(--safety);color:#1D1600;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .15s}
+@media (hover:hover){.btn:hover:not(:disabled){transform:translateY(-2px)}}
+.btn:active:not(:disabled){transform:translateY(1px) scale(.98)}
 .btn:disabled{opacity:.55;cursor:default}
 .btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FFE38A;outline-offset:3px}
 
 /* ===== 体験ステージ ===== */
-.stage{position:relative;height:100svh;min-height:600px;overflow:hidden;display:grid;grid-template-rows:auto auto 1fr auto;
+.stage{position:relative;isolation:isolate;height:100svh;min-height:600px;overflow:hidden;display:grid;grid-template-rows:auto auto 1fr auto;
+  background:radial-gradient(ellipse at 50% 40%,#18202C,var(--bg) 70%)}
+.stage::before{ /* 方眼の床がゆっくり流れる（倉庫のコンベア感） */
+  content:"";position:absolute;inset:-28px;z-index:-1;pointer-events:none;
   background:
     linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px,
-    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px,
-    radial-gradient(ellipse at 50% 40%,#18202C,var(--bg) 70%)}
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px;
+  animation:flow 9s linear infinite}
+@keyframes flow{to{transform:translate(28px,28px)}}
 .top{padding:calc(env(safe-area-inset-top,0px) + 18px) var(--gutter) 0;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
 .top b{display:block;font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.16em;line-height:1.4;white-space:nowrap}
 .top small{display:block;font-size:var(--fs-label);color:var(--faint);letter-spacing:.12em}
@@ -73,7 +80,35 @@ a{color:inherit}
 
 .box{position:absolute;left:0;top:0;width:min(150px,38vw);transform:translate(-50%,-110%);pointer-events:none;will-change:transform;z-index:3}
 .box .face{position:relative;background:linear-gradient(180deg,#D3A56B,#B98A52);border-radius:4px;padding:14px 10px 10px;color:#2A1C0B;box-shadow:0 10px 24px rgba(0,0,0,.45)}
-.box .face::before{content:"";position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(255,255,255,.25)}
+/* 箱に起きる出来事（クラスの付け外しで動かす） */
+.box .tape{position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(255,255,255,.3);transform:scaleY(0);transform-origin:top;transition:transform .5s cubic-bezier(.3,.9,.4,1)}
+.box.taped .tape{transform:none}
+.box .scan{position:absolute;left:-8%;right:-8%;top:0;height:3px;border-radius:2px;background:var(--safety);box-shadow:0 0 12px var(--safety);opacity:0;z-index:2}
+.box.scanning .scan{animation:scan .45s ease-in-out 2 alternate}
+@keyframes scan{0%{top:0;opacity:1}100%{top:calc(100% - 3px);opacity:1}}
+.box .chip{position:absolute;right:-10px;top:-14px;z-index:3;padding:0 10px;border-radius:999px;background:var(--safety);color:#1D1600;font-size:var(--fs-label);font-weight:700;line-height:1.7;transform:scale(0);transition:transform .35s cubic-bezier(.2,1.6,.4,1)}
+.box.checked .chip{transform:none}
+.box .truck{position:absolute;left:-16%;right:-16%;top:100%;height:26px;opacity:0;transform:translateX(-24px);transition:opacity .3s,transform .45s cubic-bezier(.2,1,.4,1)}
+.box .truck::before{content:"";position:absolute;left:0;right:24%;top:0;height:8px;border-radius:2px;background:#5A6274}
+.box .truck .cab{position:absolute;right:0;width:26%;top:-16px;height:24px;border-radius:4px 10px 2px 2px;background:var(--safety)}
+.box .truck .cab::after{content:"";position:absolute;right:4px;top:4px;width:45%;height:8px;border-radius:2px 6px 0 0;background:#2A3240}
+.box .truck .w{position:absolute;top:4px;width:16px;height:16px;border-radius:50%;background:#1A1D24;border:3px solid #8A93A6;border-top-color:#1A1D24}
+.box .truck .w1{left:12%}.box .truck .w2{right:8%}
+.box.ontruck .truck{opacity:1;transform:none}
+.box.ontruck .truck .w{animation:spin .4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.box.idle .face{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-5px)}}
+.box.typed .face{animation:typed .28s ease-out}
+@keyframes typed{40%{transform:translateY(-6px) scale(1.03)}}
+.box.drop .face{animation:drop .65s cubic-bezier(.3,1.5,.5,1)}
+@keyframes drop{0%{transform:translateY(-60px);opacity:0}60%{opacity:1}}
+.box.ontruck .face{animation:rumble .2s linear infinite}
+@keyframes rumble{50%{transform:translateY(-1.5px)}}
+.box.land .face{animation:land .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes land{0%{transform:translateY(-24px)}55%{transform:translateY(0) scale(1.06,.92)}}
+.ripple{fill:none;stroke:var(--safety);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ripple .9s ease-out forwards;pointer-events:none}
+@keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(3.4);opacity:0}}
 .box .tag{position:relative;background:#FFFCF4;border-radius:2px;padding:4px 8px;font-size:var(--fs-label);font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1E1E1E}
 .box .tag small{display:block;font-weight:500;font-size:var(--fs-label);color:#4A4A4A}
 
@@ -87,7 +122,8 @@ a{color:inherit}
 .receipt.show{opacity:1;pointer-events:auto}
 .sheet{position:relative;width:min(420px,100%);background:var(--paper);color:var(--paperInk);border-radius:6px;padding:22px 22px 20px;box-shadow:0 30px 70px rgba(0,0,0,.55);
   transform:translateY(16px) rotate(-1deg);transition:transform .5s}
-.receipt.show .sheet{transform:none}
+.receipt.show .sheet{transform:none;animation:thud .32s .68s}
+@keyframes thud{30%{transform:translate(2px,4px) rotate(.5deg)}65%{transform:translate(-2px,-1px)}}
 .sheet h2{margin:0 0 4px;font-family:var(--display);font-size:var(--fs-h3);letter-spacing:.3em}
 .sheet .to{margin:10px 0 2px;font-size:var(--fs-lead);font-weight:700;border-bottom:1px solid #9C978C;padding-bottom:4px;overflow-wrap:anywhere}
 .sheet dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:12px 0 16px;font-size:var(--fs-label);color:#3A3A3A}
@@ -122,6 +158,9 @@ h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-heig
 .form input,.form select{width:100%;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #485062;background:#0F1218;color:var(--ink);font:var(--fs-body) var(--body)}
 .form .note{margin:0;font-size:var(--fs-label);color:var(--faint)}
 .form .btn{justify-self:start}
+
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*90ms)}
+.js .rv.in{opacity:1;transform:none}
 
 footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
 footer p{margin:0 0 6px}
@@ -159,7 +198,7 @@ footer p{margin:0 0 6px}
       <g id="nodes"></g>
     </svg>
     <div id="labels"></div>
-    <div class="box" id="box"><div class="face"><div class="tag"><span id="boxName">御社名</span> 様<small>品名：商品一式</small></div></div></div>
+    <div class="box idle" id="box"><div class="face"><i class="tape"></i><i class="scan"></i><div class="tag"><span id="boxName">御社名</span> 様<small>品名：商品一式</small></div><b class="chip">検品OK</b></div><div class="truck" aria-hidden="true"><i class="cab"></i><i class="w w1"></i><i class="w w2"></i></div></div>
   </div>
 
   <div class="log jw-skip" id="log" aria-live="polite"></div>
@@ -182,24 +221,24 @@ footer p{margin:0 0 6px}
 <main>
   <div class="container">
     <section class="section block">
-      <p class="eyebrow">WHAT WE DO</p>
-      <h2 class="h">さっき見た工程を、<br>そのまま預けられます。</h2>
-      <p class="lead">商品を送っていただくだけで、保管からお届けまでを代行します。<br>ショップの方は、売ることに集中できます。</p>
+      <p class="eyebrow rv">WHAT WE DO</p>
+      <h2 class="h rv" style="--i:1">さっき見た工程を、<br>そのまま預けられます。</h2>
+      <p class="lead rv" style="--i:2">商品を送っていただくだけで、保管からお届けまでを代行します。<br>ショップの方は、売ることに集中できます。</p>
       <ol class="cards">
-        <li><span class="no">01</span><b>入荷・検品</b><p>届いた商品の数と状態を確認し、在庫として登録します。</p></li>
-        <li><span class="no">02</span><b>保管・在庫管理</b><p>在庫数は管理画面で、いつでも確認できます。</p></li>
-        <li><span class="no">03</span><b>梱包・出荷</b><p>注文が入ったら、ショップの名前で梱包して発送します。</p></li>
+        <li class="rv" style="--i:2"><span class="no">01</span><b>入荷・検品</b><p>届いた商品の数と状態を確認し、在庫として登録します。</p></li>
+        <li class="rv" style="--i:3"><span class="no">02</span><b>保管・在庫管理</b><p>在庫数は管理画面で、いつでも確認できます。</p></li>
+        <li class="rv" style="--i:4"><span class="no">03</span><b>梱包・出荷</b><p>注文が入ったら、ショップの名前で梱包して発送します。</p></li>
       </ol>
       <div class="facts">
-        <div><strong>14:00</strong><span>当日出荷の締め時間</span></div>
-        <div><strong>土日も出荷</strong><span>週末の注文も、翌営業日まで待たせません</span></div>
+        <div class="rv" style="--i:1"><strong>14:00</strong><span>当日出荷の締め時間</span></div>
+        <div class="rv" style="--i:2"><strong>土日も出荷</strong><span>週末の注文も、翌営業日まで待たせません</span></div>
       </div>
     </section>
 
     <section class="section block" id="estimate">
-      <p class="eyebrow">ESTIMATE</p>
-      <h2 class="h">御社の出荷量で、<br>見積もりを出します。</h2>
-      <form class="form" id="estForm">
+      <p class="eyebrow rv">ESTIMATE</p>
+      <h2 class="h rv" style="--i:1">御社の出荷量で、<br>見積もりを出します。</h2>
+      <form class="form rv" style="--i:2" id="estForm">
         <label>会社名<input id="estCompany" type="text" maxlength="40" autocomplete="organization"></label>
         <label>月の出荷件数
           <select id="estVolume">
@@ -294,7 +333,7 @@ footer p{margin:0 0 6px}
   }
   function setProg(t){ prog.style.strokeDashoffset=len*(1-t); }
 
-  var reached=1;
+  var reached=1, reduceM=matchMedia('(prefers-reduced-motion: reduce)').matches;
   function mark(i){
     reached=Math.max(reached,i+1);
     nodeEls[i]&&nodeEls[i].classList.add('on'); labEls[i]&&labEls[i].classList.add('on');
@@ -303,6 +342,23 @@ footer p{margin:0 0 6px}
     while(log.children.length>3) log.removeChild(log.firstChild);
     requestAnimationFrame(function(){p.classList.add('on')});
     document.getElementById('clock').textContent=STEPS[i].t;
+    ripple(i); event(i);
+  }
+  /* 点に着いたときの波紋 */
+  function ripple(i){
+    var pt=L.pts[i]; if(!pt) return;
+    var c=document.createElementNS(NS,'circle'); c.setAttribute('class','ripple');
+    c.setAttribute('cx',pt[0]); c.setAttribute('cy',pt[1]); c.setAttribute('r',L===WIDE?9:8);
+    gNodes.appendChild(c); setTimeout(function(){ c.remove(); },1000);
+  }
+  /* 工程ごとに箱に起きる出来事 */
+  function play(cls){ box.classList.remove(cls); void box.offsetWidth; box.classList.add(cls); }
+  function event(i){
+    if(i===0) play('drop');                                   /* 入荷：上から届いて弾む */
+    if(i===1){ play('scanning'); setTimeout(function(){ box.classList.add('checked'); },reduceM?0:900); }  /* 検品：スキャンの光→検品OK */
+    if(i===2) box.classList.add('taped');                     /* 梱包：テープが貼られる */
+    if(i===3){ box.classList.remove('drop'); box.classList.add('ontruck'); }   /* 出荷：トラックに載って走る */
+    if(i===4){ box.classList.remove('ontruck'); play('land'); }              /* お届け：降ろされて着地 */
   }
 
   /* 区間ごとの長さ（点から点まで）を求め、点で一瞬止まりながら進める */
@@ -328,7 +384,7 @@ footer p{margin:0 0 6px}
         var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2, t=a+(b-a)*e;
         state=t; setProg(t); placeBox(t);
         if(k<1) requestAnimationFrame(step);
-        else { i++; mark(i); setTimeout(leg, reduce?10:380); }
+        else { i++; mark(i); setTimeout(leg, reduce?10:620); }
       })(t0);
     }
     setTimeout(leg, 300);
@@ -336,6 +392,7 @@ footer p{margin:0 0 6px}
   function reset(){
     state=0; reached=0; setProg(0); placeBox(0); log.innerHTML='';
     nodeEls.forEach(function(n){n.classList.remove('on')}); labEls.forEach(function(n){n.classList.remove('on')});
+    box.classList.remove('idle','typed','drop','scanning','checked','taped','ontruck','land');
     receipt.classList.remove('show');
   }
   function finish(name){
@@ -355,6 +412,13 @@ footer p{margin:0 0 6px}
     document.getElementById('company').blur();
     ship(v);
   });
+  /* 入力した社名を、その場で箱のラベルに印字する */
+  document.getElementById('company').addEventListener('input',function(){
+    if(running) return;
+    document.getElementById('boxName').textContent=this.value.trim()||'御社名';
+    box.classList.remove('idle'); play('typed');
+    clearTimeout(this._t); this._t=setTimeout(function(){ if(!running){ box.classList.remove('typed'); box.classList.add('idle'); } },400);
+  });
   document.getElementById('toEstimate').addEventListener('click',function(){ receipt.classList.remove('show'); });
   receipt.addEventListener('click',function(e){ if(e.target===receipt) receipt.classList.remove('show'); });
 
@@ -362,6 +426,11 @@ footer p{margin:0 0 6px}
   document.getElementById('estForm').addEventListener('submit',function(e){
     e.preventDefault(); toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
   });
+
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{rootMargin:'0px 0px -10% 0px',threshold:.15});
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
 
   var rt; addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,120); });
   build();
