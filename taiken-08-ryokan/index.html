@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>湯宿 月白｜比べられる画面を破ると（体験デモ）</title>
+<meta name="description" content="最初に出るのは予約比較サイト風の一覧。右端から引っ張って破ると、旅館の世界が現れる体験型サイトのデモ。GROWX 体験カタログ 08。">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+:root{
+  --gutter: clamp(15px, 4.5vw, 20px);
+  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
+  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
+
+  --bg:#0D0F1A; --panel:#161927; --line:#2E3245;
+  --ink:#F4EFE6;     /* 17.0:1 */
+  --muted:#C4BDB1;   /* 10.5:1 */
+  --faint:#ABA597;   /* 7.9:1 */
+  --lamp:#E6B46E;    /* 10.1:1 */
+
+  /* 比較サイト風の画面（架空） */
+  --p-bg:#EEF0F3; --p-card:#FFFFFF; --p-ink:#1F2328; --p-sub:#4F5661; --p-acc:#1F6F6B; --p-hot:#A8242B;
+
+  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
+.section{width:100%;padding-left:0;padding-right:0}
+.section *{min-width:0;max-width:100%}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
+  background:var(--lamp);color:#2A1A06;font:700 var(--fs-body)/1.3 var(--body);text-decoration:none;cursor:pointer}
+.btn:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FFE2B5;outline-offset:3px}
+
+/* ===== 体験ステージ ===== */
+.stage{position:relative;height:100svh;min-height:600px;overflow:hidden;touch-action:pan-y;user-select:none;-webkit-user-select:none;background:#0B0D18}
+
+/* 下の世界：旅館 */
+.world{position:absolute;inset:0}
+.world svg{position:absolute;inset:0;width:100%;height:100%}
+.steam{position:absolute;left:50%;bottom:30%;width:min(420px,80%);height:40%;transform:translateX(-50%);pointer-events:none;filter:blur(14px);opacity:.55}
+.steam i{position:absolute;bottom:0;width:30%;aspect-ratio:1;border-radius:50%;background:rgba(255,248,236,.22);animation:rise 7s linear infinite}
+.steam i:nth-child(1){left:10%;animation-delay:0s}
+.steam i:nth-child(2){left:38%;animation-delay:2.3s}
+.steam i:nth-child(3){left:64%;animation-delay:4.6s}
+@keyframes rise{0%{transform:translateY(20%) scale(.6);opacity:0}25%{opacity:1}100%{transform:translateY(-140%) scale(1.5);opacity:0}}
+.copy{position:absolute;left:var(--gutter);right:var(--gutter);top:calc(env(safe-area-inset-top,0px) + 12%);text-align:center;z-index:2;opacity:0;transform:translateY(12px);transition:opacity .9s .2s,transform .9s .2s}
+.torn .copy{opacity:1;transform:none}
+.copy small{display:block;font-size:var(--fs-label);letter-spacing:.4em;color:var(--lamp);margin-bottom:6px}
+.copy h1{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(34px,10vw,52px);letter-spacing:.18em;line-height:1.3}
+.copy p{margin:12px 0 0;color:var(--muted);font-size:var(--fs-lead);font-family:var(--display)}
+.reserve{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 28px);z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;
+  opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .8s .6s,transform .8s .6s}
+.torn .reserve{opacity:1;transform:none;pointer-events:auto}
+.reserve p{margin:0;font-size:var(--fs-label);color:var(--muted)}
+
+/* 上の画面：比較サイト風（架空） */
+.paper{position:absolute;inset:0;z-index:4;filter:drop-shadow(-6px 0 10px rgba(0,0,0,.45))}
+.flap{position:absolute;inset:0;z-index:5;pointer-events:none;filter:drop-shadow(0 12px 20px rgba(0,0,0,.5));transform-origin:0 0}
+.portal{position:absolute;inset:0;background:var(--p-bg);color:var(--p-ink);font-family:var(--body);overflow:hidden;display:flex;flex-direction:column}
+.portal .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 10px) var(--gutter) 10px;background:var(--p-acc);color:#fff}
+.portal .bar b{font-size:var(--fs-lead);letter-spacing:.06em}
+.portal .bar span{font-size:var(--fs-label)}
+.portal .cond{padding:10px var(--gutter);font-size:var(--fs-label);color:var(--p-sub);display:flex;flex-wrap:wrap;gap:6px 14px;border-bottom:1px solid #D5D9DF;background:#fff}
+.portal .cond b{color:var(--p-ink)}
+.portal .list{padding:12px var(--gutter);display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:10px;align-content:start}
+.inn{background:var(--p-card);border:1px solid #D5D9DF;border-radius:8px;padding:10px;display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:start}
+.inn .ph{width:100%;aspect-ratio:1;border-radius:6px;background:linear-gradient(135deg,#C9D2DC,#9AA7B6)}
+.inn b{display:block;font-size:var(--fs-body);line-height:1.4}
+.inn .st{font-size:var(--fs-label);color:var(--p-sub)}
+.inn .st em{font-style:normal;color:#8A5A00;font-weight:700}
+.inn .pr{font-size:var(--fs-lead);font-weight:700;color:var(--p-ink);line-height:1.4}
+.inn .pr small{font-size:var(--fs-label);font-weight:400;color:var(--p-sub)}
+.inn .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.inn .tg span{font-size:var(--fs-label);line-height:1.5;padding:0 6px;border-radius:4px;background:#FBEAEA;color:var(--p-hot)}
+.inn .tg span.pt{background:#E6F2F1;color:var(--p-acc)}
+.inn.ours .ph{background:linear-gradient(135deg,#B9C3CF,#8796A8)}
+
+/* 破るきっかけ */
+.grip{position:absolute;right:0;top:0;bottom:0;width:22px;z-index:6;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,.18));animation:nudge 2.4s ease-in-out infinite}
+@keyframes nudge{0%,70%,100%{transform:none}80%{transform:translateX(-6px)}90%{transform:translateX(0)}}
+.hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);z-index:7;
+  min-height:48px;padding:0 20px;border-radius:999px;border:0;background:rgba(20,22,30,.86);color:#fff;font:500 var(--fs-label)/1.4 var(--body);
+  display:inline-flex;align-items:center;gap:10px;white-space:nowrap;cursor:pointer;transition:opacity .3s}
+.hint .ar{color:var(--lamp);font-size:var(--fs-lead)}
+.torn .hint,.torn .grip,.pulling .hint{opacity:0;pointer-events:none}
+
+/* ===== 下層 ===== */
+main{position:relative;z-index:1}
+.block{padding:clamp(64px,12vw,112px) 0 0}
+.eyebrow{font-size:var(--fs-label);letter-spacing:.3em;color:var(--lamp);margin:0 0 8px}
+h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px}
+.lead{color:var(--muted);margin:0 0 28px;max-width:40em}
+.rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+.room{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.room .pic{aspect-ratio:16/9;background:
+  radial-gradient(ellipse 40% 30% at 70% 70%,rgba(230,180,110,.35),transparent 70%),
+  linear-gradient(180deg,#1E2236,#2B2A33 60%,#3A3128)}
+.room .pic.b{background:radial-gradient(ellipse 50% 35% at 30% 65%,rgba(230,180,110,.3),transparent 70%),linear-gradient(180deg,#1A2030,#26303A 60%,#2E3A34)}
+.room .tx{padding:18px}
+.room b{display:block;font-family:var(--display);font-size:var(--fs-h3);font-weight:500}
+.room p{margin:4px 0 0;color:var(--muted)}
+.perks{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.perks li{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start;padding:16px 0;border-bottom:1px solid var(--line)}
+.perks .k{font-family:var(--display);color:var(--lamp);font-size:var(--fs-h3);line-height:1.4}
+.perks b{display:block;font-size:var(--fs-lead)}
+.perks p{margin:2px 0 0;color:var(--muted)}
+.form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,5vw,32px);display:grid;gap:16px}
+.form .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:16px}
+.form label{display:grid;gap:6px;font-size:var(--fs-label);color:var(--muted)}
+.form input,.form select{width:100%;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #4A4F66;background:#0F1220;color:var(--ink);font:var(--fs-body) var(--body)}
+.form .note{margin:0;font-size:var(--fs-label);color:var(--faint)}
+.form .btn{justify-self:start}
+
+footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
+footer p{margin:0 0 6px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<section class="stage" id="stage" aria-label="予約比較サイト風の画面を右端から引っ張って破ると、旅館の世界が現れるデモ">
+  <!-- 下の世界 -->
+  <div class="world" aria-hidden="true">
+    <svg viewBox="0 0 400 700" preserveAspectRatio="xMidYMax slice" id="worldSvg">
+      <defs>
+        <linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#090B16"/><stop offset=".6" stop-color="#1A1B33"/><stop offset="1" stop-color="#2B2436"/></linearGradient>
+        <radialGradient id="moon"><stop offset="0" stop-color="#FFFBF0"/><stop offset=".55" stop-color="#F4ECD8"/><stop offset="1" stop-color="#F4ECD8" stop-opacity="0"/></radialGradient>
+        <radialGradient id="glow"><stop offset="0" stop-color="#FFC877" stop-opacity=".55"/><stop offset="1" stop-color="#FFC877" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect x="-3000" width="6400" height="700" fill="url(#nsky)"/>
+      <circle cx="318" cy="258" r="40" fill="url(#moon)"/>
+      <circle cx="318" cy="258" r="18" fill="#FBF6EA"/>
+      <path d="M-3000 420 L-120 400 L-20 330 L70 380 L150 300 L240 372 L320 318 L420 390 L520 340 L3400 410 V700 H-3000Z" fill="#141626"/>
+      <path d="M-3000 470 L-60 455 L40 418 L130 452 L230 410 L330 448 L460 420 L3400 460 V700 H-3000Z" fill="#0F111D"/>
+      <!-- 旅館 -->
+      <ellipse cx="200" cy="520" rx="200" ry="70" fill="url(#glow)"/>
+      <g transform="translate(200 520)">
+        <path d="M-150 -40 L-118 -78 L118 -78 L150 -40Z" fill="#1B1A22"/>
+        <path d="M-160 -40 L160 -40 L150 -32 L-150 -32Z" fill="#2A2630"/>
+        <rect x="-136" y="-32" width="272" height="56" fill="#17161D"/>
+        <g fill="#F2C27A"><rect x="-120" y="-24" width="30" height="20"/><rect x="-80" y="-24" width="30" height="20"/><rect x="-40" y="-24" width="30" height="20"/>
+          <rect x="10" y="-24" width="30" height="20"/><rect x="50" y="-24" width="30" height="20"/><rect x="90" y="-24" width="30" height="20"/></g>
+        <path d="M-96 -78 L-70 -104 L70 -104 L96 -78Z" fill="#141319"/>
+        <rect x="-14" y="2" width="28" height="22" fill="#F7D498"/>
+        <circle cx="-30" cy="10" r="7" fill="#E46A3A"/><circle cx="30" cy="10" r="7" fill="#E46A3A"/>
+        <circle cx="-30" cy="10" r="16" fill="#E46A3A" opacity=".18"/><circle cx="30" cy="10" r="16" fill="#E46A3A" opacity=".18"/>
+      </g>
+      <rect x="-3000" y="544" width="6400" height="160" fill="#0A0B13"/>
+      <ellipse cx="200" cy="560" rx="150" ry="10" fill="#F2C27A" opacity=".12"/>
+    </svg>
+    <div class="steam"><i></i><i></i><i></i></div>
+  </div>
+  <div class="copy">
+    <small>TSUKISHIRO</small>
+    <h1>湯宿 月白</h1>
+    <p>比べる前に、<br>ここで過ごす夜を。</p>
+  </div>
+  <div class="reserve">
+    <a class="btn" href="#book">公式サイトで空室を見る</a>
+    <p>公式サイトからの予約だけの特典があります。</p>
+  </div>
+
+  <!-- 上の画面（比較サイト風・架空）。破れる紙 -->
+  <div class="paper" id="paper"><div class="portal jw-skip" id="portal" aria-hidden="true">
+    <div class="bar"><b>やどくらべ</b><span>ログイン</span></div>
+    <div class="cond"><span><b>箱根</b>・1泊2食・2名</span><span>並び順：<b>料金の安い順</b></span></div>
+    <div class="list">
+      <div class="inn"><i class="ph"></i><div><b>温泉旅館 はなみずき</b><span class="st"><em>★4.1</em>（862件）</span><div class="pr">¥16,800<small>〜／人</small></div><div class="tg"><span>残り1室</span><span class="pt">ポイント10%</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>箱根リゾート 翠</b><span class="st"><em>★4.3</em>（1,204件）</span><div class="pr">¥17,200<small>〜／人</small></div><div class="tg"><span class="pt">ポイント5%</span></div></div></div>
+      <div class="inn ours"><i class="ph"></i><div><b>湯宿 月白</b><span class="st"><em>★4.6</em>（318件）</span><div class="pr">¥18,400<small>〜／人</small></div><div class="tg"><span>残り2室</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>旅籠 かえで亭</b><span class="st"><em>★3.9</em>（540件）</span><div class="pr">¥18,900<small>〜／人</small></div><div class="tg"><span class="pt">ポイント10%</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>山のホテル こもれび</b><span class="st"><em>★4.0</em>（975件）</span><div class="pr">¥19,500<small>〜／人</small></div><div class="tg"><span>本日限定</span></div></div></div>
+      <div class="inn"><i class="ph"></i><div><b>湯の宿 しらさぎ</b><span class="st"><em>★4.2</em>（410件）</span><div class="pr">¥20,100<small>〜／人</small></div><div class="tg"><span class="pt">ポイント5%</span></div></div></div>
+    </div>
+  </div></div>
+  <div class="flap" id="flap" aria-hidden="true"></div>
+  <i class="grip" aria-hidden="true"></i>
+  <button class="hint" type="button" id="hint"><span class="ar" aria-hidden="true">←</span>右端をつかんで、左へ引っ張る</button>
+</section>
+
+<main>
+  <div class="container">
+    <section class="section block">
+      <p class="eyebrow">ROOMS</p>
+      <h2 class="h">星の数では、<br>伝わらないもの。</h2>
+      <p class="lead">客室は、全部で8室だけ。<br>どの部屋からも、湯けむりと山の稜線が見えます。</p>
+      <div class="rooms">
+        <div class="room"><div class="pic"></div><div class="tx"><b>離れ「凪」</b><p>源泉かけ流しの露天風呂付き。2名まで。</p></div></div>
+        <div class="room"><div class="pic b"></div><div class="tx"><b>本館 和室「月見」</b><p>窓辺から月が昇るのを眺める、10畳の和室。</p></div></div>
+      </div>
+    </section>
+
+    <section class="section block">
+      <p class="eyebrow">DIRECT</p>
+      <h2 class="h">公式サイトから、<br>ご予約の方だけに。</h2>
+      <ul class="perks">
+        <li><span class="k">壱</span><div><b>湯上がりの地酒を一献</b><p>夕食前に、地元の酒蔵の一杯をお出しします。</p></div></li>
+        <li><span class="k">弐</span><div><b>チェックアウトは11時</b><p>朝風呂のあとも、慌てずにお過ごしください。</p></div></li>
+        <li><span class="k">参</span><div><b>ご要望を、事前に直接</b><p>記念日やお食事のご相談は、宿が直接うかがいます。</p></div></li>
+      </ul>
+    </section>
+
+    <section class="section block" id="book">
+      <p class="eyebrow">RESERVATION</p>
+      <h2 class="h">空室を見る</h2>
+      <form class="form" id="bookForm">
+        <div class="two">
+          <label>チェックイン<input type="date" id="ci"></label>
+          <label>泊数<select><option>1泊</option><option>2泊</option><option>3泊</option></select></label>
+          <label>人数<select><option>2名</option><option>1名</option><option>3名</option><option>4名</option></select></label>
+          <label>客室<select><option>指定なし</option><option>離れ「凪」</option><option>本館 和室「月見」</option></select></label>
+        </div>
+        <button class="btn" type="submit">空室を確認する</button>
+        <p class="note">※ デモのため、予約は行われません。</p>
+      </form>
+    </section>
+
+    <footer>
+      <p>このページは、GROWXの体験型サイトのデモです。<br>宿名・比較サイト名・評価・料金はすべて架空のものです。</p>
+      <p>© 2026 GROWX Inc.</p>
+    </footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status">デモのため、予約は行われません。</div>
+
+<script>
+(function(){
+  var stage=document.getElementById('stage'), paper=document.getElementById('paper'), portal=document.getElementById('portal'), flap=document.getElementById('flap');
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 破れる側の紙：同じ画面を複製して重ねる（見た目だけ） */
+  var copy=portal.cloneNode(true); copy.removeAttribute('id'); flap.appendChild(copy);
+
+  /* ギザギザの破れ目（毎回少し違う形） */
+  var N=26, jag=[];
+  for(var i=0;i<=N;i++) jag.push((Math.random()*2-1)*12 + (i%2?6:-6));
+
+  var W=0,H=0, torn=false;
+  function size(){ W=stage.clientWidth; H=stage.clientHeight; }
+  function edge(x){ /* 破れ目の点列（上から下へ） */
+    var pts=[];
+    for(var i=0;i<=N;i++){ var y=H*i/N; pts.push([x + jag[i] + (i/N-.5)*28, y]); }
+    return pts;
+  }
+  function draw(x){ /* x：破れ目の位置（右端＝W） */
+    var e=edge(x), pull=W-x;
+    var left='polygon(0px 0px,'+e.map(function(p){return p[0]+'px '+p[1]+'px'}).join(',')+',0px '+H+'px)';
+    var right='polygon('+e.map(function(p){return p[0]+'px '+p[1]+'px'}).join(',')+','+(W+40)+'px '+H+'px,'+(W+40)+'px 0px)';
+    portal.style.clipPath=left; portal.style.webkitClipPath=left;
+    copy.style.clipPath=right; copy.style.webkitClipPath=right;
+    /* 破れた側は、引っ張るほど下へめくれ落ちる */
+    var k=pull/W;
+    flap.style.transformOrigin=x+'px 0px';
+    flap.style.transform='translate('+(k*W*.06)+'px,'+(k*H*.35)+'px) rotate('+(k*22)+'deg)';
+    flap.style.opacity=pull<1?0:Math.max(0,1-k*1.1);
+  }
+
+  function animateTo(from,to,dur,done){
+    var t0=performance.now();
+    (function f(now){
+      var k=Math.max(0,Math.min(1,(now-t0)/(reduce?1:dur))), e=1-Math.pow(1-k,3);
+      draw(from+(to-from)*e);
+      if(k<1) requestAnimationFrame(f); else done&&done();
+    })(t0);
+  }
+  function complete(fromX){
+    stage.classList.remove('pulling');
+    animateTo(fromX,-60,700,function(){
+      paper.style.display='none'; flap.style.display='none'; torn=true; stage.classList.add('torn');
+    });
+  }
+
+  /* ドラッグ（指・マウス共通） */
+  var startX=null, curX=0, lastX=0;
+  stage.addEventListener('pointerdown',function(e){
+    if(torn || e.target.closest('.hint')) return;
+    startX=e.clientX; curX=W; lastX=W;
+  });
+  addEventListener('pointermove',function(e){
+    if(startX===null) return;
+    var pull=Math.max(0,startX-e.clientX);
+    if(pull>6) stage.classList.add('pulling');
+    curX=W-pull; draw(curX);
+  });
+  addEventListener('pointerup',end); addEventListener('pointercancel',end);
+  function end(){
+    if(startX===null) return; startX=null;
+    var pull=W-curX;
+    if(pull>W*.35) complete(curX);                         /* 3分の1以上引っ張ったら、最後まで破れる */
+    else { stage.classList.remove('pulling'); animateTo(curX,W,350); }
+  }
+  /* ボタン（キーボード操作・引っ張れない人向け）でも破れる */
+  document.getElementById('hint').addEventListener('click',function(){ if(!torn){ stage.classList.add('pulling'); animateTo(W,W*.55,500,function(){complete(W*.55)}); } });
+
+  /* 横長の画面では、景色を左右に広げて月と旅館の両方を見せる */
+  var wsvg=document.getElementById('worldSvg');
+  function fit(){ var w=Math.max(400,700*stage.clientWidth/stage.clientHeight); wsvg.setAttribute('viewBox',(200-w/2)+' 0 '+w+' 700'); }
+  fit();
+  addEventListener('resize',function(){ size(); fit(); if(!torn) draw(W); });
+  size(); draw(W);
+
+  /* 予約フォーム（デモ） */
+  var d=new Date(); d.setDate(d.getDate()+14);
+  document.getElementById('ci').value=d.toISOString().slice(0,10);
+  var toast=document.getElementById('toast'), tm;
+  document.getElementById('bookForm').addEventListener('submit',function(e){
+    e.preventDefault(); toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
+  });
+})();
+</script>
+<script>
+(function(){
+  var MIN=14;
+  function enforce(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.closest('svg')) return;
+      var has=false;
+      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
+      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
+    });
+  }
+  enforce(); addEventListener('resize',enforce);
+})();
+</script>
+<script src="assets/jp-wrap.js" data-selector=".copy p,.reserve p,main h2,main .lead,main p,.perks b"></script>
+</body>
+</html>
