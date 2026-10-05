@@ -6,6 +6,7 @@
 <title>NIGHT MONSTER｜中身を、ぜんぶ見せるサプリ（体験デモ）</title>
 <meta name="description" content="スクロールすると商品が空中でほどけ、中身が見える体験型サイトのデモ。GROWX 体験カタログ 05。">
 <meta name="robots" content="noindex">
+<script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
@@ -41,7 +42,9 @@ a{color:inherit}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 28px;border-radius:999px;border:0;
   background:var(--gold);color:#1B1505;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;
-  box-shadow:0 10px 32px rgba(224,189,104,.28)}
+  box-shadow:0 10px 32px rgba(224,189,104,.28);transition:transform .15s,box-shadow .15s}
+@media (hover:hover){.btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(224,189,104,.36)}}
+.btn:active{transform:translateY(1px) scale(.98);box-shadow:0 6px 18px rgba(224,189,104,.24)}
 .btn:focus-visible,a:focus-visible{outline:3px solid #FFE6A8;outline-offset:3px}
 
 /* ===== 体験ステージ（スクロールで分解） ===== */
@@ -88,7 +91,14 @@ a{color:inherit}
 .label{width:calc(30*var(--u));height:calc(24*var(--u));margin-left:calc(-15*var(--u));border-radius:2px;
   background:linear-gradient(90deg,rgba(0,0,0,.30),transparent 18%,transparent 80%,rgba(0,0,0,.32)),linear-gradient(180deg,#E8C676,#C99E45);
   color:#1B1505;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(.6*var(--u));
-  box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.35);transform-origin:50% 50%}
+  box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.35);transform-origin:50% 50%;overflow:hidden}
+.label::after{ /* ラベルを横切る光（待機中の呼吸） */
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);
+  transform:translateX(-120%);animation:sheen 4.2s ease-in-out 1s infinite}
+@keyframes sheen{0%{transform:translateX(-120%)}35%,100%{transform:translateX(120%)}}
+.flare{width:calc(44*var(--u));height:calc(44*var(--u));margin:calc(-22*var(--u)) 0 0 calc(-22*var(--u));border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,246,220,.9) 0%,rgba(224,189,104,.35) 28%,transparent 64%)}
 .label .ln{font-family:var(--display);font-weight:700;letter-spacing:.1em;font-size:calc(2.5*var(--u));line-height:1;white-space:nowrap}
 .label .ls{font-size:calc(1.9*var(--u));letter-spacing:.2em;line-height:1;white-space:nowrap}
 .label .lr{width:60%;height:1px;background:rgba(27,21,5,.45)}
@@ -147,6 +157,10 @@ h2{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height
 .plan .act{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
 .plan .act p{margin:0;font-size:var(--fs-label);color:var(--faint)}
 
+/* スクロールで浮かび上がる（JSが動くときだけ隠す） */
+.js .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*90ms)}
+.js .rv.in{opacity:1;transform:none}
+
 footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
 footer p{margin:0 0 6px}
 
@@ -181,6 +195,8 @@ footer p{margin:0 0 6px}
       <div class="part capsule" data-k="c5"><span class="l"></span><span class="r"></span></div>
       <div class="part label" data-k="label"><span class="ln">NIGHT MONSTER</span><span class="lr"></span><span class="ls">60 CAPSULES</span></div>
       <div class="part cap" data-k="cap"></div>
+      <!-- 割れた瞬間の光 -->
+      <div class="part flare" data-k="flare"></div>
       <!-- 粒（中身） -->
       <div id="grains"></div>
 
@@ -212,14 +228,14 @@ footer p{margin:0 0 6px}
 <main>
   <div class="container">
     <section class="section block" id="spec">
-      <p class="eyebrow">INGREDIENTS</p>
-      <h2>さっき見た中身を、<br>数字で確かめる。</h2>
-      <p class="lead">1日2粒あたりの配合量です。<br>見えない成分は、入れていません。</p>
-      <table class="spec">
+      <p class="eyebrow rv">INGREDIENTS</p>
+      <h2 class="rv" style="--i:1">さっき見た中身を、<br>数字で確かめる。</h2>
+      <p class="lead rv" style="--i:2">1日2粒あたりの配合量です。<br>見えない成分は、入れていません。</p>
+      <table class="spec rv" style="--i:3">
         <tbody>
-          <tr><th><i style="background:var(--gaba)"></i>GABA</th><td>100mg</td></tr>
-          <tr><th><i style="background:var(--thea)"></i>L-テアニン</th><td>200mg</td></tr>
-          <tr><th><i style="background:var(--gly)"></i>グリシン</th><td>500mg</td></tr>
+          <tr><th><i style="background:var(--gaba)"></i>GABA</th><td data-n="100">100mg</td></tr>
+          <tr><th><i style="background:var(--thea)"></i>L-テアニン</th><td data-n="200">200mg</td></tr>
+          <tr><th><i style="background:var(--gly)"></i>グリシン</th><td data-n="500">500mg</td></tr>
           <tr><th>カプセル（植物性）</th><td>2粒</td></tr>
         </tbody>
         <caption>※ デモ用の架空の配合量です。</caption>
@@ -227,19 +243,19 @@ footer p{margin:0 0 6px}
     </section>
 
     <section class="section block" id="howto">
-      <p class="eyebrow">HOW TO</p>
-      <h2>飲み方は、3つだけ。</h2>
+      <p class="eyebrow rv">HOW TO</p>
+      <h2 class="rv" style="--i:1">飲み方は、3つだけ。</h2>
       <ol class="steps">
-        <li><span class="n">01</span><b>夜に2粒</b><p>水またはぬるま湯と一緒に。</p></li>
-        <li><span class="n">02</span><b>キャップはしっかり</b><p>湿気を防ぐため、使ったらすぐ閉める。</p></li>
-        <li><span class="n">03</span><b>30日で1本</b><p>なくなる前に、次の1本が届きます。</p></li>
+        <li class="rv" style="--i:2"><span class="n">01</span><b>夜に2粒</b><p>水またはぬるま湯と一緒に。</p></li>
+        <li class="rv" style="--i:3"><span class="n">02</span><b>キャップはしっかり</b><p>湿気を防ぐため、使ったらすぐ閉める。</p></li>
+        <li class="rv" style="--i:4"><span class="n">03</span><b>30日で1本</b><p>なくなる前に、次の1本が届きます。</p></li>
       </ol>
     </section>
 
     <section class="section block" id="plan">
-      <p class="eyebrow">SUBSCRIPTION</p>
-      <h2>中身に納得した方だけ、<br>定期便へ。</h2>
-      <div class="plan">
+      <p class="eyebrow rv">SUBSCRIPTION</p>
+      <h2 class="rv" style="--i:1">中身に納得した方だけ、<br>定期便へ。</h2>
+      <div class="plan rv" style="--i:2">
         <div>
           <div class="price">¥1,980<small>初回（税込・送料無料）</small></div>
           <p class="sub">2回目以降 ¥3,980（税込）／30日ごとにお届け</p>
@@ -276,7 +292,8 @@ footer p{margin:0 0 6px}
   for(var t=0;t<3;t++){for(var i=0;i<9;i++){
     var g=document.createElement('div'); g.className='part grain g'+(t+1); gwrap.appendChild(g);
     var a=i/9*Math.PI*2+t, r=1.2+(i%3)*1.3;               /* 山盛りの中での位置 */
-    grains.push({el:g,t:t,ox:Math.cos(a)*r*1.4,oy:Math.sin(a)*r*.55-(i%3)*.6,d:(i*37%9)/9});
+    var ang=-Math.PI/2+(Math.random()-.5)*Math.PI*1.7;   /* 弾ける向き（上向きに広がる） */
+    grains.push({el:g,t:t,ox:Math.cos(a)*r*1.4,oy:Math.sin(a)*r*.55-(i%3)*.6,d:(i*37%9)/9,ang:ang,R:10+Math.random()*16});
   }}
 
   /* ---- 数値ユーティリティ ---- */
@@ -291,7 +308,9 @@ footer p{margin:0 0 6px}
   var CAPS1=[[-10,104],[0,104],[10,104],[-10,111],[0,111],[10,111]];/* 分解後に並ぶ位置 */
   var GY=[40,62,84];                                                 /* 成分の山の高さ */
 
-  var u=4, shift=0, vw=0, vh=0, ticking=false;
+  var u=4, shift=0, vw=0, vh=0, ticking=false, idling=false;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var MG=[100,200,500];
 
   function layout(){
     vw=stage.clientWidth; vh=stage.clientHeight;
@@ -301,6 +320,7 @@ footer p{margin:0 0 6px}
     u=Math.min((vh-top-bottom)/146, vw*0.012, 6.2);
     rig.style.top=(top+(vh-top-bottom)/2)+'px';
     rig.style.setProperty('--u',u+'px');
+    rig.style.transformOrigin='0 '+(40*u)+'px';   /* 待機中の揺れはボトルの中心を軸にする */
     /* 右側に説明ラベルを出すため、分解時は商品を左へ寄せる（上限は画面幅の18%） */
     shift=Math.min(vw*0.18, 120);
     var labelLeft=24*u, avail=vw/2+shift*0 - 0; /* ラベル幅は frame() で計算 */
@@ -314,15 +334,18 @@ footer p{margin:0 0 6px}
     var p=cl(-r.top/total);
 
     var A=ease(seg(p,.06,.40));   /* 分解 */
-    var B=ease(seg(p,.48,.76));   /* 1粒が開き、中身が並ぶ */
+    var B=ease(seg(p,.46,.58));   /* 1粒が真ん中へ出る（割れる前に着く） */
     var C=seg(p,.84,.94);         /* 終点 */
 
     /* リグ全体：縦の中心を合わせ、分解に合わせて左へ寄せる */
     var midY=lerp(vw<640?54:46,42.5,A);   /* 最初は説明文の分だけ上に置く */
     var sx=-shift*A;
-    rig.style.transform='translate('+sx+'px,'+(-midY*u)+'px)';
+    /* 待機中：ボトルがゆっくり浮かんで揺れる（スクロールを始めると止まる） */
+    var idle=reduce?0:1-seg(p,0,.08), tt=performance.now()/1000;
+    var fy=Math.sin(tt*1.3)*1.6*u*idle, fr=Math.sin(tt*.9)*1.6*idle;
+    rig.style.transform='translate('+sx+'px,'+(-midY*u+fy)+'px) rotate('+fr+'deg)';
 
-    var dim=1-0.88*B;              /* 中身を見せるときは周りを暗くする */
+    var dim=1-0.94*B;              /* 中身を見せるときは周りを暗くする */
 
     /* キャップ */
     P.cap.style.transform='translateY('+(lerp(0,-30,A)*u)+'px) rotate('+(-6*A*(1-B))+'deg)';
@@ -340,20 +363,27 @@ footer p{margin:0 0 6px}
       var x=lerp(c0[0],c1[0],a), y=lerp(c0[1],c1[1],a), s=1, rot=a*(i%2?8:-8), op=1;
       if(i===1){ /* 主役の1粒 */
         x=lerp(x,0,B); y=lerp(y,18,B); s=lerp(1,2.6,B); rot=lerp(rot,0,B);
-        var open=ease(seg(p,.58,.72));
-        P.c1.children[0].style.transform='translateX('+(-6*open)+'px) rotate('+(-18*open)+'deg)';
-        P.c1.children[1].style.transform='translateX('+(6*open)+'px) rotate('+(18*open)+'deg)';
+        var open=ease(seg(p,.58,.64));
+        P.c1.children[0].style.transform='translate('+(-1.4*u*open)+'px,'+(-.6*u*open)+'px) rotate('+(-30*open)+'deg)';
+        P.c1.children[1].style.transform='translate('+(1.4*u*open)+'px,'+(-.6*u*open)+'px) rotate('+(30*open)+'deg)';
       } else { op=dim; }
       P['c'+i].style.transform='translate('+(x*u)+'px,'+(y*u)+'px) rotate('+rot+'deg) scale('+s+')';
       P['c'+i].style.opacity=op;
     }
 
-    /* 粒：開いたカプセルからこぼれ、成分ごとの山になる */
+    /* 割れた瞬間の光 */
+    var fl=seg(p,.60,.63)*(1-seg(p,.645,.71));
+    P.flare.style.transform='translate(0px,'+(18*u)+'px) scale('+lerp(.3,1.4,seg(p,.60,.70))+')';
+    P.flare.style.opacity=fl;
+
+    /* 粒：カプセルから弾けて飛び散り、そのあと成分ごとの山に落ちる */
     grains.forEach(function(g){
-      var k=ease(seg(p,.62+g.t*.035+g.d*.03,.76+g.t*.03));
-      var x=lerp(0,g.ox,k), y=lerp(18,GY[g.t]+g.oy,k);
-      g.el.style.transform='translate('+(x*u)+'px,'+(y*u)+'px)';
-      g.el.style.opacity=k>0?Math.min(1,k*3)*(1-0.0*C):0;
+      var b=seg(p,.60+g.d*.015,.665+g.d*.015), be=1-Math.pow(1-b,3);
+      var bx=Math.cos(g.ang)*g.R*be, by=18+Math.sin(g.ang)*g.R*be;
+      var k=ease(seg(p,.665+g.t*.03+g.d*.02,.76+g.t*.03));
+      var x=lerp(bx,g.ox,k), y=lerp(by,GY[g.t]+g.oy,k), sc=1+.7*be*(1-k);
+      g.el.style.transform='translate('+(x*u)+'px,'+(y*u)+'px) scale('+sc+')';
+      g.el.style.opacity=b>0?Math.min(1,b*4):0;
     });
 
     /* 説明線 */
@@ -373,6 +403,8 @@ footer p{margin:0 0 6px}
     for(var t=0;t<3;t++){
       var v=seg(p,.68+t*.04,.76+t*.04);
       note(N['g'+(t+1)], GY[t]-.4, v, v);
+      var em=N['g'+(t+1)].querySelector('em'), val=Math.round(MG[t]*ease(v));   /* 配合量を数え上げる */
+      if(em._v!==val){ em._v=val; em.textContent=val+'mg'; }
     }
 
     /* 表示の切り替え */
@@ -380,12 +412,37 @@ footer p{margin:0 0 6px}
     hint.style.opacity=1-seg(p,.03,.08);
     finale.classList.toggle('show',C>=1);
     step.textContent=p<.30?'01 / 03　外観':p<.56?'02 / 03　分解':'03 / 03　中身';
+
+    /* 待機中は毎フレーム描き直して揺らし続ける */
+    if(idle>0 && r.bottom>0 && !idling){ idling=true; requestAnimationFrame(function(){ idling=false; frame(); }); }
   }
   function update(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } }
 
   addEventListener('scroll',update,{passive:true});
   addEventListener('resize',layout);
   layout();
+
+  /* 下層：画面に入ったら浮かび上がる。表の配合量は数え上げる */
+  function countUp(td){
+    var n=+td.dataset.n, t0=performance.now(), dur=reduce?1:1200;
+    (function f(now){
+      var k=Math.max(0,Math.min(1,(now-t0)/dur));
+      td.textContent=Math.round(n*(1-Math.pow(1-k,3)))+'mg';
+      if(k<1) requestAnimationFrame(f);
+    })(t0);
+  }
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(!e.isIntersecting) return;
+        e.target.classList.add('in'); io.unobserve(e.target);
+        if(e.target.classList.contains('spec')) e.target.querySelectorAll('td[data-n]').forEach(countUp);
+      });
+    },{rootMargin:'0px 0px -10% 0px',threshold:.15});
+    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
+  }
 
   /* デモ：申込みは送信しない */
   var toast=document.getElementById('toast'), tm;
