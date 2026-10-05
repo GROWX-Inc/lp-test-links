@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NIGHT MONSTER｜中身を、ぜんぶ見せるサプリ（体験デモ）</title>
+<meta name="description" content="スクロールすると商品が空中でほどけ、中身が見える体験型サイトのデモ。GROWX 体験カタログ 05。">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* ===== 土台：文字・色（readability-rules）＋ 幅と余白（responsive-rules） ===== */
+:root{
+  --gutter: clamp(15px, 4.5vw, 20px);
+  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
+  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
+
+  --bg:#0A0E19;        /* 背景（濃紺） */
+  --panel:#121828;
+  --line:#2A3247;
+  --ink:#F4F2EC;       /* 主要な文字 17.6:1 */
+  --muted:#BAC0CF;     /* 本文グレー 10.6:1 */
+  --faint:#A3AABB;     /* 補助・注記 8.1:1 */
+  --gold:#E0BD68;      /* アクセント 10.2:1 */
+  --gaba:#E0BD68; --thea:#7FD8C4; --gly:#B4A6FF;
+
+  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
+img,svg{display:block;max-width:100%}
+a{color:inherit}
+
+.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
+.section{width:100%;padding-left:0;padding-right:0}
+.section *{min-width:0;max-width:100%}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 28px;border-radius:999px;border:0;
+  background:var(--gold);color:#1B1505;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;
+  box-shadow:0 10px 32px rgba(224,189,104,.28)}
+.btn:focus-visible,a:focus-visible{outline:3px solid #FFE6A8;outline-offset:3px}
+
+/* ===== 体験ステージ（スクロールで分解） ===== */
+.track{position:relative;height:520svh}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden;
+  background:radial-gradient(ellipse 60% 55% at 50% 48%,#1B2440 0%,#0E1324 55%,var(--bg) 100%)}
+.stage::after{ /* 床の反射 */
+  content:"";position:absolute;left:50%;bottom:6%;width:min(520px,80%);height:12%;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(224,189,104,.10),transparent 70%);pointer-events:none}
+
+.brand{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:var(--gutter);right:var(--gutter);z-index:5;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.brand b{font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.22em;display:block;line-height:1.4;white-space:nowrap}
+@media (max-width:379px){.brand{flex-direction:column;gap:2px}.brand b{font-size:18px;letter-spacing:.14em}.brand .step{text-align:left}}
+.brand small{display:block;font-size:var(--fs-label);letter-spacing:.18em;color:var(--faint)}
+.brand .step{font-size:var(--fs-label);color:var(--faint);letter-spacing:.12em;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+
+.intro{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 86px);z-index:4;text-align:center;pointer-events:none}
+.intro h1{font-family:var(--display);font-weight:500;font-size:var(--fs-h1);line-height:1.5;margin:0 0 6px;letter-spacing:.04em}
+.intro p{margin:0;color:var(--muted)}
+
+.hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);z-index:4;
+  display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;background:rgba(10,14,25,.72);
+  border:1px solid var(--line);font-size:var(--fs-label);color:var(--muted);white-space:nowrap;pointer-events:none;transition:opacity .4s}
+.hint i{width:2px;height:16px;background:var(--gold);border-radius:2px;animation:drip 1.6s ease-in-out infinite}
+@keyframes drip{0%{transform:translateY(-4px);opacity:0}40%{opacity:1}100%{transform:translateY(6px);opacity:0}}
+
+/* リグ：商品パーツを置く座標系（1u = --u px。JSが画面サイズから計算） */
+.rig{position:absolute;left:50%;top:50%;width:0;height:0;z-index:2;--u:4px}
+.part{position:absolute;left:0;top:0;will-change:transform,opacity}
+.cap{width:calc(26*var(--u));height:calc(13*var(--u));margin-left:calc(-13*var(--u));border-radius:calc(2*var(--u)) calc(2*var(--u)) calc(.8*var(--u)) calc(.8*var(--u));
+  background:linear-gradient(90deg,#141824 0%,#4B5366 22%,#2A3040 48%,#5B6479 70%,#161A26 100%);
+  box-shadow:inset 0 calc(-.8*var(--u)) 0 rgba(0,0,0,.35)}
+.cap::before{ /* ローレット（滑り止め） */
+  content:"";position:absolute;inset:calc(2*var(--u)) calc(1*var(--u)) calc(2.4*var(--u));border-radius:2px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 6px)}
+.body{width:calc(30*var(--u));height:calc(62*var(--u));margin-left:calc(-15*var(--u))}
+.body .neck{position:absolute;left:calc(4*var(--u));right:calc(4*var(--u));top:0;height:calc(4*var(--u));background:linear-gradient(90deg,#8E8A80,#E6E1D6 40%,#A9A499);border-radius:2px}
+.body .glass{position:absolute;left:0;right:0;top:calc(3.4*var(--u));bottom:0;border-radius:calc(3*var(--u)) calc(3*var(--u)) calc(4*var(--u)) calc(4*var(--u));
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.22) 14%,rgba(255,255,255,.05) 28%,transparent 60%,rgba(255,255,255,.10) 86%,rgba(255,255,255,.02) 100%),
+    linear-gradient(180deg,rgba(74,52,30,.55),rgba(46,30,16,.78));
+  border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(1px)}
+.label{width:calc(30*var(--u));height:calc(24*var(--u));margin-left:calc(-15*var(--u));border-radius:2px;
+  background:linear-gradient(90deg,rgba(0,0,0,.30),transparent 18%,transparent 80%,rgba(0,0,0,.32)),linear-gradient(180deg,#E8C676,#C99E45);
+  color:#1B1505;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(.6*var(--u));
+  box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.35);transform-origin:50% 50%}
+.label .ln{font-family:var(--display);font-weight:700;letter-spacing:.1em;font-size:calc(2.5*var(--u));line-height:1;white-space:nowrap}
+.label .ls{font-size:calc(1.9*var(--u));letter-spacing:.2em;line-height:1;white-space:nowrap}
+.label .lr{width:60%;height:1px;background:rgba(27,21,5,.45)}
+.capsule{width:calc(9*var(--u));height:calc(4*var(--u));margin:calc(-2*var(--u)) 0 0 calc(-4.5*var(--u));display:flex}
+.capsule span{flex:1;height:100%}
+.capsule .l{background:linear-gradient(180deg,#CFC4FF,#8E7EE6);border-radius:calc(2*var(--u)) 0 0 calc(2*var(--u))}
+.capsule .r{background:linear-gradient(180deg,#FFFFFF,#D9D6E6);border-radius:0 calc(2*var(--u)) calc(2*var(--u)) 0}
+.grain{width:calc(1.5*var(--u));height:calc(1.5*var(--u));margin:calc(-.75*var(--u)) 0 0 calc(-.75*var(--u));border-radius:50%;opacity:0}
+.grain.g1{background:var(--gaba);box-shadow:0 0 6px rgba(224,189,104,.6)}
+.grain.g2{background:var(--thea);box-shadow:0 0 6px rgba(127,216,196,.6)}
+.grain.g3{background:var(--gly);box-shadow:0 0 6px rgba(180,166,255,.6)}
+
+/* 説明線とラベル */
+.note{position:absolute;left:0;top:0;width:max-content;opacity:0;z-index:3;display:flex;align-items:center;gap:10px;will-change:transform,opacity}
+.note .bar{display:block;height:1px;background:var(--gold);flex:none;transform-origin:left center}
+.note .txt{display:block}
+.note .txt b{display:block;font-size:var(--fs-body);font-weight:700;line-height:1.5;color:var(--ink)}
+.note .txt span{display:block;font-size:var(--fs-label);line-height:1.6;color:var(--muted)}
+.note.ing .txt b{font-family:var(--display);font-weight:700;font-size:var(--fs-lead)}
+.note.ing .txt b em{font-style:normal;font-family:var(--body);font-size:var(--fs-body);font-weight:500;margin-left:8px;color:var(--muted)}
+.note.ing .dot{width:10px;height:10px;border-radius:50%;flex:none}
+
+/* 終点：定期便ボタン */
+.finale{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 24px);z-index:6;
+  display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .5s,transform .5s}
+.finale.show{opacity:1;transform:none;pointer-events:auto}
+.finale p{margin:0;font-size:var(--fs-label);color:var(--muted);letter-spacing:.06em}
+
+/* ===== 下層コンテンツ ===== */
+main{position:relative;z-index:1;background:var(--bg)}
+.block{padding:clamp(64px,12vw,112px) 0 0}
+.eyebrow{font-size:var(--fs-label);letter-spacing:.24em;color:var(--gold);margin:0 0 8px}
+h2{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px;letter-spacing:.03em}
+.lead{font-size:var(--fs-body);color:var(--muted);margin:0 0 28px;max-width:40em}
+
+.spec{width:100%;border-collapse:collapse;table-layout:auto;font-size:var(--fs-body)}
+.spec th,.spec td{padding:16px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.spec th{font-weight:500}
+.spec th i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:10px;vertical-align:middle}
+.spec td{width:1%;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;font-family:var(--display);font-size:var(--fs-lead)}
+.spec caption{caption-side:bottom;text-align:left;padding-top:12px;font-size:var(--fs-label);color:var(--faint)}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
+.steps li{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.steps .n{font-family:var(--display);font-size:var(--fs-h2);color:var(--gold);line-height:1;display:block;margin-bottom:10px}
+.steps b{display:block;font-size:var(--fs-lead);margin-bottom:4px}
+.steps p{margin:0;color:var(--muted)}
+
+.plan{background:linear-gradient(160deg,#1A2238,#111726);border:1px solid #3A4460;border-radius:20px;padding:clamp(22px,5vw,36px);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:center}
+.plan .price{font-family:var(--display);font-size:clamp(34px,9vw,44px);line-height:1.2}
+.plan .price small{display:block;font-family:var(--body);font-size:var(--fs-body);color:var(--muted)}
+.plan .sub{color:var(--muted);margin:6px 0 0}
+.plan ul{margin:0;padding:0 0 0 1.2em;color:var(--muted)}
+.plan ul li{margin:4px 0}
+.plan .act{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.plan .act p{margin:0;font-size:var(--fs-label);color:var(--faint)}
+
+footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
+footer p{margin:0 0 6px}
+
+/* 送信不要のデモ用トースト */
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;
+  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none;width:max-content;max-width:calc(100% - 2*var(--gutter))}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 体験：スクロールで商品がほどける ============ -->
+<div class="track" id="track">
+  <div class="stage" aria-label="スクロールすると商品がパーツごとに分解され、中身が見えるデモ">
+    <div class="brand">
+      <div><b>NIGHT MONSTER</b><small>SLEEP SUPPORT</small></div>
+      <div class="step" id="step">01 / 03　外観</div>
+    </div>
+
+    <div class="rig" id="rig">
+      <!-- パーツ（座標はJSが計算） -->
+      <div class="part body" data-k="body"><div class="neck"></div><div class="glass"></div></div>
+      <div class="part capsule" data-k="c0"><span class="l"></span><span class="r"></span></div>
+      <div class="part capsule" data-k="c1"><span class="l"></span><span class="r"></span></div>
+      <div class="part capsule" data-k="c2"><span class="l"></span><span class="r"></span></div>
+      <div class="part capsule" data-k="c3"><span class="l"></span><span class="r"></span></div>
+      <div class="part capsule" data-k="c4"><span class="l"></span><span class="r"></span></div>
+      <div class="part capsule" data-k="c5"><span class="l"></span><span class="r"></span></div>
+      <div class="part label" data-k="label"><span class="ln">NIGHT MONSTER</span><span class="lr"></span><span class="ls">60 CAPSULES</span></div>
+      <div class="part cap" data-k="cap"></div>
+      <!-- 粒（中身） -->
+      <div id="grains"></div>
+
+      <!-- 説明線（パーツ） -->
+      <div class="note" data-n="cap"><i class="bar"></i><span class="txt"><b>遮光キャップ</b><span>光と湿気から中身を守る二重構造</span></span></div>
+      <div class="note" data-n="label"><i class="bar"></i><span class="txt"><b>ラベル</b><span>原材料と内容量を、すべて表示</span></span></div>
+      <div class="note" data-n="body"><i class="bar"></i><span class="txt"><b>遮光ボトル</b><span>紫外線に強い、琥珀色のガラス</span></span></div>
+      <div class="note" data-n="caps"><i class="bar"></i><span class="txt"><b>植物性カプセル</b><span>1日2粒・60粒入り（30日分）</span></span></div>
+      <!-- 説明線（中身） -->
+      <div class="note ing" data-n="g1"><i class="bar"></i><i class="dot" style="background:var(--gaba)"></i><span class="txt"><b>GABA<em>100mg</em></b></span></div>
+      <div class="note ing" data-n="g2"><i class="bar"></i><i class="dot" style="background:var(--thea)"></i><span class="txt"><b>L-テアニン<em>200mg</em></b></span></div>
+      <div class="note ing" data-n="g3"><i class="bar"></i><i class="dot" style="background:var(--gly)"></i><span class="txt"><b>グリシン<em>500mg</em></b></span></div>
+    </div>
+
+    <div class="intro" id="intro">
+      <h1>中身を、ぜんぶ見せる。</h1>
+      <p>手に取れない通販だから、<br>ひと粒の中まで。</p>
+    </div>
+    <div class="hint" id="hint"><i></i>スクロールでほどける</div>
+
+    <div class="finale" id="finale">
+      <p>中身を、ぜんぶ見た方へ。</p>
+      <a class="btn" href="#plan">定期便ではじめる</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 下層：見たものを、文字でも確かめる ============ -->
+<main>
+  <div class="container">
+    <section class="section block" id="spec">
+      <p class="eyebrow">INGREDIENTS</p>
+      <h2>さっき見た中身を、<br>数字で確かめる。</h2>
+      <p class="lead">1日2粒あたりの配合量です。<br>見えない成分は、入れていません。</p>
+      <table class="spec">
+        <tbody>
+          <tr><th><i style="background:var(--gaba)"></i>GABA</th><td>100mg</td></tr>
+          <tr><th><i style="background:var(--thea)"></i>L-テアニン</th><td>200mg</td></tr>
+          <tr><th><i style="background:var(--gly)"></i>グリシン</th><td>500mg</td></tr>
+          <tr><th>カプセル（植物性）</th><td>2粒</td></tr>
+        </tbody>
+        <caption>※ デモ用の架空の配合量です。</caption>
+      </table>
+    </section>
+
+    <section class="section block" id="howto">
+      <p class="eyebrow">HOW TO</p>
+      <h2>飲み方は、3つだけ。</h2>
+      <ol class="steps">
+        <li><span class="n">01</span><b>夜に2粒</b><p>水またはぬるま湯と一緒に。</p></li>
+        <li><span class="n">02</span><b>キャップはしっかり</b><p>湿気を防ぐため、使ったらすぐ閉める。</p></li>
+        <li><span class="n">03</span><b>30日で1本</b><p>なくなる前に、次の1本が届きます。</p></li>
+      </ol>
+    </section>
+
+    <section class="section block" id="plan">
+      <p class="eyebrow">SUBSCRIPTION</p>
+      <h2>中身に納得した方だけ、<br>定期便へ。</h2>
+      <div class="plan">
+        <div>
+          <div class="price">¥1,980<small>初回（税込・送料無料）</small></div>
+          <p class="sub">2回目以降 ¥3,980（税込）／30日ごとにお届け</p>
+        </div>
+        <div class="act">
+          <ul>
+            <li>回数のしばりなし</li>
+            <li>お届け日の変更・休止・解約はマイページから</li>
+          </ul>
+          <button class="btn" type="button" id="buy">定期便を申し込む</button>
+          <p>※ デモのため、申込みは行われません。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>このページは、GROWXの体験型サイトのデモです。<br>商品名・配合量・価格はすべて架空のものです。</p>
+      <p>© 2026 GROWX Inc.</p>
+    </footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status">デモのため、申込みは行われません。</div>
+
+<script>
+(function(){
+  var track=document.getElementById('track'), rig=document.getElementById('rig'), stage=rig.parentNode;
+  var intro=document.getElementById('intro'), hint=document.getElementById('hint'), finale=document.getElementById('finale'), step=document.getElementById('step');
+  var P={}; rig.querySelectorAll('.part').forEach(function(el){P[el.dataset.k]=el});
+  var N={}; rig.querySelectorAll('.note').forEach(function(el){N[el.dataset.n]=el});
+
+  /* 粒を生成（3成分 × 9粒） */
+  var gwrap=document.getElementById('grains'), grains=[];
+  for(var t=0;t<3;t++){for(var i=0;i<9;i++){
+    var g=document.createElement('div'); g.className='part grain g'+(t+1); gwrap.appendChild(g);
+    var a=i/9*Math.PI*2+t, r=1.2+(i%3)*1.3;               /* 山盛りの中での位置 */
+    grains.push({el:g,t:t,ox:Math.cos(a)*r*1.4,oy:Math.sin(a)*r*.55-(i%3)*.6,d:(i*37%9)/9});
+  }}
+
+  /* ---- 数値ユーティリティ ---- */
+  function cl(v){return v<0?0:v>1?1:v}
+  function seg(p,a,b){return cl((p-a)/(b-a))}
+  function ease(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
+  function lerp(a,b,t){return a+(b-a)*t}
+
+  /* ---- 配置（単位 u。y は上端基準） ----
+     初期：ボトルが組み上がった状態 ／ 分解：縦に浮いて離れる ／ 中身：1粒だけ開き、成分が並ぶ */
+  var CAPS0=[[-6,57],[6,57],[-6,63],[6,63],[-6,69],[6,69]];        /* ボトル内のカプセル（中心座標） */
+  var CAPS1=[[-10,104],[0,104],[10,104],[-10,111],[0,111],[10,111]];/* 分解後に並ぶ位置 */
+  var GY=[40,62,84];                                                 /* 成分の山の高さ */
+
+  var u=4, shift=0, vw=0, vh=0, ticking=false;
+
+  function layout(){
+    vw=stage.clientWidth; vh=stage.clientHeight;
+    /* 分解時の全高は約145u。画面の高さ・幅の両方に収まる大きさにする */
+    /* 上はブランド表記、下はボタン分の余白を空けて、残りの高さに収める */
+    var top=vw<380?104:84, bottom=vw<640?120:100;
+    u=Math.min((vh-top-bottom)/146, vw*0.012, 6.2);
+    rig.style.top=(top+(vh-top-bottom)/2)+'px';
+    rig.style.setProperty('--u',u+'px');
+    /* 右側に説明ラベルを出すため、分解時は商品を左へ寄せる（上限は画面幅の18%） */
+    shift=Math.min(vw*0.18, 120);
+    var labelLeft=24*u, avail=vw/2+shift*0 - 0; /* ラベル幅は frame() で計算 */
+    rig.querySelectorAll('.note .bar').forEach(function(b){b.style.width=(6*u)+'px'});
+    update();
+  }
+
+  function frame(){
+    ticking=false;
+    var r=track.getBoundingClientRect(), total=track.offsetHeight-vh;
+    var p=cl(-r.top/total);
+
+    var A=ease(seg(p,.06,.40));   /* 分解 */
+    var B=ease(seg(p,.48,.76));   /* 1粒が開き、中身が並ぶ */
+    var C=seg(p,.84,.94);         /* 終点 */
+
+    /* リグ全体：縦の中心を合わせ、分解に合わせて左へ寄せる */
+    var midY=lerp(vw<640?54:46,42.5,A);   /* 最初は説明文の分だけ上に置く */
+    var sx=-shift*A;
+    rig.style.transform='translate('+sx+'px,'+(-midY*u)+'px)';
+
+    var dim=1-0.88*B;              /* 中身を見せるときは周りを暗くする */
+
+    /* キャップ */
+    P.cap.style.transform='translateY('+(lerp(0,-30,A)*u)+'px) rotate('+(-6*A*(1-B))+'deg)';
+    P.cap.style.opacity=dim;
+    /* ネック＋ボトル本体 */
+    P.body.style.transform='translateY('+(lerp(12,30,A)*u)+'px)';
+    P.body.style.opacity=lerp(1,.55,A)*dim;
+    /* ラベル（はがれて手前に出る） */
+    P.label.style.transform='translateY('+(lerp(30,2,A)*u)+'px) perspective(600px) rotateX('+(14*A)+'deg) scale('+lerp(1,1.08,A)+')';
+    P.label.style.opacity=dim;
+
+    /* カプセル：ボトルから出て並ぶ → 真ん中の1粒だけ前に出て開く */
+    for(var i=0;i<6;i++){
+      var c0=CAPS0[i], c1=CAPS1[i], a=ease(seg(p,.10+i*.025,.36+i*.012));
+      var x=lerp(c0[0],c1[0],a), y=lerp(c0[1],c1[1],a), s=1, rot=a*(i%2?8:-8), op=1;
+      if(i===1){ /* 主役の1粒 */
+        x=lerp(x,0,B); y=lerp(y,18,B); s=lerp(1,2.6,B); rot=lerp(rot,0,B);
+        var open=ease(seg(p,.58,.72));
+        P.c1.children[0].style.transform='translateX('+(-6*open)+'px) rotate('+(-18*open)+'deg)';
+        P.c1.children[1].style.transform='translateX('+(6*open)+'px) rotate('+(18*open)+'deg)';
+      } else { op=dim; }
+      P['c'+i].style.transform='translate('+(x*u)+'px,'+(y*u)+'px) rotate('+rot+'deg) scale('+s+')';
+      P['c'+i].style.opacity=op;
+    }
+
+    /* 粒：開いたカプセルからこぼれ、成分ごとの山になる */
+    grains.forEach(function(g){
+      var k=ease(seg(p,.62+g.t*.035+g.d*.03,.76+g.t*.03));
+      var x=lerp(0,g.ox,k), y=lerp(18,GY[g.t]+g.oy,k);
+      g.el.style.transform='translate('+(x*u)+'px,'+(y*u)+'px)';
+      g.el.style.opacity=k>0?Math.min(1,k*3)*(1-0.0*C):0;
+    });
+
+    /* 説明線 */
+    var gut=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter'))||16;
+    var noteX=19*u, maxW=Math.max(110, vw - gut - (vw/2 + sx + noteX + 6*u + 10));
+    function note(el,y,vis,barK){
+      el.style.transform='translate('+noteX+'px,'+(y*u)+'px) translateY(-50%)';
+      el.style.opacity=vis;
+      el.querySelector('.txt').style.maxWidth=maxW+'px';
+      el.querySelector('.bar').style.transform='scaleX('+barK+')';
+    }
+    var nA=seg(p,.30,.40)*(1-seg(p,.46,.52));
+    note(N.cap,  lerp(0,-30,A)+6.5, nA, nA);
+    note(N.label,lerp(30,2,A)+12,   nA, nA);
+    note(N.body, lerp(12,30,A)+34,  nA, nA);
+    note(N.caps, 107.5,             nA, nA);
+    for(var t=0;t<3;t++){
+      var v=seg(p,.68+t*.04,.76+t*.04);
+      note(N['g'+(t+1)], GY[t]-.4, v, v);
+    }
+
+    /* 表示の切り替え */
+    intro.style.opacity=1-seg(p,.02,.10);
+    hint.style.opacity=1-seg(p,.03,.08);
+    finale.classList.toggle('show',C>=1);
+    step.textContent=p<.30?'01 / 03　外観':p<.56?'02 / 03　分解':'03 / 03　中身';
+  }
+  function update(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } }
+
+  addEventListener('scroll',update,{passive:true});
+  addEventListener('resize',layout);
+  layout();
+
+  /* デモ：申込みは送信しない */
+  var toast=document.getElementById('toast'), tm;
+  document.getElementById('buy').addEventListener('click',function(){
+    toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
+  });
+})();
+</script>
+
+<!-- 文字サイズの下限（14px）をコードで保証（SVG・体験ステージ内の商品ロゴは除く） -->
+<script>
+(function(){
+  var MIN=14;
+  function enforce(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.closest('svg')||el.closest('.part')) return;
+      var has=false;
+      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
+      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
+    });
+  }
+  enforce(); addEventListener('resize',enforce);
+})();
+</script>
+<script src="assets/jp-wrap.js" data-selector=".intro h1,.intro p,.note .txt span,main h2,main .lead,main p,main li,main th"></script>
+</body>
+</html>
