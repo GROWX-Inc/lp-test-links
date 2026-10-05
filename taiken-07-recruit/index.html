@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>WORKS人材｜選んだ道の先に、担当者がいる（体験デモ）</title>
+<meta name="description" content="質問に答えるたびに道が分かれ、カメラがその道を進む。3つ答えた先に担当者が立っている、体験型サイトのデモ。GROWX 体験カタログ 07。">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+:root{
+  --gutter: clamp(15px, 4.5vw, 20px);
+  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
+  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
+
+  --bg:#0B1020; --panel:#141B30; --line:#2C3552;
+  --ink:#F5F3EE;     /* 17.4:1 */
+  --muted:#BBC1D2;   /* 10.4:1 */
+  --faint:#A5ACC0;   /* 8.0:1 */
+  --dawn:#F3B57A;    /* 10.0:1 */
+  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
+svg{display:block}
+.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
+.section{width:100%;padding-left:0;padding-right:0}
+.section *{min-width:0;max-width:100%}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
+  background:var(--dawn);color:#2A1606;font:700 var(--fs-body)/1.3 var(--body);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(255,255,255,.4)}
+.btn:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid #FFE0B8;outline-offset:3px}
+
+/* ===== 体験ステージ ===== */
+.stage{position:relative;height:100svh;min-height:600px;overflow:hidden;background:#070B1A}
+.scene{position:absolute;inset:0;width:100%;height:100%}
+#world{will-change:transform}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,240,220,.55),transparent 60%);opacity:0;pointer-events:none;transition:opacity .35s}
+.flash.on{opacity:1}
+
+.top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:var(--gutter);right:var(--gutter);z-index:3;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
+.top b{display:block;font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.2em;line-height:1.4;white-space:nowrap}
+.top small{display:block;font-size:var(--fs-label);color:var(--faint);letter-spacing:.1em}
+.dots{display:flex;gap:8px;align-items:center;padding-top:6px}
+.dots i{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);transition:.3s}
+.dots i.on{background:var(--dawn);border-color:var(--dawn)}
+
+.qbox{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);z-index:3;max-width:560px;margin:0 auto;
+  display:grid;gap:12px;text-align:center;transition:opacity .35s,transform .35s}
+.qbox.out{opacity:0;transform:translateY(10px);pointer-events:none}
+.qbox .qn{font-size:var(--fs-label);letter-spacing:.2em;color:var(--dawn)}
+.qbox h1{margin:0;font-family:var(--display);font-weight:500;font-size:var(--fs-h1);line-height:1.5;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+.qbox .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:379px){.qbox .row{grid-template-columns:1fr}.choice{min-height:52px}}
+.choice{min-height:60px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.32);background:rgba(8,12,26,.68);color:var(--ink);
+  font:700 var(--fs-body)/1.4 var(--body);cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;gap:8px}
+.choice:hover{border-color:var(--dawn)}
+.choice .ar{color:var(--dawn);font-weight:500}
+
+/* 終点：担当者 */
+.meet{position:absolute;inset:auto var(--gutter) calc(env(safe-area-inset-bottom,0px) + 20px);z-index:4;max-width:560px;margin:0 auto;
+  background:rgba(12,16,32,.86);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:20px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  opacity:0;transform:translateY(20px);pointer-events:none;transition:opacity .5s,transform .5s}
+.meet.show{opacity:1;transform:none;pointer-events:auto}
+.meet .head{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.meet .face{width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden;background:#F7E2C6}
+.meet .face svg{width:100%;height:100%}
+.meet .who small{display:block;font-size:var(--fs-label);color:var(--dawn);letter-spacing:.06em}
+.meet .who b{display:block;font-family:var(--display);font-size:var(--fs-h2);font-weight:500;line-height:1.4}
+.meet .who span{display:block;font-size:var(--fs-label);color:var(--muted)}
+.meet p.msg{margin:0 0 12px;color:var(--ink)}
+.meet .path{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none}
+.meet .path li{font-size:var(--fs-label);padding:2px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.meet .acts{display:grid;gap:8px}
+.meet .acts .btn{width:100%}
+
+/* ===== 下層 ===== */
+main{position:relative;z-index:1}
+.block{padding:clamp(64px,12vw,112px) 0 0}
+.eyebrow{font-size:var(--fs-label);letter-spacing:.24em;color:var(--dawn);margin:0 0 8px}
+h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px}
+.lead{color:var(--muted);margin:0 0 28px;max-width:40em}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:14px;counter-reset:f}
+.flow li{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;counter-increment:f}
+.flow li::before{content:"0" counter(f);display:block;font-family:var(--display);font-size:var(--fs-h2);color:var(--dawn);line-height:1;margin-bottom:10px}
+.flow b{display:block;font-size:var(--fs-lead);margin-bottom:4px}
+.flow p{margin:0;color:var(--muted)}
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
+.team .mem{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.team .face{width:56px;height:56px;flex:none;border-radius:50%;overflow:hidden;background:#F7E2C6}
+.team .face svg{width:100%;height:100%}
+.team .txt{display:block}
+.team b{display:block;font-size:var(--fs-body)}
+.team .txt span{display:block;font-size:var(--fs-label);color:var(--muted)}
+.cta{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.cta p{margin:0;font-size:var(--fs-label);color:var(--faint)}
+
+footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
+footer p{margin:0 0 6px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<section class="stage" id="stage" aria-label="3つの質問に答えると道が分かれて進み、最後に担当者が現れるデモ">
+  <svg class="scene" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop id="s0" offset="0" stop-color="#070B1A"/>
+        <stop id="s1" offset=".55" stop-color="#121A36"/>
+        <stop id="s2" offset="1" stop-color="#1E2445"/>
+      </linearGradient>
+      <radialGradient id="sunG"><stop offset="0" stop-color="#FFF4D8"/><stop offset=".45" stop-color="#FFC27A"/><stop offset="1" stop-color="#FF9A5A" stop-opacity="0"/></radialGradient>
+      <linearGradient id="roadG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B3350"/><stop offset="1" stop-color="#151A2C"/></linearGradient>
+    </defs>
+    <rect x="-3000" width="6400" height="700" fill="url(#sky)"/>
+    <g id="stars" fill="#fff">
+      <circle cx="-260" cy="90" r="1"/><circle cx="-140" cy="40" r="1.1"/><circle cx="-60" cy="180" r=".9"/><circle cx="-320" cy="210" r=".8"/><circle cx="460" cy="70" r="1"/><circle cx="540" cy="160" r="1.1"/><circle cx="620" cy="50" r=".9"/><circle cx="700" cy="220" r=".8"/>
+      <circle cx="40" cy="60" r="1"/><circle cx="120" cy="30" r="1.2"/><circle cx="210" cy="80" r=".9"/><circle cx="300" cy="40" r="1.1"/><circle cx="360" cy="110" r="1"/>
+      <circle cx="80" cy="150" r=".8"/><circle cx="250" cy="160" r="1"/><circle cx="170" cy="200" r=".7"/><circle cx="330" cy="210" r=".8"/><circle cx="20" cy="230" r=".9"/>
+    </g>
+    <circle id="sun" cx="200" cy="330" r="70" fill="url(#sunG)"/>
+    <g id="world">
+      <path d="M-3000 296 L-200 292 Q-80 260 0 300 Q60 262 120 284 T240 276 T400 288 Q520 258 640 294 L3400 296 V1000 H-3000Z" fill="#0F1530" id="hillFar"/>
+      <path d="M-3000 330 L-160 326 Q-60 304 0 330 Q90 300 170 322 T400 316 Q500 298 600 324 L3400 330 V1000 H-3000Z" fill="#0A0F22" id="hillNear"/>
+      <!-- 道：手前から分かれ道まで、そこから左右へ -->
+      <path d="M58 900 L180 430 L220 430 L342 900Z" fill="url(#roadG)"/>
+      <path d="M180 430 C160 380 140 340 126 304 L136 304 C152 340 176 382 200 430Z" fill="url(#roadG)"/>
+      <path d="M220 430 C240 380 260 340 274 304 L264 304 C248 340 224 382 200 430Z" fill="url(#roadG)"/>
+      <path d="M58 900 L180 430 C160 380 140 340 126 304" fill="none" stroke="#4A5578" stroke-width="1.5"/>
+      <path d="M342 900 L220 430 C240 380 260 340 274 304" fill="none" stroke="#4A5578" stroke-width="1.5"/>
+      <path id="lane" d="M200 900 L200 440" fill="none" stroke="#E9D9A6" stroke-width="3" stroke-dasharray="14 18"/>
+      <path class="br" d="M190 418 C172 380 152 342 131 306" fill="none" stroke="#E9D9A6" stroke-width="1.6" stroke-dasharray="7 9"/>
+      <path class="br" d="M210 418 C228 380 248 342 269 306" fill="none" stroke="#E9D9A6" stroke-width="1.6" stroke-dasharray="7 9"/>
+      <circle cx="200" cy="432" r="7" fill="#F3B57A" opacity=".9"/>
+      <circle cx="200" cy="432" r="16" fill="#F3B57A" opacity=".18"/>
+      <!-- 終点に立つ人（最後だけ表示） -->
+      <g id="person" opacity="0" transform="translate(200 420)">
+        <ellipse cx="0" cy="12" rx="14" ry="3" fill="#000" opacity=".35"/>
+        <path d="M-9 10 L-7 -10 Q0 -16 7 -10 L9 10Z" fill="#2B3350"/>
+        <circle cx="0" cy="-18" r="6" fill="#F7D9B5"/>
+      </g>
+    </g>
+  </svg>
+  <div class="flash" id="flash"></div>
+
+  <div class="top">
+    <div><b>WORKS</b><small>WORKS人材｜転職エージェント</small></div>
+    <div class="dots" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+  </div>
+
+  <div class="qbox" id="qbox">
+    <span class="qn" id="qn">QUESTION 1 / 3</span>
+    <h1 id="qt">いま一番ほしいのは？</h1>
+    <div class="row">
+      <button class="choice" type="button" data-a="0"><span class="ar" aria-hidden="true">←</span><span id="a0">収入を上げたい</span></button>
+      <button class="choice" type="button" data-a="1"><span id="a1">時間の自由</span><span class="ar" aria-hidden="true">→</span></button>
+    </div>
+  </div>
+
+  <div class="meet" id="meet" role="dialog" aria-label="あなたの担当者">
+    <div class="head">
+      <div class="face" id="mFace"></div>
+      <div class="who"><small>道の先にいた担当者</small><b id="mName">--</b><span id="mRole">--</span></div>
+    </div>
+    <p class="msg" id="mMsg">--</p>
+    <ul class="path" id="mPath"></ul>
+    <div class="acts">
+      <button class="btn" type="button" id="consult">この人に、無料で相談する</button>
+      <button class="btn ghost" type="button" id="retry">もう一度、選び直す</button>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container">
+    <section class="section block">
+      <p class="eyebrow">FLOW</p>
+      <h2 class="h">相談から入社まで、<br>同じ担当者が伴走します。</h2>
+      <p class="lead">選んだ道によって、担当者が変わります。<br>最初に会った人が、最後まで一緒です。</p>
+      <ol class="flow">
+        <li><b>無料登録</b><p>1分で終わる、かんたんな入力です。</p></li>
+        <li><b>面談</b><p>オンラインで30分。希望を整理します。</p></li>
+        <li><b>求人の紹介</b><p>公開されていない求人も含めて提案します。</p></li>
+        <li><b>入社まで</b><p>面接の日程調整や条件交渉も代行します。</p></li>
+      </ol>
+    </section>
+
+    <section class="section block">
+      <p class="eyebrow">CONSULTANTS</p>
+      <h2 class="h">道の先にいる、<br>4人の担当者。</h2>
+      <div class="team" id="team"></div>
+      <div class="cta">
+        <button class="btn" type="button" id="register">無料で登録する</button>
+        <p>※ デモのため、登録は行われません。</p>
+      </div>
+    </section>
+
+    <footer>
+      <p>このページは、GROWXの体験型サイトのデモです。<br>会社名・担当者・人物はすべて架空のものです。</p>
+      <p>© 2026 GROWX Inc.</p>
+    </footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status">デモのため、送信は行われません。</div>
+
+<script>
+(function(){
+  /* 質問（左＝0、右＝1） */
+  var Q=[
+    {t:'いま一番ほしいのは？',       a:['収入を上げたい','時間の自由']},
+    {t:'次にしたいのは？',     a:['経験を活かす','新しい分野へ']},
+    {t:'転職したい時期は？',           a:['すぐにでも','良い求人次第']}
+  ];
+  /* 担当者（Q1×Q2 の組み合わせで4人。人物はすべて架空） */
+  var P=[
+    {n:'山本 誠',  r:'年収アップ転職の担当', hair:'#2B2420', shirt:'#2F4A7A', short:true,
+     m:'経験は、思うより高く評価されます。'},
+    {n:'佐藤 美咲',r:'未経験からの挑戦の担当', hair:'#3A2A22', shirt:'#7A3F55', short:false,
+     m:'伸びている業界なら、未経験でも入口はあります。'},
+    {n:'田中 葵',  r:'リモート・時短の担当',   hair:'#1F1A18', shirt:'#2F6A5E', short:false,
+     m:'時間と場所を先に決めて、仕事を探しましょう。'},
+    {n:'伊藤 遥',  r:'副業・フリーランスの担当', hair:'#5A3B28', shirt:'#6A5A2F', short:true,
+     m:'会社に縛られない働き方も、選べます。'}
+  ];
+  var SKY=[ /* 答えるたびに夜が明ける */
+    ['#070B1A','#121A36','#1E2445',1.0,336],
+    ['#0E1634','#2A2F5C','#5A456E',.6,318],
+    ['#1C2A5A','#5B5A8A','#C97B6B',.25,300],
+    ['#3E6AA8','#E3A07A','#F6D3A0',0,262]
+  ];
+
+  var world=document.getElementById('world'), lane=document.getElementById('lane'), brs=document.querySelectorAll('.br');
+  var qbox=document.getElementById('qbox'), meet=document.getElementById('meet'), flash=document.getElementById('flash');
+  var dots=document.querySelectorAll('.dots i');
+  var step=0, ans=[], busy=false;
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hex(h){return [1,3,5].map(function(i){return parseInt(h.substr(i,2),16)})}
+  function mix(a,b,t){var x=hex(a),y=hex(b);return 'rgb('+x.map(function(v,i){return Math.round(v+(y[i]-v)*t)}).join(',')+')'}
+  var skyNow=0;
+  function setSky(f){ /* f は 0〜3 の連続値 */
+    f=Math.max(0,Math.min(3,f)); var i=Math.min(2,Math.floor(f)), t=f-i, A=SKY[i], B=SKY[i+1];
+    ['s0','s1','s2'].forEach(function(id,k){document.getElementById(id).setAttribute('stop-color',mix(A[k],B[k],t))});
+    document.getElementById('stars').setAttribute('opacity',A[3]+(B[3]-A[3])*t);
+    document.getElementById('sun').setAttribute('cy',A[4]+(B[4]-A[4])*t);
+    skyNow=f;
+  }
+  function ease(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2}
+
+  function ask(){
+    var q=Q[step];
+    document.getElementById('qn').textContent='QUESTION '+(step+1)+' / 3';
+    document.getElementById('qt').textContent=q.t;
+    document.getElementById('a0').textContent=q.a[0];
+    document.getElementById('a1').textContent=q.a[1];
+    dots.forEach(function(d,i){d.classList.toggle('on',i<=step)});
+    qbox.classList.remove('out');
+  }
+
+  /* カメラが選んだ道を進む：分かれ道の先を画面の中心へ寄せながら拡大する */
+  function fly(side,done){
+    var T=[side?272:128,300], s0=skyNow, dur=reduce?10:1500, t0=performance.now();
+    (function f(now){
+      var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=ease(k), sc=1+2.6*e;   /* 最初のフレームは now が t0 より手前のことがあるので0で止める */
+      var fx=200+(T[0]-200)*e, fy=500+(T[1]-500)*e;
+      world.setAttribute('transform','translate(200 500) scale('+sc+') translate('+(-fx)+' '+(-fy)+')');
+      lane.setAttribute('stroke-dashoffset',-k*160);
+      brs.forEach(function(b){b.setAttribute('stroke-dashoffset',-k*60)});
+      setSky(s0+e*(step+1-s0));
+      if(k>.78) flash.classList.add('on');
+      if(k<1) requestAnimationFrame(f);
+      else setTimeout(function(){ world.setAttribute('transform',''); flash.classList.remove('on'); done(); }, reduce?10:160);
+    })(t0);
+  }
+
+  function choose(a){
+    if(busy) return; busy=true;
+    ans.push(a); qbox.classList.add('out');
+    fly(a,function(){
+      step++;
+      if(step<3){ ask(); busy=false; }
+      else arrive();
+    });
+  }
+  document.querySelectorAll('.choice').forEach(function(b){ b.addEventListener('click',function(){choose(+b.dataset.a)}) });
+
+  function face(p){ /* 架空の担当者のイラスト */
+    var hair = p.short
+      ? '<path d="M22 42 Q22 18 50 16 Q78 18 78 42 Q72 30 50 28 Q30 30 22 42Z" fill="'+p.hair+'"/>'
+      : '<path d="M20 70 Q16 20 50 16 Q84 20 80 70 L72 70 Q76 34 50 30 Q26 34 28 70Z" fill="'+p.hair+'"/>';
+    return '<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#F7E2C6"/>'+
+      '<path d="M14 100 Q16 74 50 72 Q84 74 86 100Z" fill="'+p.shirt+'"/>'+
+      '<rect x="43" y="58" width="14" height="16" rx="5" fill="#E9BE96"/>'+
+      '<ellipse cx="50" cy="44" rx="22" ry="25" fill="#F2CDA6"/>'+hair+
+      '<circle cx="42" cy="46" r="2.2" fill="#3A2A22"/><circle cx="58" cy="46" r="2.2" fill="#3A2A22"/>'+
+      '<path d="M43 56 Q50 61 57 56" stroke="#B5664F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+  }
+
+  function arrive(){
+    var p=P[ans[0]*2+ans[1]];
+    var person=document.getElementById('person');
+    person.setAttribute('opacity','1');
+    /* 担当者がカードに隠れないよう、景色を少し持ち上げる */
+    var t0=performance.now(), dur=reduce?10:900;
+    (function pan(now){
+      var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=ease(k);
+      world.setAttribute('transform','translate(0 '+(-170*e)+')');
+      if(k<1) requestAnimationFrame(pan);
+    })(t0);
+    document.getElementById('mFace').innerHTML=face(p);   /* 固定の図形のみ（入力値は含まない） */
+    document.getElementById('mName').textContent=p.n;
+    document.getElementById('mRole').textContent=p.r;
+    var old=document.getElementById('mMsg'), msg=document.createElement('p');
+    msg.className='msg'; msg.id='mMsg';
+    msg.textContent=p.m+(ans[2]===0?'今週、30分だけ話しませんか。':'良い求人が出たら、お知らせします。');
+    old.parentNode.replaceChild(msg,old);   /* 新しい要素にすると、改行位置を一から計算できる */
+    var ul=document.getElementById('mPath'); ul.innerHTML='';
+    ans.forEach(function(a,i){var li=document.createElement('li'); li.textContent=Q[i].a[a]; ul.appendChild(li)});
+    meet.classList.add('show');
+    if(window.jpWrap) window.jpWrap.run();   /* 差し替えた文章の改行位置を計算し直す */
+  }
+
+  document.getElementById('retry').addEventListener('click',function(){
+    meet.classList.remove('show'); document.getElementById('person').setAttribute('opacity','0'); world.setAttribute('transform','');
+    step=0; ans=[]; busy=false; setSky(0); ask();
+  });
+
+  var team=document.getElementById('team');
+  P.forEach(function(p){
+    var d=document.createElement('div'), f=document.createElement('div'); d.className='mem'; f.className='face'; f.innerHTML=face(p);
+    var t=document.createElement('span'); t.className='txt'; var b=document.createElement('b'), s=document.createElement('span');
+    b.textContent=p.n; s.textContent=p.r; t.appendChild(b); t.appendChild(s); d.appendChild(f); d.appendChild(t); team.appendChild(d);
+  });
+
+  var toast=document.getElementById('toast'), tm;
+  function demo(){ toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400); }
+  document.getElementById('consult').addEventListener('click',demo);
+  document.getElementById('register').addEventListener('click',demo);
+
+  /* 画面の縦横比に合わせて、見える範囲（viewBox）を左右に広げる。横長の画面でも地平線が切れない */
+  var scene=document.querySelector('.scene');
+  function fit(){
+    var st=document.getElementById('stage'), W=Math.max(400, 700*st.clientWidth/st.clientHeight);
+    scene.setAttribute('viewBox',(200-W/2)+' 0 '+W+' 700');
+  }
+  addEventListener('resize',fit); fit();
+
+  setSky(0); ask();
+})();
+</script>
+<script>
+(function(){
+  var MIN=14;
+  function enforce(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.closest('svg')) return;
+      var has=false;
+      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
+      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
+    });
+  }
+  enforce(); addEventListener('resize',enforce);
+})();
+</script>
+<script src="assets/jp-wrap.js" data-selector="main h2,main .lead,main p,.flow b,.meet .msg"></script>
+</body>
+</html>
