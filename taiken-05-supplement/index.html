@@ -4,469 +4,576 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>NIGHT MONSTER｜中身を、ぜんぶ見せるサプリ（体験デモ）</title>
-<meta name="description" content="スクロールすると商品が空中でほどけ、中身が見える体験型サイトのデモ。GROWX 体験カタログ 05。">
+<meta name="description" content="スクロールすると、ボトルがほどけ、カプセルが開いて中身が見える体験型サイトのデモ。GROWX 体験カタログ 05。">
 <meta name="robots" content="noindex">
-<script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" crossorigin>
 <style>
-/* ===== 土台：文字・色（readability-rules）＋ 幅と余白（responsive-rules） ===== */
-:root{
-  --gutter: clamp(15px, 4.5vw, 20px);
-  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
-  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
-
-  --bg:#0A0E19;        /* 背景（濃紺） */
-  --panel:#121828;
-  --line:#2A3247;
-  --ink:#F4F2EC;       /* 主要な文字 17.6:1 */
-  --muted:#BAC0CF;     /* 本文グレー 10.6:1 */
-  --faint:#A3AABB;     /* 補助・注記 8.1:1 */
-  --gold:#E0BD68;      /* アクセント 10.2:1 */
-  --gaba:#E0BD68; --thea:#7FD8C4; --gly:#B4A6FF;
-
-  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
-  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
-  color-scheme:dark;
-}
+/* ===== motion-site engine v1：土台 =====
+   色・書体はすべて台本（site.json の brand）から CSS変数で入る。
+   文字は14px以上（readability-rules）、左右余白は --gutter で一括管理（responsive-rules）。 */
+:root{--gutter:clamp(16px,4.5vw,48px);color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
-html,body{max-width:100%;overflow-x:clip}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
-img,svg{display:block;max-width:100%}
-a{color:inherit}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased;overflow-x:clip}
+#gl{position:fixed;left:0;top:0;width:100%;height:100%;z-index:0;display:block;pointer-events:none}
+main{position:relative;z-index:1}
+.chap{position:relative}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden}
+.abs{position:absolute}
+h1,h2,h3,p{margin:0}
+ul{list-style:none;margin:0;padding:0}
+.eyebrow{font-size:14px;letter-spacing:.2em;color:var(--accent);margin:0 0 10px}
+.disp{font-family:var(--display);font-weight:500}
+.glass{background:var(--panel);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);border:1px solid var(--line);border-radius:18px}
+.shadow-txt{text-shadow:0 2px 28px rgba(0,0,0,.6)}
 
-.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
-.section{width:100%;padding-left:0;padding-right:0}
-.section *{min-width:0;max-width:100%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 28px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);
+  font:700 16px/1.2 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .15s}
+@media (hover:hover){.btn:hover{transform:translateY(-2px)}}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn.ghost{background:rgba(255,255,255,.07);color:var(--ink);border:1px solid rgba(255,255,255,.32)}
+a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 28px;border-radius:999px;border:0;
-  background:var(--gold);color:#1B1505;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;
-  box-shadow:0 10px 32px rgba(224,189,104,.28);transition:transform .15s,box-shadow .15s}
-@media (hover:hover){.btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(224,189,104,.36)}}
-.btn:active{transform:translateY(1px) scale(.98);box-shadow:0 6px 18px rgba(224,189,104,.24)}
-.btn:focus-visible,a:focus-visible{outline:3px solid #FFE6A8;outline-offset:3px}
+/* 固定ヘッダー（ブランド名＋主CTA） */
+.topbar{position:fixed;z-index:30;top:calc(env(safe-area-inset-top,0px) + 10px);left:var(--gutter);right:var(--gutter);display:flex;justify-content:space-between;align-items:center;gap:12px;pointer-events:none}
+.topbar .mark{pointer-events:auto;min-height:48px;display:flex;align-items:center;color:var(--ink);text-decoration:none;font-family:var(--display);font-size:18px;letter-spacing:.2em;white-space:nowrap;text-shadow:0 1px 14px rgba(0,0,0,.6)}
+.topbar .btn{pointer-events:auto;min-height:48px;padding:0 20px;font-size:14px}
+.topbar .mark{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:440px){.topbar .mark{font-size:15px;letter-spacing:.1em}.topbar .btn{padding:0 14px}}   /* 狭い画面でもヘッダーを1行に収める */
+@media (max-width:360px){.topbar .mark{font-size:14px;letter-spacing:.04em}.topbar .btn{padding:0 12px}}
 
-/* ===== 体験ステージ（スクロールで分解） ===== */
-.track{position:relative;height:520svh}
-.stage{position:sticky;top:0;height:100svh;overflow:hidden;
-  background:radial-gradient(ellipse 60% 55% at 50% 48%,#1B2440 0%,#0E1324 55%,var(--bg) 100%)}
-.stage::after{ /* 床の反射 */
-  content:"";position:absolute;left:50%;bottom:6%;width:min(520px,80%);height:12%;transform:translateX(-50%);
-  background:radial-gradient(ellipse at center,rgba(224,189,104,.10),transparent 70%);pointer-events:none}
-
-.brand{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:var(--gutter);right:var(--gutter);z-index:5;
-  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
-.brand b{font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.22em;display:block;line-height:1.4;white-space:nowrap}
-@media (max-width:379px){.brand{flex-direction:column;gap:2px}.brand b{font-size:18px;letter-spacing:.14em}.brand .step{text-align:left}}
-.brand small{display:block;font-size:var(--fs-label);letter-spacing:.18em;color:var(--faint)}
-.brand .step{font-size:var(--fs-label);color:var(--faint);letter-spacing:.12em;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
-
-.intro{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 86px);z-index:4;text-align:center;pointer-events:none}
-.intro h1{font-family:var(--display);font-weight:500;font-size:var(--fs-h1);line-height:1.5;margin:0 0 6px;letter-spacing:.04em}
-.intro p{margin:0;color:var(--muted)}
-
-.hint{position:absolute;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translateX(-50%);z-index:4;
-  display:flex;align-items:center;gap:10px;padding:10px 18px;border-radius:999px;background:rgba(10,14,25,.72);
-  border:1px solid var(--line);font-size:var(--fs-label);color:var(--muted);white-space:nowrap;pointer-events:none;transition:opacity .4s}
-.hint i{width:2px;height:16px;background:var(--gold);border-radius:2px;animation:drip 1.6s ease-in-out infinite}
-@keyframes drip{0%{transform:translateY(-4px);opacity:0}40%{opacity:1}100%{transform:translateY(6px);opacity:0}}
-
-/* リグ：商品パーツを置く座標系（1u = --u px。JSが画面サイズから計算） */
-.rig{position:absolute;left:50%;top:50%;width:0;height:0;z-index:2;--u:4px}
-.part{position:absolute;left:0;top:0;will-change:transform,opacity}
-.cap{width:calc(26*var(--u));height:calc(13*var(--u));margin-left:calc(-13*var(--u));border-radius:calc(2*var(--u)) calc(2*var(--u)) calc(.8*var(--u)) calc(.8*var(--u));
-  background:linear-gradient(90deg,#141824 0%,#4B5366 22%,#2A3040 48%,#5B6479 70%,#161A26 100%);
-  box-shadow:inset 0 calc(-.8*var(--u)) 0 rgba(0,0,0,.35)}
-.cap::before{ /* ローレット（滑り止め） */
-  content:"";position:absolute;inset:calc(2*var(--u)) calc(1*var(--u)) calc(2.4*var(--u));border-radius:2px;
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 6px)}
-.body{width:calc(30*var(--u));height:calc(62*var(--u));margin-left:calc(-15*var(--u))}
-.body .neck{position:absolute;left:calc(4*var(--u));right:calc(4*var(--u));top:0;height:calc(4*var(--u));background:linear-gradient(90deg,#8E8A80,#E6E1D6 40%,#A9A499);border-radius:2px}
-.body .glass{position:absolute;left:0;right:0;top:calc(3.4*var(--u));bottom:0;border-radius:calc(3*var(--u)) calc(3*var(--u)) calc(4*var(--u)) calc(4*var(--u));
-  background:
-    linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.22) 14%,rgba(255,255,255,.05) 28%,transparent 60%,rgba(255,255,255,.10) 86%,rgba(255,255,255,.02) 100%),
-    linear-gradient(180deg,rgba(74,52,30,.55),rgba(46,30,16,.78));
-  border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(1px)}
-.label{width:calc(30*var(--u));height:calc(24*var(--u));margin-left:calc(-15*var(--u));border-radius:2px;
-  background:linear-gradient(90deg,rgba(0,0,0,.30),transparent 18%,transparent 80%,rgba(0,0,0,.32)),linear-gradient(180deg,#E8C676,#C99E45);
-  color:#1B1505;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:calc(.6*var(--u));
-  box-shadow:0 calc(1*var(--u)) calc(3*var(--u)) rgba(0,0,0,.35);transform-origin:50% 50%;overflow:hidden}
-.label::after{ /* ラベルを横切る光（待機中の呼吸） */
-  content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);
-  transform:translateX(-120%);animation:sheen 4.2s ease-in-out 1s infinite}
-@keyframes sheen{0%{transform:translateX(-120%)}35%,100%{transform:translateX(120%)}}
-.flare{width:calc(44*var(--u));height:calc(44*var(--u));margin:calc(-22*var(--u)) 0 0 calc(-22*var(--u));border-radius:50%;opacity:0;pointer-events:none;
-  background:radial-gradient(circle,rgba(255,246,220,.9) 0%,rgba(224,189,104,.35) 28%,transparent 64%)}
-.label .ln{font-family:var(--display);font-weight:700;letter-spacing:.1em;font-size:calc(2.5*var(--u));line-height:1;white-space:nowrap}
-.label .ls{font-size:calc(1.9*var(--u));letter-spacing:.2em;line-height:1;white-space:nowrap}
-.label .lr{width:60%;height:1px;background:rgba(27,21,5,.45)}
-.capsule{width:calc(9*var(--u));height:calc(4*var(--u));margin:calc(-2*var(--u)) 0 0 calc(-4.5*var(--u));display:flex}
-.capsule span{flex:1;height:100%}
-.capsule .l{background:linear-gradient(180deg,#CFC4FF,#8E7EE6);border-radius:calc(2*var(--u)) 0 0 calc(2*var(--u))}
-.capsule .r{background:linear-gradient(180deg,#FFFFFF,#D9D6E6);border-radius:0 calc(2*var(--u)) calc(2*var(--u)) 0}
-.grain{width:calc(1.5*var(--u));height:calc(1.5*var(--u));margin:calc(-.75*var(--u)) 0 0 calc(-.75*var(--u));border-radius:50%;opacity:0}
-.grain.g1{background:var(--gaba);box-shadow:0 0 6px rgba(224,189,104,.6)}
-.grain.g2{background:var(--thea);box-shadow:0 0 6px rgba(127,216,196,.6)}
-.grain.g3{background:var(--gly);box-shadow:0 0 6px rgba(180,166,255,.6)}
-
-/* 説明線とラベル */
-.note{position:absolute;left:0;top:0;width:max-content;opacity:0;z-index:3;display:flex;align-items:center;gap:10px;will-change:transform,opacity}
-.note .bar{display:block;height:1px;background:var(--gold);flex:none;transform-origin:left center}
-.note .txt{display:block}
-.note .txt b{display:block;font-size:var(--fs-body);font-weight:700;line-height:1.5;color:var(--ink)}
-.note .txt span{display:block;font-size:var(--fs-label);line-height:1.6;color:var(--muted)}
-.note.ing .txt b{font-family:var(--display);font-weight:700;font-size:var(--fs-lead)}
-.note.ing .txt b em{font-style:normal;font-family:var(--body);font-size:var(--fs-body);font-weight:500;margin-left:8px;color:var(--muted)}
-.note.ing .dot{width:10px;height:10px;border-radius:50%;flex:none}
-
-/* 終点：定期便ボタン */
-.finale{position:absolute;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 24px);z-index:6;
-  display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .5s,transform .5s}
-.finale.show{opacity:1;transform:none;pointer-events:auto}
-.finale p{margin:0;font-size:var(--fs-label);color:var(--muted);letter-spacing:.06em}
-
-/* ===== 下層コンテンツ ===== */
-main{position:relative;z-index:1;background:var(--bg)}
-.block{padding:clamp(64px,12vw,112px) 0 0}
-.eyebrow{font-size:var(--fs-label);letter-spacing:.24em;color:var(--gold);margin:0 0 8px}
-h2{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px;letter-spacing:.03em}
-.lead{font-size:var(--fs-body);color:var(--muted);margin:0 0 28px;max-width:40em}
-
-.spec{width:100%;border-collapse:collapse;table-layout:auto;font-size:var(--fs-body)}
-.spec th,.spec td{padding:16px 0;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
-.spec th{font-weight:500}
-.spec th i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:10px;vertical-align:middle}
-.spec td{width:1%;white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;font-family:var(--display);font-size:var(--fs-lead)}
-.spec caption{caption-side:bottom;text-align:left;padding-top:12px;font-size:var(--fs-label);color:var(--faint)}
-
-.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
-.steps li{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
-.steps .n{font-family:var(--display);font-size:var(--fs-h2);color:var(--gold);line-height:1;display:block;margin-bottom:10px}
-.steps b{display:block;font-size:var(--fs-lead);margin-bottom:4px}
-.steps p{margin:0;color:var(--muted)}
-
-.plan{background:linear-gradient(160deg,#1A2238,#111726);border:1px solid #3A4460;border-radius:20px;padding:clamp(22px,5vw,36px);
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:center}
-.plan .price{font-family:var(--display);font-size:clamp(34px,9vw,44px);line-height:1.2}
-.plan .price small{display:block;font-family:var(--body);font-size:var(--fs-body);color:var(--muted)}
-.plan .sub{color:var(--muted);margin:6px 0 0}
-.plan ul{margin:0;padding:0 0 0 1.2em;color:var(--muted)}
-.plan ul li{margin:4px 0}
-.plan .act{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
-.plan .act p{margin:0;font-size:var(--fs-label);color:var(--faint)}
-
-/* スクロールで浮かび上がる（JSが動くときだけ隠す） */
-.js .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*90ms)}
-.js .rv.in{opacity:1;transform:none}
-
-footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
-footer p{margin:0 0 6px}
-
-/* 送信不要のデモ用トースト */
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;
-  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none;width:max-content;max-width:calc(100% - 2*var(--gutter))}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:40;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:14px;font-weight:500;transition:.35s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+/* ---------- 型：hero（ヒーロー。商品が暗闇に浮かび、カメラが寄る） ---------- */
+.t-hero .copy{left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 13vh);text-align:center}
+.t-hero h1{font-family:var(--display);font-weight:500;font-size:clamp(30px,5.6vw,64px);line-height:1.4;letter-spacing:.04em}
+.t-hero .lead{margin-top:12px;color:var(--muted);font-size:clamp(16px,1.4vw,18px)}
+.t-hero .mid{inset:0;display:grid;place-items:center;text-align:center;padding:0 var(--gutter);opacity:0}
+.t-hero .mid h2{font-family:var(--display);font-weight:500;font-size:clamp(26px,4.4vw,54px);line-height:1.45}
+.t-hero .hint{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);transform:translateX(-50%);font-size:14px;letter-spacing:.24em;color:var(--muted);text-align:center;white-space:nowrap}
+.t-hero .hint::after{content:"";display:block;width:1px;height:28px;margin:8px auto 0;background:linear-gradient(var(--ink),transparent);animation:drip 1.8s ease-in-out infinite;transform-origin:top}
+@keyframes drip{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+
+/* ---------- 型：explode（分解。パーツが離れ、説明線が付く） ---------- */
+.t-explode .head{left:var(--gutter);right:var(--gutter);top:calc(env(safe-area-inset-top,0px) + 76px);max-width:24em}
+.t-explode h2{font-family:var(--display);font-weight:500;font-size:clamp(24px,3.2vw,40px);line-height:1.45}
+.callout{left:0;top:0;display:flex;align-items:center;gap:8px;opacity:0;will-change:transform,opacity;pointer-events:none}
+.callout::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none;box-shadow:0 0 0 4px rgba(255,255,255,.08)}
+.callout i{display:block;width:clamp(18px,3vw,48px);height:1px;background:var(--accent);flex:none;transform-origin:left}
+.callout .tx{display:block;min-width:0}
+.callout b{display:block;font-size:16px;line-height:1.5}
+.callout span{display:block;font-size:14px;line-height:1.6;color:var(--muted)}
+.no-gl .t-explode .callouts{position:absolute;left:var(--gutter);right:var(--gutter);top:42%;display:grid;gap:14px}
+.no-gl .t-explode .callout{position:static;opacity:1!important;transform:none!important}
+
+/* ---------- 型：xray（中身。成分ごとに光らせる） ---------- */
+.t-xray .head{left:var(--gutter);right:var(--gutter);top:calc(env(safe-area-inset-top,0px) + 76px);max-width:24em}
+.t-xray h2{font-family:var(--display);font-weight:500;font-size:clamp(24px,3.2vw,40px);line-height:1.45}
+.t-xray .list{left:var(--gutter);top:50%;transform:translateY(-50%)}
+.t-xray .list li{display:flex;align-items:center;gap:12px;font-size:clamp(18px,2vw,24px);font-weight:700;line-height:2;opacity:.55;transition:opacity .45s,transform .45s}
+.t-xray .list li.on{opacity:1;transform:translateX(8px)}
+.t-xray .list li i{width:10px;height:10px;border-radius:50%;flex:none}
+.t-xray .note{right:var(--gutter);bottom:9vh;width:min(340px,calc(100% - 2*var(--gutter)));padding:20px 22px}
+.t-xray .note .amt{font-family:var(--display);font-size:clamp(40px,4.6vw,56px);line-height:1.15;font-variant-numeric:tabular-nums}
+.t-xray .note .amt small{font-family:var(--body);font-size:18px;margin-left:4px}
+.t-xray .note h3{font-size:18px;margin-top:4px}
+.t-xray .note p{font-size:14px;color:var(--muted);margin-top:4px}
+.t-xray .note .fine{margin-top:10px;font-size:14px;color:var(--muted)}
+.swap{animation:swap .55s cubic-bezier(.2,.8,.2,1)}
+@keyframes swap{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (max-width:760px){
+  .t-xray .list{top:calc(env(safe-area-inset-top,0px) + 162px);right:var(--gutter);transform:none}
+  .t-xray .list ul{display:flex;flex-wrap:wrap;gap:6px}
+  .t-xray .list li{font-size:14px;line-height:1.5;padding:6px 12px;border-radius:999px;border:1px solid var(--line);gap:8px}
+  .t-xray .list li.on{transform:none;background:rgba(255,255,255,.1)}
+  .t-xray .note{left:var(--gutter);right:var(--gutter);width:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 3vh);padding:16px 18px}
 }
+
+/* ---------- 型：stats（巨大な数字が横から流れる） ---------- */
+.t-stats .line{left:0;top:0;white-space:nowrap;will-change:transform,opacity;opacity:0}
+.t-stats .la{top:20vh;font-family:var(--display);font-weight:500;font-size:clamp(24px,3.4vw,48px)}
+.t-stats .lb{top:28vh;font-family:var(--display);font-weight:700;font-size:clamp(88px,17vw,260px);line-height:1;letter-spacing:-.02em}
+.t-stats .note{left:var(--gutter);right:var(--gutter);bottom:10vh;max-width:24em;font-size:16px;opacity:0}
+.t-stats .idx{right:var(--gutter);bottom:10vh;display:flex;gap:6px}
+.t-stats .idx i{display:block;width:26px;height:2px;background:rgba(255,255,255,.3);transition:background .4s}
+.t-stats .idx i.on{background:var(--ink)}
+@media (max-width:760px){.t-stats .la{top:18vh}.t-stats .lb{top:24vh}.t-stats .idx{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 76px)}}
+
+/* ---------- 型：showcase（指で360°回す） ---------- */
+.t-showcase .stage{touch-action:pan-y;cursor:grab}
+.t-showcase .stage.drag{cursor:grabbing}
+.t-showcase .name{left:var(--gutter);bottom:9vh;opacity:0}
+.t-showcase .name h2{font-family:var(--display);font-weight:500;font-size:clamp(48px,9vw,140px);line-height:1;letter-spacing:.02em}
+.t-showcase .chips{right:var(--gutter);top:calc(env(safe-area-inset-top,0px) + 80px);display:grid;gap:8px;justify-items:end}
+.t-showcase .chip{padding:8px 16px;border-radius:999px;font-size:14px;opacity:0;transform:translateX(16px)}
+.t-showcase .spinbox{right:var(--gutter);bottom:9vh;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.t-showcase .spinbox small{font-size:14px;color:var(--muted)}
+@media (max-width:760px){
+  .t-showcase .chips{left:var(--gutter);display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
+  .t-showcase .spinbox{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 196px)}
+}
+
+/* ---------- 型：cta（申込み。粒の流れの上に申込みカード） ---------- */
+.t-cta{min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
+.t-cta .inner{position:relative;flex:1;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;gap:28px;padding:110px var(--gutter) 48px;max-width:1120px;margin:0 auto;width:100%}
+.t-cta .inner::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,color-mix(in srgb,var(--bg) 82%,transparent),transparent)}  /* 粒の流れの上でも文字を読めるように */
+.t-cta h2{font-family:var(--display);font-weight:500;font-size:clamp(30px,5vw,64px);line-height:1.4;text-shadow:0 2px 28px rgba(0,0,0,.7)}
+.t-cta .inner>*,.t-cta .plan>*{min-width:0}   /* 長い日本語でも枠を押し広げない */
+.t-cta .plan{padding:clamp(20px,4vw,34px);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:24px;align-items:center;max-width:860px}
+.t-cta .price{font-family:var(--display);font-size:clamp(36px,8vw,48px);line-height:1.2}
+.t-cta .price small{display:block;font-family:var(--body);font-size:16px;color:var(--muted)}
+.t-cta .sub{color:var(--muted);margin-top:6px}
+.t-cta .plan ul{padding-left:1.2em;list-style:disc;color:var(--muted)}
+.t-cta .act{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.t-cta .act p{font-size:14px;color:var(--muted)}
+.t-cta footer{position:relative;padding:22px var(--gutter) calc(env(safe-area-inset-bottom,0px) + 28px);border-top:1px solid var(--line);font-size:14px;color:var(--muted);background:var(--bg)}
+.t-cta footer p{margin:0 0 4px}
+
+/* WebGLが使えない環境 */
+.no-gl .stage{background:radial-gradient(ellipse 70% 60% at 50% 45%,var(--bg2),var(--bg))}
+
 </style>
 </head>
 <body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<header class="topbar">
+  <a class="mark" href="#top">NIGHT MONSTER</a>
+  <a class="btn" href="#plan">定期便ではじめる</a>
+</header>
+<main id="chapters"></main>
+<div class="toast" id="toast" role="status"></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script>window.SITE={"title": "NIGHT MONSTER｜中身を、ぜんぶ見せるサプリ（体験デモ）", "description": "スクロールすると、ボトルがほどけ、カプセルが開いて中身が見える体験型サイトのデモ。GROWX 体験カタログ 05。", "brand": {"name": "NIGHT MONSTER", "bg": "#0A0E19", "bg2": "#1B2440", "ink": "#F4F2EC", "muted": "#BAC0CF", "accent": "#E0BD68", "accentInk": "#1B1505", "panel": "rgba(16,21,36,.74)", "line": "rgba(255,255,255,.16)", "display": "\"Shippori Mincho\",\"Hiragino Mincho ProN\",\"Yu Mincho\",serif", "body": "\"Noto Sans JP\",\"Hiragino Sans\",\"Yu Gothic\",sans-serif", "fonts": "Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700", "cta": {"label": "定期便ではじめる", "href": "#plan"}}, "products": {"bottle": {"kind": "bottle", "glass": "#7A4A22", "glassOpacity": 0.55, "capColor": "#1B1D26", "count": 10, "label": {"bg": "#E0BD68", "ink": "#1B1505", "title": "NIGHT MONSTER", "sub": "60 CAPSULES"}, "capsule": {"cap": "#8E7EE6", "tint": "#F1EEFF"}}, "capsule": {"kind": "capsule", "cap": "#8E7EE6", "tint": "#E4DEFF", "granules": ["#E0BD68", "#7FD8C4", "#B4A6FF"]}}, "chapters": [{"type": "hero", "id": "top", "vh": 240, "product": "bottle", "title": "中身を、\nぜんぶ見せる。", "lead": "手に取れない通販だから、\nひと粒の中まで。", "mid": "毎晩2粒の、\n中身のはなし。", "hint": "スクロール", "bg": ["#1B2440", "#05070D"]}, {"type": "explode", "id": "parts", "vh": 420, "product": "bottle", "title": "ボトルを、\nほどいてみる。", "bg": ["#141B30", "#04060C"], "parts": [{"key": "cap", "title": "遮光キャップ", "text": "光と湿気から中身を守る二重構造"}, {"key": "caps", "title": "植物性カプセル", "text": "1日2粒・60粒入り（30日分）"}, {"key": "label", "title": "ラベル", "text": "原材料と内容量を、すべて表示"}, {"key": "body", "title": "遮光ボトル", "text": "紫外線に強い、琥珀色のガラス"}]}, {"type": "xray", "id": "inside", "vh": 440, "capsule": "capsule", "title": "カプセルの中は、\n3つだけ。", "bg": ["#18203A", "#05070D", "#3A4566"], "fine": "※ 1日2粒あたり・架空の配合量です。", "items": [{"name": "GABA", "amount": 100, "unit": "mg", "color": "#E0BD68", "desc": "発酵でつくられる、アミノ酸の一種。"}, {"name": "L-テアニン", "amount": 200, "unit": "mg", "color": "#7FD8C4", "desc": "お茶の葉に含まれる、アミノ酸の一種。"}, {"name": "グリシン", "amount": 500, "unit": "mg", "color": "#B4A6FF", "desc": "たんぱく質をつくる、アミノ酸の一種。"}]}, {"type": "stats", "id": "numbers", "vh": 380, "capsule": "capsule", "items": [{"a": "1日の目安は", "b": "2粒", "note": "夜、水またはぬるま湯と一緒に。", "bg": ["#2A3561", "#0A0E1C"]}, {"a": "1本に", "b": "60粒", "note": "30日分。なくなる前に、\n次の1本が届きます。", "bg": ["#3B2F5E", "#0D0A1C"]}, {"a": "入れたのは", "b": "3成分", "note": "見えない成分は、\n入れていません。", "bg": ["#5A4A22", "#120E05"]}]}, {"type": "showcase", "id": "hold", "vh": 300, "product": "bottle", "name": "NIGHT\nMONSTER", "chips": ["60粒 ／ 30日分", "琥珀色の遮光ボトル", "植物性カプセル"], "button": "360°で見る", "hint": "ドラッグで回せます", "bg": ["#1C2238", "#090C16"]}, {"type": "cta", "id": "plan", "capsule": "capsule", "title": "中身に納得した方だけ、\n定期便へ。", "price": "¥1,980", "priceNote": "初回（税込・送料無料）", "sub": "2回目以降 ¥3,980（税込）／30日ごとにお届け", "points": ["回数のしばりなし", "お届け日の変更・休止・解約はマイページから"], "button": "定期便ではじめる", "demoNote": "※ デモのため、申込みは行われません。", "footer": ["このページは、GROWXの体験型サイトのデモです。", "商品名・配合量・価格はすべて架空のものです。", "© 2026 GROWX Inc."]}]};</script>
+<script type="module">
+/* ===== motion-site engine v1 =====
+   UGOKU（体験型サイトの手本）を因数分解した共通エンジン。
+   ① 骨格：章（縦に長い section）＋舞台（sticky）＋進み具合 p（0→1）＋なめらか補正＋1本のループ
+   ② 絵　：three.js の WebGL を背面1枚に固定し、各章の舞台の位置にだけ描く（scissor）
+   ③ 文字：DOM。進み具合 p の範囲で、出る・消える・切り替わるを決める
+   ④ 型　：TYPES に章の型を登録。台本（window.SITE）は「型と文言と色」だけを書く
+   ※ このファイルは build.py で index.html に埋め込まれる。閉じタグの文字列を書かないこと。 */
 
-<!-- ============ 体験：スクロールで商品がほどける ============ -->
-<div class="track" id="track">
-  <div class="stage" aria-label="スクロールすると商品がパーツごとに分解され、中身が見えるデモ">
-    <div class="brand">
-      <div><b>NIGHT MONSTER</b><small>SLEEP SUPPORT</small></div>
-      <div class="step" id="step">01 / 03　外観</div>
-    </div>
+/* ---------------- 道具 ---------------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+const seg=(p,a,b)=>clamp((p-a)/(b-a));                 /* p が a→b の間で 0→1 */
+const io3=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;       /* ゆっくり→速く→ゆっくり */
+const o3=t=>1-Math.pow(1-t,3);                          /* 速く→ゆっくり */
+const bell=(p,a,b,f=.08)=>Math.min(seg(p,a,a+f),1-seg(p,b-f,b)); /* a〜bの間だけ1（前後fでフェード） */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=mulberry32(7);
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MOB=innerWidth<760;
+const port=r=>r.width<r.height;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const br=s=>esc(s).replace(/\n/g,'<br>');
+const SITE=window.SITE, BR=SITE.brand;
 
-    <div class="rig" id="rig">
-      <!-- パーツ（座標はJSが計算） -->
-      <div class="part body" data-k="body"><div class="neck"></div><div class="glass"></div></div>
-      <div class="part capsule" data-k="c0"><span class="l"></span><span class="r"></span></div>
-      <div class="part capsule" data-k="c1"><span class="l"></span><span class="r"></span></div>
-      <div class="part capsule" data-k="c2"><span class="l"></span><span class="r"></span></div>
-      <div class="part capsule" data-k="c3"><span class="l"></span><span class="r"></span></div>
-      <div class="part capsule" data-k="c4"><span class="l"></span><span class="r"></span></div>
-      <div class="part capsule" data-k="c5"><span class="l"></span><span class="r"></span></div>
-      <div class="part label" data-k="label"><span class="ln">NIGHT MONSTER</span><span class="lr"></span><span class="ls">60 CAPSULES</span></div>
-      <div class="part cap" data-k="cap"></div>
-      <!-- 割れた瞬間の光 -->
-      <div class="part flare" data-k="flare"></div>
-      <!-- 粒（中身） -->
-      <div id="grains"></div>
+/* 色・書体を CSS変数へ */
+const rs=document.documentElement.style;
+[['--bg',BR.bg],['--bg2',BR.bg2||BR.bg],['--ink',BR.ink],['--muted',BR.muted],['--accent',BR.accent],['--accent-ink',BR.accentInk],
+ ['--panel',BR.panel],['--line',BR.line],['--display',BR.display],['--body',BR.body]].forEach(([k,v])=>v&&rs.setProperty(k,v));
 
-      <!-- 説明線（パーツ） -->
-      <div class="note" data-n="cap"><i class="bar"></i><span class="txt"><b>遮光キャップ</b><span>光と湿気から中身を守る二重構造</span></span></div>
-      <div class="note" data-n="label"><i class="bar"></i><span class="txt"><b>ラベル</b><span>原材料と内容量を、すべて表示</span></span></div>
-      <div class="note" data-n="body"><i class="bar"></i><span class="txt"><b>遮光ボトル</b><span>紫外線に強い、琥珀色のガラス</span></span></div>
-      <div class="note" data-n="caps"><i class="bar"></i><span class="txt"><b>植物性カプセル</b><span>1日2粒・60粒入り（30日分）</span></span></div>
-      <!-- 説明線（中身） -->
-      <div class="note ing" data-n="g1"><i class="bar"></i><i class="dot" style="background:var(--gaba)"></i><span class="txt"><b>GABA<em>100mg</em></b></span></div>
-      <div class="note ing" data-n="g2"><i class="bar"></i><i class="dot" style="background:var(--thea)"></i><span class="txt"><b>L-テアニン<em>200mg</em></b></span></div>
-      <div class="note ing" data-n="g3"><i class="bar"></i><i class="dot" style="background:var(--gly)"></i><span class="txt"><b>グリシン<em>500mg</em></b></span></div>
-    </div>
+/* ---------------- トースト（送信しないデモ用） ---------------- */
+const toastEl=$('#toast');let toastT;
+function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2400)}
 
-    <div class="intro" id="intro">
-      <h1>中身を、ぜんぶ見せる。</h1>
-      <p>手に取れない通販だから、<br>ひと粒の中まで。</p>
-    </div>
-    <div class="hint" id="hint"><i></i>スクロールでほどける</div>
+/* ---------------- 章の型（TYPES） ----------------
+   html(ch)        舞台の中身（文字だけ。台本の文言を入れる）
+   dom(c,t)        毎フレーム、進み具合 c.ps で文字を動かす
+   build(ch)       three.js のシーンを作る（1回）
+   gl(c,t,dt)      毎フレーム、カメラと物を動かして描く */
+const TYPES={};
+const mouse={x:0,y:0,sx:0,sy:0};
+addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=e.clientY/innerHeight*2-1},{passive:true});
 
-    <div class="finale" id="finale">
-      <p>中身を、ぜんぶ見た方へ。</p>
-      <a class="btn" href="#plan">定期便ではじめる</a>
-    </div>
-  </div>
-</div>
-
-<!-- ============ 下層：見たものを、文字でも確かめる ============ -->
-<main>
-  <div class="container">
-    <section class="section block" id="spec">
-      <p class="eyebrow rv">INGREDIENTS</p>
-      <h2 class="rv" style="--i:1">さっき見た中身を、<br>数字で確かめる。</h2>
-      <p class="lead rv" style="--i:2">1日2粒あたりの配合量です。<br>見えない成分は、入れていません。</p>
-      <table class="spec rv" style="--i:3">
-        <tbody>
-          <tr><th><i style="background:var(--gaba)"></i>GABA</th><td data-n="100">100mg</td></tr>
-          <tr><th><i style="background:var(--thea)"></i>L-テアニン</th><td data-n="200">200mg</td></tr>
-          <tr><th><i style="background:var(--gly)"></i>グリシン</th><td data-n="500">500mg</td></tr>
-          <tr><th>カプセル（植物性）</th><td>2粒</td></tr>
-        </tbody>
-        <caption>※ デモ用の架空の配合量です。</caption>
-      </table>
-    </section>
-
-    <section class="section block" id="howto">
-      <p class="eyebrow rv">HOW TO</p>
-      <h2 class="rv" style="--i:1">飲み方は、3つだけ。</h2>
-      <ol class="steps">
-        <li class="rv" style="--i:2"><span class="n">01</span><b>夜に2粒</b><p>水またはぬるま湯と一緒に。</p></li>
-        <li class="rv" style="--i:3"><span class="n">02</span><b>キャップはしっかり</b><p>湿気を防ぐため、使ったらすぐ閉める。</p></li>
-        <li class="rv" style="--i:4"><span class="n">03</span><b>30日で1本</b><p>なくなる前に、次の1本が届きます。</p></li>
-      </ol>
-    </section>
-
-    <section class="section block" id="plan">
-      <p class="eyebrow rv">SUBSCRIPTION</p>
-      <h2 class="rv" style="--i:1">中身に納得した方だけ、<br>定期便へ。</h2>
-      <div class="plan rv" style="--i:2">
-        <div>
-          <div class="price">¥1,980<small>初回（税込・送料無料）</small></div>
-          <p class="sub">2回目以降 ¥3,980（税込）／30日ごとにお届け</p>
-        </div>
-        <div class="act">
-          <ul>
-            <li>回数のしばりなし</li>
-            <li>お届け日の変更・休止・解約はマイページから</li>
-          </ul>
-          <button class="btn" type="button" id="buy">定期便を申し込む</button>
-          <p>※ デモのため、申込みは行われません。</p>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <p>このページは、GROWXの体験型サイトのデモです。<br>商品名・配合量・価格はすべて架空のものです。</p>
-      <p>© 2026 GROWX Inc.</p>
-    </footer>
-  </div>
-</main>
-
-<div class="toast" id="toast" role="status">デモのため、申込みは行われません。</div>
-
-<script>
-(function(){
-  var track=document.getElementById('track'), rig=document.getElementById('rig'), stage=rig.parentNode;
-  var intro=document.getElementById('intro'), hint=document.getElementById('hint'), finale=document.getElementById('finale'), step=document.getElementById('step');
-  var P={}; rig.querySelectorAll('.part').forEach(function(el){P[el.dataset.k]=el});
-  var N={}; rig.querySelectorAll('.note').forEach(function(el){N[el.dataset.n]=el});
-
-  /* 粒を生成（3成分 × 9粒） */
-  var gwrap=document.getElementById('grains'), grains=[];
-  for(var t=0;t<3;t++){for(var i=0;i<9;i++){
-    var g=document.createElement('div'); g.className='part grain g'+(t+1); gwrap.appendChild(g);
-    var a=i/9*Math.PI*2+t, r=1.2+(i%3)*1.3;               /* 山盛りの中での位置 */
-    var ang=-Math.PI/2+(Math.random()-.5)*Math.PI*1.7;   /* 弾ける向き（上向きに広がる） */
-    grains.push({el:g,t:t,ox:Math.cos(a)*r*1.4,oy:Math.sin(a)*r*.55-(i%3)*.6,d:(i*37%9)/9,ang:ang,R:10+Math.random()*16});
-  }}
-
-  /* ---- 数値ユーティリティ ---- */
-  function cl(v){return v<0?0:v>1?1:v}
-  function seg(p,a,b){return cl((p-a)/(b-a))}
-  function ease(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
-  function lerp(a,b,t){return a+(b-a)*t}
-
-  /* ---- 配置（単位 u。y は上端基準） ----
-     初期：ボトルが組み上がった状態 ／ 分解：縦に浮いて離れる ／ 中身：1粒だけ開き、成分が並ぶ */
-  var CAPS0=[[-6,57],[6,57],[-6,63],[6,63],[-6,69],[6,69]];        /* ボトル内のカプセル（中心座標） */
-  var CAPS1=[[-10,104],[0,104],[10,104],[-10,111],[0,111],[10,111]];/* 分解後に並ぶ位置 */
-  var GY=[40,62,84];                                                 /* 成分の山の高さ */
-
-  var u=4, shift=0, vw=0, vh=0, ticking=false, idling=false;
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var MG=[100,200,500];
-
-  function layout(){
-    vw=stage.clientWidth; vh=stage.clientHeight;
-    /* 分解時の全高は約145u。画面の高さ・幅の両方に収まる大きさにする */
-    /* 上はブランド表記、下はボタン分の余白を空けて、残りの高さに収める */
-    var top=vw<380?104:84, bottom=vw<640?120:100;
-    u=Math.min((vh-top-bottom)/146, vw*0.012, 6.2);
-    rig.style.top=(top+(vh-top-bottom)/2)+'px';
-    rig.style.setProperty('--u',u+'px');
-    rig.style.transformOrigin='0 '+(40*u)+'px';   /* 待機中の揺れはボトルの中心を軸にする */
-    /* 右側に説明ラベルを出すため、分解時は商品を左へ寄せる（上限は画面幅の18%） */
-    shift=Math.min(vw*0.18, 120);
-    var labelLeft=24*u, avail=vw/2+shift*0 - 0; /* ラベル幅は frame() で計算 */
-    rig.querySelectorAll('.note .bar').forEach(function(b){b.style.width=(6*u)+'px'});
-    update();
+/* ===== hero ===== */
+TYPES.hero={
+  html:ch=>`<div class="stage">
+    <div class="abs copy shadow-txt" data-q="copy"><h1 class="jw">${br(ch.title)}</h1>${ch.lead?`<p class="lead jw">${br(ch.lead)}</p>`:''}</div>
+    ${ch.mid?`<div class="abs mid shadow-txt" data-q="mid"><h2 class="jw">${br(ch.mid)}</h2></div>`:''}
+    ${ch.hint?`<div class="abs hint" data-q="hint">${esc(ch.hint)}</div>`:''}</div>`,
+  dom(c){const p=c.ps,q=c.q;
+    set(q.copy,1-seg(p,.12,.26),`translateY(${-seg(p,0,.26)*50}px)`);
+    q.mid&&set(q.mid,bell(p,.42,.92,.1),`translateY(${lerp(30,-30,seg(p,.42,.92))}px)`);
+    q.hint&&set(q.hint,1-seg(p,0,.05));
+  },
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(32,1,.1,80);
+    const prod=makeProduct(ch.product);scene.add(prod.g);
+    const fl=makeFloaters(MOB?18:30);scene.add(fl.g);
+    keyLight(scene,'#ffffff',1.6,[-4,6,8]);keyLight(scene,BR.accent,.6,[5,1,-4]);
+    return{scene,cam,prod,fl,bg:makeBg(0,ch.bg?.[0]||'#1B2440',ch.bg?.[1]||'#05070D')}},
+  gl(c,t){const s=c.s,p=c.ps,pt=port(c.r),a=io3(seg(p,0,1));
+    s.prod.g.rotation.y=(RM?0:t*.25)+p*Math.PI*1.2;
+    s.prod.g.position.y=Math.sin(t*1.1)*(RM?0:.06);
+    animFloaters(s.fl,t);
+    const cam=s.cam;cam.fov=pt?44:30;
+    cam.position.set(mouse.sx*.5,lerp(2.4,1.8,a)-mouse.sy*.3,lerp(pt?15:13,pt?11.5:9.5,a));look(cam,0,pt?.35:.55,0);   /* 下に見出しが来るので、商品は画面の上寄りに見せる */
+    draw(c.r,BR.bg,s.bg,s.scene,cam);
   }
+};
 
-  function frame(){
-    ticking=false;
-    var r=track.getBoundingClientRect(), total=track.offsetHeight-vh;
-    var p=cl(-r.top/total);
-
-    var A=ease(seg(p,.06,.40));   /* 分解 */
-    var B=ease(seg(p,.46,.58));   /* 1粒が真ん中へ出る（割れる前に着く） */
-    var C=seg(p,.84,.94);         /* 終点 */
-
-    /* リグ全体：縦の中心を合わせ、分解に合わせて左へ寄せる */
-    var midY=lerp(vw<640?54:46,42.5,A);   /* 最初は説明文の分だけ上に置く */
-    var sx=-shift*A;
-    /* 待機中：ボトルがゆっくり浮かんで揺れる（スクロールを始めると止まる） */
-    var idle=reduce?0:1-seg(p,0,.08), tt=performance.now()/1000;
-    var fy=Math.sin(tt*1.3)*1.6*u*idle, fr=Math.sin(tt*.9)*1.6*idle;
-    rig.style.transform='translate('+sx+'px,'+(-midY*u+fy)+'px) rotate('+fr+'deg)';
-
-    var dim=1-0.94*B;              /* 中身を見せるときは周りを暗くする */
-
-    /* キャップ */
-    P.cap.style.transform='translateY('+(lerp(0,-30,A)*u)+'px) rotate('+(-6*A*(1-B))+'deg)';
-    P.cap.style.opacity=dim;
-    /* ネック＋ボトル本体 */
-    P.body.style.transform='translateY('+(lerp(12,30,A)*u)+'px)';
-    P.body.style.opacity=lerp(1,.55,A)*dim;
-    /* ラベル（はがれて手前に出る） */
-    P.label.style.transform='translateY('+(lerp(30,2,A)*u)+'px) perspective(600px) rotateX('+(14*A)+'deg) scale('+lerp(1,1.08,A)+')';
-    P.label.style.opacity=dim;
-
-    /* カプセル：ボトルから出て並ぶ → 真ん中の1粒だけ前に出て開く */
-    for(var i=0;i<6;i++){
-      var c0=CAPS0[i], c1=CAPS1[i], a=ease(seg(p,.10+i*.025,.36+i*.012));
-      var x=lerp(c0[0],c1[0],a), y=lerp(c0[1],c1[1],a), s=1, rot=a*(i%2?8:-8), op=1;
-      if(i===1){ /* 主役の1粒 */
-        x=lerp(x,0,B); y=lerp(y,18,B); s=lerp(1,2.6,B); rot=lerp(rot,0,B);
-        var open=ease(seg(p,.58,.64));
-        P.c1.children[0].style.transform='translate('+(-1.4*u*open)+'px,'+(-.6*u*open)+'px) rotate('+(-30*open)+'deg)';
-        P.c1.children[1].style.transform='translate('+(1.4*u*open)+'px,'+(-.6*u*open)+'px) rotate('+(30*open)+'deg)';
-      } else { op=dim; }
-      P['c'+i].style.transform='translate('+(x*u)+'px,'+(y*u)+'px) rotate('+rot+'deg) scale('+s+')';
-      P['c'+i].style.opacity=op;
-    }
-
-    /* 割れた瞬間の光 */
-    var fl=seg(p,.60,.63)*(1-seg(p,.645,.71));
-    P.flare.style.transform='translate(0px,'+(18*u)+'px) scale('+lerp(.3,1.4,seg(p,.60,.70))+')';
-    P.flare.style.opacity=fl;
-
-    /* 粒：カプセルから弾けて飛び散り、そのあと成分ごとの山に落ちる */
-    grains.forEach(function(g){
-      var b=seg(p,.60+g.d*.015,.665+g.d*.015), be=1-Math.pow(1-b,3);
-      var bx=Math.cos(g.ang)*g.R*be, by=18+Math.sin(g.ang)*g.R*be;
-      var k=ease(seg(p,.665+g.t*.03+g.d*.02,.76+g.t*.03));
-      var x=lerp(bx,g.ox,k), y=lerp(by,GY[g.t]+g.oy,k), sc=1+.7*be*(1-k);
-      g.el.style.transform='translate('+(x*u)+'px,'+(y*u)+'px) scale('+sc+')';
-      g.el.style.opacity=b>0?Math.min(1,b*4):0;
-    });
-
-    /* 説明線 */
-    var gut=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter'))||16;
-    var noteX=19*u, maxW=Math.max(110, vw - gut - (vw/2 + sx + noteX + 6*u + 10));
-    function note(el,y,vis,barK){
-      el.style.transform='translate('+noteX+'px,'+(y*u)+'px) translateY(-50%)';
-      el.style.opacity=vis;
-      el.querySelector('.txt').style.maxWidth=maxW+'px';
-      el.querySelector('.bar').style.transform='scaleX('+barK+')';
-    }
-    var nA=seg(p,.30,.40)*(1-seg(p,.46,.52));
-    note(N.cap,  lerp(0,-30,A)+6.5, nA, nA);
-    note(N.label,lerp(30,2,A)+12,   nA, nA);
-    note(N.body, lerp(12,30,A)+34,  nA, nA);
-    note(N.caps, 107.5,             nA, nA);
-    for(var t=0;t<3;t++){
-      var v=seg(p,.68+t*.04,.76+t*.04);
-      note(N['g'+(t+1)], GY[t]-.4, v, v);
-      var em=N['g'+(t+1)].querySelector('em'), val=Math.round(MG[t]*ease(v));   /* 配合量を数え上げる */
-      if(em._v!==val){ em._v=val; em.textContent=val+'mg'; }
-    }
-
-    /* 表示の切り替え */
-    intro.style.opacity=1-seg(p,.02,.10);
-    hint.style.opacity=1-seg(p,.03,.08);
-    finale.classList.toggle('show',C>=1);
-    step.textContent=p<.30?'01 / 03　外観':p<.56?'02 / 03　分解':'03 / 03　中身';
-
-    /* 待機中は毎フレーム描き直して揺らし続ける */
-    if(idle>0 && r.bottom>0 && !idling){ idling=true; requestAnimationFrame(function(){ idling=false; frame(); }); }
-  }
-  function update(){ if(!ticking){ ticking=true; requestAnimationFrame(frame); } }
-
-  addEventListener('scroll',update,{passive:true});
-  addEventListener('resize',layout);
-  layout();
-
-  /* 下層：画面に入ったら浮かび上がる。表の配合量は数え上げる */
-  function countUp(td){
-    var n=+td.dataset.n, t0=performance.now(), dur=reduce?1:1200;
-    (function f(now){
-      var k=Math.max(0,Math.min(1,(now-t0)/dur));
-      td.textContent=Math.round(n*(1-Math.pow(1-k,3)))+'mg';
-      if(k<1) requestAnimationFrame(f);
-    })(t0);
-  }
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){
-      es.forEach(function(e){
-        if(!e.isIntersecting) return;
-        e.target.classList.add('in'); io.unobserve(e.target);
-        if(e.target.classList.contains('spec')) e.target.querySelectorAll('td[data-n]').forEach(countUp);
-      });
-    },{rootMargin:'0px 0px -10% 0px',threshold:.15});
-    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
-  } else {
-    document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
-  }
-
-  /* デモ：申込みは送信しない */
-  var toast=document.getElementById('toast'), tm;
-  document.getElementById('buy').addEventListener('click',function(){
-    toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
-  });
-})();
-</script>
-
-<!-- 文字サイズの下限（14px）をコードで保証（SVG・体験ステージ内の商品ロゴは除く） -->
-<script>
-(function(){
-  var MIN=14;
-  function enforce(){
-    document.querySelectorAll('body *').forEach(function(el){
-      if(el.closest('svg')||el.closest('.part')) return;
-      var has=false;
-      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
-      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
+/* ===== explode（パーツが離れ、説明線が付く） ===== */
+TYPES.explode={
+  html:ch=>`<div class="stage">
+    <div class="abs head shadow-txt" data-q="head">${ch.eyebrow?`<p class="eyebrow">${esc(ch.eyebrow)}</p>`:''}<h2 class="jw">${br(ch.title)}</h2></div>
+    <div class="callouts">${ch.parts.map(pt=>`<div class="abs callout" data-part="${esc(pt.key)}"><i></i><span class="tx"><b>${esc(pt.title)}</b><span class="jw">${esc(pt.text)}</span></span></div>`).join('')}</div></div>`,
+  dom(c){set(c.q.head,1-seg(c.ps,.86,.96))},
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(34,1,.1,80);
+    const prod=makeProduct(ch.product);scene.add(prod.g);
+    keyLight(scene,'#ffffff',1.7,[-4,7,8]);keyLight(scene,BR.accent,.5,[5,2,-4]);
+    const notes={};$$('.callout',c_el(ch)).forEach(n=>notes[n.dataset.part]=n);
+    return{scene,cam,prod,notes,bg:makeBg(0,ch.bg?.[0]||'#141B30',ch.bg?.[1]||'#04060C'),v:new THREE.Vector3(),rt:new THREE.Vector3()}},
+  gl(c,t){const s=c.s,p=c.ps,pt=port(c.r),P=s.prod.parts,A=io3(seg(p,.04,.5)),Z=io3(seg(p,.82,1));
+    /* 分解：キャップは上、ラベルは少し上へ浮いて大きく、本体は下へ、中のカプセルは輪になって回る */
+    P.cap.position.y=2.2*A;P.cap.rotation.z=.3*A;
+    P.label.position.y=1.0*A;P.label.scale.setScalar(1+.1*A);
+    P.body.position.y=-1.4*A;P.body.material.opacity=lerp(s.prod.o.glassOpacity||.55,.28,A);
+    const ring=p*Math.PI*1.4+(RM?0:t*.15),rr=pt?1.2:1.85;   /* スマホは輪を小さく（説明線の場所を空ける） */
+    P.caps.forEach((cp,i)=>{const k=io3(seg(p,.1+i*.02,.48+i*.02)),a=i/P.caps.length*Math.PI*2+ring;
+      cp.position.set(lerp(cp.userData.x,Math.cos(a)*rr,k),lerp(cp.userData.y,3.6+Math.sin(a*2)*.12,k),lerp(cp.userData.z,Math.sin(a)*rr,k));
+      cp.rotation.set(lerp(cp.userData.rx,.25,k),lerp(0,-a,k),lerp(cp.userData.rz,Math.PI/2,k))});
+    s.prod.g.rotation.y=lerp(-.35,.35,p)+(RM?0:Math.sin(t*.4)*.05);
+    /* カメラ：全体を収める → 最後は輪の手前のカプセルへ寄る（次の章へのつなぎ） */
+    const cam=s.cam;cam.fov=lerp(pt?46:34,pt?30:22,Z);
+    const lx=pt?1.3:.45;   /* 説明線を右に出すため、物を左へ寄せて見る（スマホは大きく寄せる） */
+    cam.position.set(lerp(mouse.sx*.5,0,Z),lerp(2.2-mouse.sy*.3,3.4,Z),lerp(pt?19:15.5,pt?7:6,Z));look(cam,lerp(lx,0,Z),lerp(pt?2.6:1.85,3.5,Z),0);
+    draw(c.r,BR.bg,s.bg,s.scene,cam);
+    /* 説明線：3Dの位置を画面の位置に変換して、文字を横に置く */
+    const W=c.r.width,H=c.r.height,gut=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gutter'))||16;
+    s.rt.set(1,0,0).applyQuaternion(cam.quaternion);
+    /* パーツごとの「説明線の付け根」：ボトルの中での高さ と 右側への張り出し */
+    const AN={cap:[P.cap.position.y+2.8,.62],label:[P.label.position.y+1.05,1.14],body:[P.body.position.y+.9,1.04],caps:[3.6,rr+.1]};
+    const vis=bell(p,.3,.86,.08);
+    if(vis>0&&!s.wrapped){s.wrapped=1;setTimeout(()=>window.jpWrap&&window.jpWrap.run(),60)}   /* 説明文の幅が決まってから改行位置を計算 */
+    Object.entries(s.notes).forEach(([k,n])=>{const a=AN[k];if(!a)return;
+      s.v.set(0,a[0],0);s.prod.g.localToWorld(s.v);s.v.addScaledVector(s.rt,a[1]).project(cam);
+      const x=(s.v.x+1)/2*W,y=(1-s.v.y)/2*H;
+      n.style.transform=`translate(${x-4}px,${y}px) translateY(-50%)`;
+      n.querySelector('.tx').style.maxWidth=Math.max(120,W-x-gut-60)+'px';
+      n.style.opacity=vis;n.querySelector('i').style.transform=`scaleX(${vis})`;
     });
   }
-  enforce(); addEventListener('resize',enforce);
-})();
+};
+
+/* ===== xray（中身。成分ごとに光らせる） ===== */
+TYPES.xray={
+  html:ch=>`<div class="stage">
+    <div class="abs head shadow-txt">${ch.eyebrow?`<p class="eyebrow">${esc(ch.eyebrow)}</p>`:''}<h2 class="jw">${br(ch.title)}</h2></div>
+    <div class="abs list"><ul>${ch.items.map(it=>`<li><i style="background:${esc(it.color)}"></i>${esc(it.name)}</li>`).join('')}</ul></div>
+    <div class="abs note glass jw-skip" data-q="note" aria-live="polite"><div class="amt" data-q="amt"></div><h3 data-q="nm"></h3><p data-q="ds"></p>${ch.fine?`<p class="fine">${esc(ch.fine)}</p>`:''}</div></div>`,
+  dom(c){const ch=c.ch,n=ch.items.length,idx=Math.min(n-1,Math.floor(seg(c.ps,.2,.98)*n));
+    if(idx!==c.idx){c.idx=idx;const it=ch.items[idx];
+      $$('.list li',c.el).forEach((e,i)=>e.classList.toggle('on',i===idx));
+      c.q.nm.textContent=it.name;c.q.ds.textContent=it.desc||'';
+      c.q.note.classList.remove('swap');void c.q.note.offsetWidth;c.q.note.classList.add('swap');
+      countUp(c.q.amt,it.amount,it.unit||'');}
+  },
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(32,1,.1,60);
+    const o=SITE.products[ch.capsule]||{};
+    const cap=makeCapsule({cap:o.cap,tint:o.tint,rimI:.6,n:0});
+    const groups=ch.items.map(it=>{const m=new THREE.MeshStandardMaterial({color:'#3a3f52',roughness:.5,emissive:'#000000'});
+      const im=fillGranules(MOB?70:110,null,true,.045,.075,G.gran,m);cap.inner.add(im);return{m,on:new THREE.Color(it.color),im}});
+    scene.add(cap.g);keyLight(scene,'#ffffff',1.5,[-3,6,8]);
+    return{scene,cam,cap,groups,bg:makeBg(3,ch.bg?.[0]||'#161C30',ch.bg?.[1]||'#06080F',ch.bg?.[2]||'#3A4566'),off:new THREE.Color('#3a3f52'),black:new THREE.Color('#000')}},
+  gl(c,t,dt){const s=c.s,p=c.ps,pt=port(c.r),k=1-Math.exp(-dt*6),o=io3(seg(p,0,.16));
+    s.cap.cap.position.y=1.0*o;s.cap.cap.rotation.z=.2*o;            /* カプセルが割れる */
+    s.groups.forEach((g,i)=>{const on=i===c.idx;g.m.color.lerp(on?g.on:s.off,k);g.m.emissive.lerp(on?g.on:s.black,k);g.m.emissiveIntensity=.5});
+    s.cap.g.rotation.set(0,0,pt?.18:Math.PI/2-.12);s.cap.g.position.set(pt?0:.35,pt?-.45:.15,0);s.cap.g.scale.setScalar(pt?.82:1.3);
+    s.cap.inner.rotation.y=p*Math.PI*2+(RM?0:t*.12);
+    s.cam.fov=32;s.cam.position.set(mouse.sx*.4,-mouse.sy*.3+.6,pt?13:10.5);look(s.cam,0,pt?.1:0,0);
+    draw(c.r,BR.bg,s.bg,s.scene,s.cam);
+  }
+};
+
+/* ===== stats（巨大な数字が横から流れる） ===== */
+TYPES.stats={
+  html:ch=>`<div class="stage">
+    ${ch.items.map((it,i)=>`<p class="abs line la shadow-txt" data-s="${i}a">${esc(it.a)}</p><p class="abs line lb shadow-txt" data-s="${i}b">${esc(it.b)}</p>`).join('')}
+    ${ch.items.map((it,i)=>`<p class="abs note shadow-txt jw" data-n="${i}">${br(it.note)}</p>`).join('')}
+    <div class="abs idx" aria-hidden="true">${ch.items.map(()=>'<i></i>').join('')}</div></div>`,
+  dom(c){const p=c.ps,vw=c.r.width,n=c.ch.items.length;let act=0;
+    for(let i=0;i<n;i++){const q=seg(p,i/n-.04,(i+1)/n+.04),o=bell(q,0,1,.16);
+      const a=c.el.querySelector(`[data-s="${i}a"]`),b=c.el.querySelector(`[data-s="${i}b"]`),bw=b.offsetWidth;
+      set(a,o,`translateX(${lerp(vw*.62,vw*.06,o3(seg(q,0,.5)))-seg(q,.5,1)*vw*.4}px)`);
+      set(b,o,`translateX(${lerp(vw*1.02,vw*.5-bw*.5,o3(seg(q,0,.5)))-seg(q,.5,1)*(vw*.5+bw*.6)}px)`);
+      set(c.el.querySelector(`[data-n="${i}"]`),bell(p,i/n+.02,(i+1)/n-.02,.05));
+      if(p>=i/n)act=i;}
+    $$('.idx i',c.el).forEach((e,i)=>e.classList.toggle('on',i===act));
+  },
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(34,1,.1,60);
+    const o=SITE.products[ch.capsule]||{};const cap=makeCapsule({cap:o.cap,tint:o.tint,gcols:o.granules,rimI:.7});
+    const outer=new THREE.Group();outer.add(cap.g);scene.add(outer);keyLight(scene,'#fff',1.8,[-4,6,8]);
+    return{scene,cam,cap,outer,bg:makeBg(0,'#000','#000'),cols:ch.items.map(it=>[new THREE.Color(it.bg[0]),new THREE.Color(it.bg[1])]),a:new THREE.Color(),b:new THREE.Color()}},
+  gl(c,t){const s=c.s,p=c.ps,pt=port(c.r),n=s.cols.length;
+    const f=clamp(p*n-.5,0,n-1),i=Math.min(n-2,Math.floor(f)),k=n>1?io3(clamp(f-i)):0;
+    s.a.copy(s.cols[i][0]).lerp(s.cols[Math.min(n-1,i+1)][0],k);s.b.copy(s.cols[i][1]).lerp(s.cols[Math.min(n-1,i+1)][1],k);
+    s.bg.mat.uniforms.uA.value.copy(s.a);s.bg.mat.uniforms.uB.value.copy(s.b);
+    s.outer.rotation.set(.2,0,pt?-.35:-.62);s.outer.position.set(pt?lerp(.8,-.8,p):lerp(2.4,-2.4,p),pt?lerp(-.9,.2,p):lerp(-.5,.5,p),0);
+    s.outer.scale.setScalar(pt?1.3:2.1);s.cap.inner.rotation.y=p*Math.PI*3.2+(RM?0:t*.12);
+    s.cam.position.set(mouse.sx*.5,-mouse.sy*.3,pt?11.5:10);look(s.cam,0,0,0);
+    draw(c.r,BR.bg,s.bg,s.scene,s.cam);
+  }
+};
+
+/* ===== showcase（指で360°回す） ===== */
+TYPES.showcase={
+  html:ch=>`<div class="stage">
+    <div class="abs name shadow-txt" data-q="name"><h2>${br(ch.name)}</h2></div>
+    <div class="abs chips">${ch.chips.map(x=>`<span class="chip glass">${esc(x)}</span>`).join('')}</div>
+    <div class="abs spinbox"><button class="btn ghost" type="button" data-q="spin">${esc(ch.button||'360°で見る')}</button><small>${esc(ch.hint||'ドラッグで回せます')}</small></div></div>`,
+  dom(c){const p=c.ps,o=o3(seg(p,.4,.56));set(c.q.name,o,`translateY(${(1-o)*30}px)`);
+    $$('.chip',c.el).forEach((e,i)=>{const k=o3(seg(p,.46+i*.05,.58+i*.05));set(e,k,`translateX(${(1-k)*16}px)`)});
+    if(!c.bound){c.bound=1;const st=c.stage;let down=false,lx=0;
+      st.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;down=true;lx=e.clientX;st.classList.add('drag')});
+      addEventListener('pointerup',()=>{down=false;st.classList.remove('drag')});
+      addEventListener('pointermove',e=>{if(!down||!c.s)return;const dx=e.clientX-lx;lx=e.clientX;c.s.drag+=dx*.012;c.s.dv=dx*.012});
+      c.q.spin.addEventListener('click',()=>{if(c.s)c.s.spinT+=Math.PI*2});}
+  },
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(30,1,.1,80);
+    const prod=makeProduct(ch.product);prod.parts.body.material.opacity=prod.o.glassOpacity||.55;scene.add(prod.g);
+    const sh=shadow(3.4,3.4);sh.position.y=.003;scene.add(sh);
+    keyLight(scene,'#fff',1.9,[-4,7,6]);keyLight(scene,BR.accent,.6,[5,2,-3]);
+    return{scene,cam,prod,bg:makeBg(1,ch.bg?.[0]||'#1A2036',ch.bg?.[1]||'#0B0F1C'),drag:0,dv:0,spin:0,spinT:0,auto:0}},
+  gl(c,t,dt){const s=c.s,p=c.ps,a=io3(seg(p,.06,.46)),pt=port(c.r);
+    if(Math.abs(s.dv)>1e-4){s.drag+=s.dv;s.dv*=Math.pow(.02,dt)}
+    s.spin=lerp(s.spin,s.spinT,1-Math.exp(-dt*2.2));s.auto+=dt*(RM?0:.2)*(1-a);
+    s.prod.g.rotation.y=s.auto+(p-.6)*Math.PI*1.5+s.drag+s.spin;
+    const cam=s.cam;cam.fov=pt?44:30;const far=pt?[0,1.8,14]:[0,1.7,12],near=pt?[.3,1.6,11]:[-.3,1.6,9.2];
+    cam.position.set(lerp(far[0],near[0],a)+mouse.sx*.3,lerp(far[1],near[1],a)-mouse.sy*.2,lerp(far[2],near[2],a));look(cam,lerp(0,pt?0:-.9,a),lerp(pt?1.6:1.45,pt?2.15:1.4,a),0);   /* スマホはボタンと重ならないよう、商品を画面の下寄りに */
+    draw(c.r,BR.bg,s.bg,s.scene,cam);
+  }
+};
+
+/* ===== cta（申込み） ===== */
+TYPES.cta={
+  enter:true,
+  html:ch=>`<div class="inner" data-q="inner">
+      ${ch.eyebrow?`<p class="eyebrow">${esc(ch.eyebrow)}</p>`:''}<h2 class="jw">${br(ch.title)}</h2>
+      <div class="plan glass">
+        <div><div class="price">${esc(ch.price)}<small>${esc(ch.priceNote||'')}</small></div><p class="sub jw">${esc(ch.sub||'')}</p></div>
+        <div class="act"><ul>${(ch.points||[]).map(x=>`<li class="jw">${esc(x)}</li>`).join('')}</ul>
+          <button class="btn" type="button" data-q="buy">${esc(ch.button)}</button><p>${esc(ch.demoNote||'')}</p></div>
+      </div></div>
+    <footer>${(ch.footer||[]).map(x=>`<p class="jw">${esc(x)}</p>`).join('')}</footer>`,
+  dom(c){const o=o3(seg(c.ps,.15,.85));set(c.q.inner,.3+.7*o,`translateY(${(1-o)*36}px)`);
+    if(!c.bound){c.bound=1;c.q.buy.addEventListener('click',()=>toast(c.ch.demoNote||'デモのため、送信は行われません。'))}},
+  build(ch){const scene=stdScene(),cam=new THREE.PerspectiveCamera(38,1,.1,80);
+    const Lw=makeLUT([[-12,-5.2,0],[-5,-4.2,.6],[0,-1.2,0],[4.2,2,-.6],[12,3.4,-1.2]]),Lp=makeLUT([[-6,-7.5,0],[-2.4,-4.6,.6],[0,-2.4,0],[2.2,.2,-.6],[5.5,2.2,-1.2]]);
+    const o=SITE.products[ch.capsule]||{};const st=makeStream(MOB?160:280,()=>o.cap||BR.accent,sd=>sd.v<.5?(o.tint||'#ffffff'):'#ffffff');scene.add(st.g);
+    keyLight(scene,'#fff',1.6,[-3,6,8]);
+    return{scene,cam,st,Lw,Lp,bg:makeBg(0,ch.bg?.[0]||'#161B2C',ch.bg?.[1]||'#05070D')}},
+  gl(c,t){const s=c.s,pt=port(c.r);
+    s.cam.position.set(mouse.sx*.5,-mouse.sy*.3,pt?17:14);look(s.cam,0,0,0);
+    layStream(s.st,pt?s.Lp:s.Lw,{flow:RM?0:t*.012,reveal:o3(seg(c.ps,.1,1))*1.03,radius:pt?.55:.7,scale:pt?.6:.72});
+    draw(c.r,BR.bg,s.bg,s.scene,s.cam);
+  }
+};
+
+/* ---------------- DOM の組み立て ---------------- */
+function set(el,o,tf){if(!el)return;el.style.opacity=o;if(tf!==undefined)el.style.transform=tf}
+function countUp(el,to,unit){const t0=performance.now(),dur=RM?1:800;
+  (function f(now){const k=clamp((now-t0)/dur);el.innerHTML=Math.round(to*o3(k)).toLocaleString('ja-JP')+`<small>${esc(unit)}</small>`;if(k<1)requestAnimationFrame(f)})(t0)}
+const main=$('#chapters');
+SITE.chapters.forEach((ch,i)=>{const T=TYPES[ch.type];if(!T)throw new Error('未登録の型: '+ch.type);
+  const sec=document.createElement('section');sec.className='chap t-'+ch.type;sec.id=ch.id||('c'+i);
+  if(!T.enter)sec.style.height=(ch.vh||300)+'vh';sec.innerHTML=T.html(ch);main.appendChild(sec)});
+const chaps=$$('.chap').map((el,i)=>{const ch=SITE.chapters[i],T=TYPES[ch.type],q={};
+  $$('[data-q]',el).forEach(n=>q[n.dataset.q]=n);
+  return{el,ch,T,q,stage:el.querySelector('.stage')||el,enter:!!T.enter,p:0,ps:0,vis:false,r:null,ready:false,idx:-1,s:null}});
+function c_el(ch){return chaps.find(c=>c.ch===ch).el}
+
+function measure(){const vh=innerHeight;
+  for(const c of chaps){const r=c.el.getBoundingClientRect();
+    c.p=c.enter?clamp(1-r.top/vh):clamp(-r.top/Math.max(1,r.height-vh));
+    c.r=c.stage.getBoundingClientRect();c.vis=c.r.bottom>-1&&c.r.top<vh+1;
+    if(!c.ready){c.ps=c.p;c.ready=true}}}
+
+/* ---------------- ループ（文字は three.js を待たずに先に動かす） ---------------- */
+let T=0,last=performance.now(),glOn=false;
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000)||.016;last=now;T+=dt;
+  measure();
+  const k=1-Math.exp(-dt*(RM?30:7));                      /* なめらか補正：少し遅れて追いかける */
+  for(const c of chaps){c.ps+=(c.p-c.ps)*k;if(Math.abs(c.p-c.ps)<1e-4)c.ps=c.p}
+  mouse.sx+=(mouse.x-mouse.sx)*.05;mouse.sy+=(mouse.y-mouse.sy)*.05;
+  for(const c of chaps)if(c.vis)c.T.dom(c,T,dt);
+  if(glOn){const W=canvas.clientWidth,H=canvas.clientHeight;renderer.getSize(_sz);if(_sz.x!==W||_sz.y!==H)resize();
+    for(const c of chaps)if(c.vis&&c.s)c.T.gl(c,T,dt)}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------------- WebGL（three.js） ---------------- */
+let THREE=null,renderer=null,env=null,_sz=null,_c=null;const G={};
+const canvas=$('#gl');
+
+function initGL(){
+  _sz=new THREE.Vector2();_c=new THREE.Color();
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,MOB?1.5:1.6));
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+  renderer.autoClear=false;renderer.setScissorTest(true);resize();
+  env=buildEnv();buildGeoms();
+  for(const c of chaps)if(c.T.build)c.s=c.T.build(c.ch);
+}
+function resize(){if(renderer)renderer.setSize(canvas.clientWidth,canvas.clientHeight,false)}
+addEventListener('resize',resize);
+let bgCam=null;
+function viewport(rect){const W=canvas.clientWidth,H=canvas.clientHeight,x=rect.left,y=H-(rect.top+rect.height),w=rect.width,h=rect.height;
+  const sx=Math.max(0,x),sy=Math.max(0,y),sw=Math.min(W,x+w)-sx,sh=Math.min(H,y+h)-sy;if(sw<=0||sh<=0)return false;
+  renderer.setViewport(x,y,w,h);renderer.setScissor(sx,sy,sw,sh);return true}
+function draw(rect,clear,bg,scene,cam){if(!viewport(rect))return;
+  renderer.setClearColor(_c.set(clear),1);renderer.clear(true,true,false);
+  if(bg){bgCam=bgCam||new THREE.OrthographicCamera(-1,1,1,-1,0,1);bg.mat.uniforms.uAsp.value=rect.width/rect.height;bg.mat.uniforms.uT.value=T;renderer.render(bg.scene,bgCam)}
+  if(scene){cam.aspect=rect.width/rect.height;cam.updateProjectionMatrix();renderer.render(scene,cam)}}
+const look=(cam,x,y,z)=>cam.lookAt(x,y,z);
+function stdScene(){const s=new THREE.Scene();s.environment=env;return s}
+function keyLight(scene,col,i,pos){const l=new THREE.DirectionalLight(col,i);l.position.set(...pos);scene.add(l);return l}
+
+/* 仮想スタジオ照明（映り込み用の環境マップ） */
+function buildEnv(){const s=new THREE.Scene();
+  s.add(new THREE.Mesh(new THREE.BoxGeometry(12,12,12),new THREE.MeshBasicMaterial({color:new THREE.Color(.3,.3,.32),side:THREE.BackSide})));
+  const panel=(w,h,pos,int,col=[1,1,1])=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(col[0]*int,col[1]*int,col[2]*int),side:THREE.DoubleSide}));m.position.set(...pos);m.lookAt(0,0,0);s.add(m)};
+  panel(7,2.4,[0,5.8,0],9);panel(2.2,6,[-5.8,.6,1.4],6);panel(2.2,6,[5.8,.6,-1.2],3.2,[1,.92,.85]);panel(5,3,[0,1.2,5.8],2.2);panel(8,1,[0,-5.8,0],.6);
+  const pm=new THREE.PMREMGenerator(renderer);const t=pm.fromScene(s,.035).texture;pm.dispose();return t}
+
+/* 背景シェーダー：0=放射グラデ 1=ざらつき 2=光の玉 3=方眼 */
+function makeBg(mode,a,b,c='#000'){
+  const mat=new THREE.ShaderMaterial({depthTest:false,depthWrite:false,toneMapped:false,
+    uniforms:{uA:{value:new THREE.Color(a)},uB:{value:new THREE.Color(b)},uC:{value:new THREE.Color(c)},uT:{value:0},uMode:{value:mode},uAsp:{value:1}},
+    vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`,
+    fragmentShader:`uniform vec3 uA,uB,uC;uniform float uT,uMode,uAsp;varying vec2 vUv;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*n(p);p*=2.03;a*=.5;}return s;}
+void main(){vec2 q=(vUv-.5)*vec2(uAsp,1.);vec3 col;
+ if(uMode<.5){float d=length(q*vec2(.85,1.));col=mix(uA,uB,smoothstep(0.,1.05,d));}
+ else if(uMode<1.5){float g=fbm(q*2.6)*.65+fbm(q*24.)*.35;col=mix(uA,uB,g);col*=1.-.28*smoothstep(.25,1.15,length(q));}
+ else if(uMode<2.5){vec2 b1=vec2(-.32*uAsp+.08*sin(uT*.3),.18+.07*cos(uT*.25));vec2 b2=vec2(.28*uAsp+.08*cos(uT*.2),-.22+.05*sin(uT*.27));
+   float f1=exp(-dot(q-b1,q-b1)*2.6),f2=exp(-dot(q-b2,q-b2)*2.2);col=uC;col=mix(col,uA,f1*.9);col=mix(col,uB,f2*.55);}
+ else{col=mix(uA,uB,smoothstep(0.,1.2,length(q)));vec2 f=fract(q*10.);vec2 dd=min(f,1.-f);float l=1.-smoothstep(0.,.012,min(dd.x,dd.y));col=mix(col,uC,l*.18);}
+ col+=(h(vUv*900.+fract(uT))-.5)*.018;gl_FragColor=vec4(col,1.);
+ #include <colorspace_fragment>
+}`});
+  const s=new THREE.Scene(),q=new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat);q.frustumCulled=false;s.add(q);return{scene:s,mat}}
+
+/* ---------------- 形（コードで作る商品） ---------------- */
+function halfProfile(r,cy,top,n=20){const p=[];for(let i=0;i<=n;i++){const a=-Math.PI/2+i/n*Math.PI/2;p.push(new THREE.Vector2(Math.max(1e-4,Math.cos(a)*r),cy+Math.sin(a)*r))}p.push(new THREE.Vector2(r,top));return p}
+function fullProfile(r,yc,n=20){const p=[];for(let i=0;i<=n;i++){const a=-Math.PI/2+i/n*Math.PI/2;p.push(new THREE.Vector2(Math.max(1e-4,Math.cos(a)*r),-yc+Math.sin(a)*r))}for(let i=1;i<=n;i++){const a=i/n*Math.PI/2;p.push(new THREE.Vector2(Math.max(1e-4,Math.cos(a)*r),yc+Math.sin(a)*r))}return p}
+function buildGeoms(){
+  G.body=new THREE.LatheGeometry(halfProfile(.5,-.87,.45),64);
+  G.cap=new THREE.LatheGeometry(halfProfile(.518,-.87,.25),64);G.cap.rotateX(Math.PI);
+  G.shell=new THREE.LatheGeometry(fullProfile(.532,.87),64);
+  G.gran=new THREE.IcosahedronGeometry(1,1);
+  G.bodyLo=new THREE.LatheGeometry(halfProfile(.5,-.87,.45,9),24);
+  G.capLo=new THREE.LatheGeometry(halfProfile(.518,-.87,.25,9),24);G.capLo.rotateX(Math.PI);
+  const bp=[[0,0],[.86,0],[.95,.02],[.99,.07],[1,.16],[1,2],[.985,2.14],[.93,2.27],[.8,2.38],[.62,2.45],[.5,2.49],[.49,2.56],[.49,2.62]];
+  G.bottle=new THREE.LatheGeometry(bp.map(a=>new THREE.Vector2(Math.max(1e-4,a[0]),a[1])),96);
+  G.bcap=new THREE.LatheGeometry([[.5,2.54],[.56,2.54],[.565,2.6],[.565,3.0],[.55,3.05],[1e-4,3.06]].map(a=>new THREE.Vector2(a[0],a[1])),96);
+}
+function rimMat(color,int=.8,pow=2.6){return new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,
+  uniforms:{uC:{value:new THREE.Color(color)},uI:{value:int},uP:{value:pow}},
+  vertexShader:`varying vec3 vN;varying vec3 vV;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform vec3 uC;uniform float uI,uP;varying vec3 vN;varying vec3 vV;void main(){float f=pow(1.-clamp(abs(dot(normalize(vN),normalize(vV))),0.,1.),uP)*uI;gl_FragColor=vec4(uC*f,f);
+ #include <colorspace_fragment>
+}`})}
+const capMat=c=>new THREE.MeshPhysicalMaterial({color:c,roughness:.22,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:1.15});
+const glassMat=(c,o,side)=>new THREE.MeshPhysicalMaterial({color:c,roughness:.06,transparent:true,opacity:o,clearcoat:1,clearcoatRoughness:.03,depthWrite:false,side,envMapIntensity:1.8});
+function fillGranules(n,cols,full=false,sMin=.032,sMax=.072,geo=G.gran,mat){
+  const m=new THREE.InstancedMesh(geo,mat||new THREE.MeshStandardMaterial({roughness:.62}),n);const d=new THREE.Object3D(),c=new THREE.Color();let i=0,guard=0;
+  while(i<n&&guard<n*80){guard++;const x=(R()*2-1)*.44,z=(R()*2-1)*.44,y=full?lerp(-1.32,1.32,R()):lerp(-1.32,.42,R());
+    const dy=Math.max(0,Math.abs(y)-.87);if(x*x+z*z+dy*dy>.43*.43)continue;
+    d.position.set(x,y,z);d.rotation.set(R()*6,R()*6,R()*6);d.scale.setScalar(lerp(sMin,sMax,R()));d.updateMatrix();m.setMatrixAt(i,d.matrix);
+    if(cols){c.set(cols[(R()*cols.length)|0]);c.offsetHSL(0,0,(R()-.5)*.08);m.setColorAt(i,c)}i++}
+  m.count=i;m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;return m}
+/* カプセル（キャップ＋透明な本体＋中の粒＋縁の光） */
+function makeCapsule(o={}){
+  const g=new THREE.Group(),inner=new THREE.Group();g.add(inner);
+  const cap=new THREE.Mesh(G.cap,capMat(o.cap||'#f2f0ea'));
+  const back=new THREE.Mesh(G.body,glassMat(o.tint||'#ffffff',.16,THREE.BackSide));back.renderOrder=1;
+  const front=new THREE.Mesh(G.body,glassMat(o.tint||'#ffffff',.3,THREE.FrontSide));front.renderOrder=2;
+  inner.add(back,front,cap);
+  if(o.n!==0){const gr=fillGranules(o.n||(MOB?200:320),o.gcols||['#ffffff','#e8e4ff']);inner.add(gr)}
+  if(o.rim!==false){const s=new THREE.Mesh(G.shell,rimMat(o.rimColor||'#ffffff',o.rimI||.55));s.renderOrder=3;inner.add(s)}
+  return{g,inner,cap,front,back}}
+/* ラベル（文字を canvas に描いて巻き付ける） */
+function labelTexture(L){const cv=document.createElement('canvas');cv.width=2048;cv.height=560;const x=cv.getContext('2d'),W=cv.width,H=cv.height;
+  x.fillStyle=L.bg;x.fillRect(0,0,W,H);
+  const r=mulberry32(9);for(let i=0;i<5000;i++){x.fillStyle=`rgba(255,255,255,${r()*.06})`;x.fillRect(r()*W,r()*H,2,2)}
+  x.fillStyle=L.ink;x.fillRect(0,H*.08,W,H*.012);x.fillRect(0,H*.9,W,H*.012);
+  x.textAlign='center';x.textBaseline='alphabetic';
+  /* 正面から見えるのは周の約3分の1なので、文字は幅の3割以内に収める */
+  if('letterSpacing' in x)x.letterSpacing='6px';x.font=`700 ${H*.11}px ${L.font||BR.display}`;x.fillText(L.title,W/2,H*.5);
+  x.font=`500 ${H*.05}px ${BR.body}`;if('letterSpacing' in x)x.letterSpacing='12px';x.fillText(L.sub||'',W/2,H*.68);
+  const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  return{t,redraw:()=>{const n=labelTexture(L);t.image=n.t.image;t.needsUpdate=true}}}
+/* ボトル：本体（ガラス）・ラベル・キャップ・中のカプセル をパーツとして返す */
+function makeBottle(o){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(G.bottle,glassMat(o.glass||'#5a3a1e',o.glassOpacity||.55,THREE.DoubleSide));body.renderOrder=2;
+  const lt=labelTexture(o.label);labelTexs.push(lt);
+  const label=new THREE.Mesh(new THREE.CylinderGeometry(1.012,1.012,1.3,128,1,true,Math.PI,Math.PI*2),new THREE.MeshPhysicalMaterial({map:lt.t,roughness:.45,clearcoat:.4,clearcoatRoughness:.25}));
+  label.geometry.translate(0,1.05,0);label.renderOrder=3;
+  const cap=new THREE.Mesh(G.bcap,new THREE.MeshPhysicalMaterial({color:o.capColor||'#1b1d26',roughness:.35,metalness:.2,clearcoat:.6}));
+  const capsG=new THREE.Group(),caps=[];
+  const cA=capMat(o.capsule?.cap||'#9b8cf0'),cB=new THREE.MeshPhysicalMaterial({color:o.capsule?.tint||'#f4f2ff',roughness:.25,clearcoat:1});
+  for(let i=0;i<(o.count||10);i++){const c=new THREE.Group();c.add(new THREE.Mesh(G.capLo,cA),new THREE.Mesh(G.bodyLo,cB));c.scale.setScalar(.3);
+    const a=R()*6.28,rr=Math.sqrt(R())*.55;c.userData={x:Math.cos(a)*rr,y:.3+R()*1.3,z:Math.sin(a)*rr,rx:R()*3,rz:R()*3};
+    c.position.set(c.userData.x,c.userData.y,c.userData.z);c.rotation.set(c.userData.rx,0,c.userData.rz);capsG.add(c);caps.push(c)}
+  g.add(capsG,body,label,cap);
+  return{g,o,parts:{body,label,cap,caps}}}
+const labelTexs=[];
+function makeProduct(key){const o=SITE.products[key];if(!o)throw new Error('products に '+key+' がありません');
+  if(o.kind==='bottle')return makeBottle(o);
+  throw new Error('未対応の形: '+o.kind)}
+/* 背景を漂う小さなカプセル（奥行きを出す） */
+function makeFloaters(N){const o=Object.values(SITE.products).find(p=>p.kind==='capsule')||{};
+  const ci=new THREE.InstancedMesh(G.capLo,capMat(o.cap||BR.accent),N),bi=new THREE.InstancedMesh(G.bodyLo,new THREE.MeshPhysicalMaterial({color:o.tint||'#fff',roughness:.3,clearcoat:1}),N);
+  const sd=[];for(let i=0;i<N;i++){const sx=(R()<.5?-1:1)*(2.6+R()*6);sd.push({x:sx,y:R()*9-3,z:-5-R()*9,v:.06+R()*.12,rx:R()*6,ry:R()*6,s:.16+R()*.14})}   /* 商品と文字の真後ろは避け、奥に置く */
+  const g=new THREE.Group();g.add(ci,bi);return{g,ci,bi,sd,d:new THREE.Object3D()}}
+function animFloaters(f,t){f.sd.forEach((s,i)=>{const y=((s.y+(RM?0:t*s.v)+3)%9+9)%9-3;
+  f.d.position.set(s.x,y,s.z);f.d.rotation.set(s.rx+t*.2,s.ry+t*.15,0);f.d.scale.setScalar(s.s);f.d.updateMatrix();f.ci.setMatrixAt(i,f.d.matrix);f.bi.setMatrixAt(i,f.d.matrix)});
+  f.ci.instanceMatrix.needsUpdate=f.bi.instanceMatrix.needsUpdate=true}
+function shadowTex(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');const g=x.createRadialGradient(128,128,0,128,128,128);g.addColorStop(0,'rgba(0,0,0,.55)');g.addColorStop(.5,'rgba(0,0,0,.22)');g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,256,256);return new THREE.CanvasTexture(c)}
+let SHT;function shadow(w,d){SHT=SHT||shadowTex();const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:SHT,transparent:true,depthWrite:false,toneMapped:false}));m.rotation.x=-Math.PI/2;return m}
+
+/* 曲線に沿って流れるカプセル（cta などで使用） */
+function makeLUT(pts,n=600){const cv=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p)));const P=[],Tn=[];for(let i=0;i<=n;i++){P.push(cv.getPointAt(i/n));Tn.push(cv.getTangentAt(i/n))}return{P,Tn,n}}
+function lutAt(L,u){const f=clamp(u)*L.n,i=Math.min(L.n-1,Math.floor(f)),k=f-i;return[L.P[i].clone().lerp(L.P[i+1],k),L.Tn[i].clone().lerp(L.Tn[i+1],k).normalize()]}
+function makeStream(N,capC,bodyC){
+  const ci=new THREE.InstancedMesh(G.capLo,new THREE.MeshPhysicalMaterial({roughness:.24,clearcoat:1,clearcoatRoughness:.07}),N);
+  const bi=new THREE.InstancedMesh(G.bodyLo,new THREE.MeshPhysicalMaterial({roughness:.3,clearcoat:1,clearcoatRoughness:.1}),N);
+  ci.instanceMatrix.setUsage(THREE.DynamicDrawUsage);bi.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const seeds=[];for(let i=0;i<N;i++)seeds.push({u:i/N+(R()-.5)/N,a:R()*6.28,r:Math.sqrt(R()),roll:R()*6.28,s:.5+R()*.25,v:R()});
+  for(let i=0;i<N;i++){ci.setColorAt(i,new THREE.Color(capC(seeds[i])));bi.setColorAt(i,new THREE.Color(bodyC(seeds[i])))}
+  const g=new THREE.Group();g.add(ci,bi);return{g,ci,bi,seeds,N,d:new THREE.Object3D(),up:new THREE.Vector3(0,1,0),n:new THREE.Vector3(),b:new THREE.Vector3(),q:new THREE.Quaternion()}}
+function layStream(st,L,{flow=0,reveal=1,radius=.5,scale=1}){
+  const{d,up,n,b,q}=st;
+  for(let i=0;i<st.N;i++){const sd=st.seeds[i];let u=(sd.u+flow)%1;if(u<0)u+=1;
+    const[P,Tg]=lutAt(L,u);n.set(0,0,1).cross(Tg);if(n.lengthSq()<1e-4)n.set(1,0,0);n.normalize();b.copy(Tg).cross(n).normalize();
+    const rr=sd.r*radius;d.position.copy(P).addScaledVector(n,Math.cos(sd.a)*rr).addScaledVector(b,Math.sin(sd.a)*rr);
+    d.quaternion.setFromUnitVectors(up,Tg);q.setFromAxisAngle(Tg,sd.roll);d.quaternion.premultiply(q);
+    const vis=u<=reveal?1:0,edge=clamp((reveal-u)*20);d.scale.setScalar(sd.s*scale*vis*(.3+.7*edge));d.updateMatrix();
+    st.ci.setMatrixAt(i,d.matrix);st.bi.setMatrixAt(i,d.matrix)}
+  st.ci.instanceMatrix.needsUpdate=st.bi.instanceMatrix.needsUpdate=true}
+
+/* ---------------- 起動（すべての関数・定数を定義し終えてから three.js を読む） ---------------- */
+try{THREE=await import('three')}catch(e){}
+if(THREE){try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'})}catch(e){renderer=null}}
+if(!renderer)document.documentElement.classList.add('no-gl');
+else{try{initGL();glOn=true}catch(e){console.error(e);renderer=null;document.documentElement.classList.add('no-gl')}}
+/* フォント読込後にラベルを描き直す（明朝などがcanvasに反映されるように） */
+if(document.fonts&&renderer)document.fonts.ready.then(()=>labelTexs.forEach(l=>l.redraw()));
+
 </script>
-<script src="assets/jp-wrap.js" data-selector=".intro h1,.intro p,.note .txt span,main h2,main .lead,main p,main li,main th"></script>
+<script src="assets/jp-wrap.js" data-selector=".jw"></script>
 </body>
 </html>
