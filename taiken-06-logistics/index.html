@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ハコブネ物流｜御社の荷物で見る、発送代行（体験デモ）</title>
+<meta name="description" content="社名を入れると、その名前の荷物が入荷から出荷まで運ばれていく体験型サイトのデモ。GROWX 体験カタログ 06。">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+:root{
+  --gutter: clamp(15px, 4.5vw, 20px);
+  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
+  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
+
+  --bg:#0E1116; --panel:#161A21; --line:#2B313C;
+  --ink:#F2F2EE;     /* 16.9:1 */
+  --muted:#B8BEC9;   /* 10.0:1 */
+  --faint:#A2A9B6;   /* 7.8:1 */
+  --safety:#F2C230;  /* 11.4:1 */
+  --track:#3A4150;
+  --paper:#F7F4EC; --paperInk:#1E1E1E; --stamp:#C0392B;
+
+  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
+svg{display:block;max-width:100%}
+a{color:inherit}
+.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
+.section{width:100%;padding-left:0;padding-right:0}
+.section *{min-width:0;max-width:100%}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
+  background:var(--safety);color:#1D1600;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap}
+.btn:disabled{opacity:.55;cursor:default}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FFE38A;outline-offset:3px}
+
+/* ===== 体験ステージ ===== */
+.stage{position:relative;height:100svh;min-height:600px;overflow:hidden;display:grid;grid-template-rows:auto auto 1fr auto;
+  background:
+    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px,
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px,
+    radial-gradient(ellipse at 50% 40%,#18202C,var(--bg) 70%)}
+.top{padding:calc(env(safe-area-inset-top,0px) + 18px) var(--gutter) 0;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.top b{display:block;font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.16em;line-height:1.4;white-space:nowrap}
+.top small{display:block;font-size:var(--fs-label);color:var(--faint);letter-spacing:.12em}
+.top .clock{font-family:var(--mono);font-size:var(--fs-label);color:var(--faint);text-align:right;white-space:nowrap}
+.top .clock em{display:block;font-style:normal;color:var(--safety);font-size:var(--fs-lead)}
+
+.ship{padding:14px var(--gutter) 0;width:100%;max-width:560px}
+.ship h1{font-family:var(--display);font-weight:500;font-size:var(--fs-h1);line-height:1.5;margin:0 0 10px}
+.ship form{display:flex;gap:8px}
+.ship input{flex:1;min-width:0;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #485062;background:rgba(10,12,16,.75);color:var(--ink);font:var(--fs-body) var(--body)}
+.ship input::placeholder{color:#9AA1AE}
+
+.map{position:relative;min-height:0}
+.map svg{position:absolute;inset:0;width:100%;height:100%;max-width:none}
+.map .base{fill:none;stroke:var(--track);stroke-width:3;stroke-linecap:round}
+.map .prog{fill:none;stroke:var(--safety);stroke-width:3;stroke-linecap:round}
+.map .dash{fill:none;stroke:rgba(242,194,48,.35);stroke-width:1.5;stroke-dasharray:2 10}
+.node circle{fill:#252B36;stroke:#5A6274;stroke-width:2;transition:fill .3s,stroke .3s}
+.node.on circle{fill:var(--safety);stroke:var(--safety)}
+.nlabel{position:absolute;transform:translate(-50%,0);background:rgba(14,17,22,.82);padding:2px 8px;border-radius:6px;font-size:var(--fs-label);line-height:1.4;color:var(--muted);text-align:center;white-space:nowrap;transition:color .3s;pointer-events:none}
+.nlabel b{display:block;font-weight:700;color:var(--ink);font-size:var(--fs-label)}
+.nlabel.on b{color:var(--safety)}
+
+.box{position:absolute;left:0;top:0;width:min(150px,38vw);transform:translate(-50%,-110%);pointer-events:none;will-change:transform;z-index:3}
+.box .face{position:relative;background:linear-gradient(180deg,#D3A56B,#B98A52);border-radius:4px;padding:14px 10px 10px;color:#2A1C0B;box-shadow:0 10px 24px rgba(0,0,0,.45)}
+.box .face::before{content:"";position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(255,255,255,.25)}
+.box .tag{position:relative;background:#FFFCF4;border-radius:2px;padding:4px 8px;font-size:var(--fs-label);font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1E1E1E}
+.box .tag small{display:block;font-weight:500;font-size:var(--fs-label);color:#4A4A4A}
+
+.log{padding:0 var(--gutter) calc(env(safe-area-inset-bottom,0px) + 16px);font-family:var(--mono);font-size:var(--fs-label);line-height:1.7;color:var(--muted);min-height:calc(3*1.7em + 16px)}
+.log p{margin:0;opacity:0;transform:translateX(-6px);transition:.35s}
+.log p.on{opacity:1;transform:none}
+.log p b{color:var(--safety);font-weight:500;margin-right:10px}
+
+/* 受領書 */
+.receipt{position:absolute;inset:0;z-index:6;display:grid;place-items:center;padding:var(--gutter);background:rgba(8,10,14,.72);opacity:0;pointer-events:none;transition:opacity .4s}
+.receipt.show{opacity:1;pointer-events:auto}
+.sheet{position:relative;width:min(420px,100%);background:var(--paper);color:var(--paperInk);border-radius:6px;padding:22px 22px 20px;box-shadow:0 30px 70px rgba(0,0,0,.55);
+  transform:translateY(16px) rotate(-1deg);transition:transform .5s}
+.receipt.show .sheet{transform:none}
+.sheet h2{margin:0 0 4px;font-family:var(--display);font-size:var(--fs-h3);letter-spacing:.3em}
+.sheet .to{margin:10px 0 2px;font-size:var(--fs-lead);font-weight:700;border-bottom:1px solid #9C978C;padding-bottom:4px;overflow-wrap:anywhere}
+.sheet dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:12px 0 16px;font-size:var(--fs-label);color:#3A3A3A}
+.sheet dt{color:#555}
+.sheet dd{margin:0;font-family:var(--mono)}
+.sheet .btn{width:100%}
+.hanko{position:absolute;right:16px;top:12px;width:96px;height:96px;border-radius:50%;border:3px solid var(--stamp);color:var(--stamp);display:grid;place-items:center;text-align:center;
+  font-family:var(--display);font-weight:700;line-height:1.15;transform:rotate(-12deg) scale(2.2);opacity:0}
+.hanko span{display:block;font-size:var(--fs-label)}
+.hanko strong{display:block;font-size:var(--fs-h3);letter-spacing:.1em}
+.receipt.show .hanko{animation:stamp .45s .35s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes stamp{to{transform:rotate(-12deg) scale(1);opacity:.9}}
+
+/* ===== 下層 ===== */
+main{position:relative;z-index:1}
+.block{padding:clamp(64px,12vw,112px) 0 0}
+.eyebrow{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.18em;color:var(--safety);margin:0 0 8px}
+h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px}
+.lead{color:var(--muted);margin:0 0 28px;max-width:40em}
+.cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:14px}
+.cards li{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.cards .no{font-family:var(--mono);color:var(--safety);font-size:var(--fs-label);display:block;margin-bottom:6px}
+.cards b{display:block;font-size:var(--fs-lead);margin-bottom:4px}
+.cards p{margin:0;color:var(--muted)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px;margin-top:14px}
+.facts div{border-top:2px solid var(--safety);padding-top:12px}
+.facts strong{display:block;font-family:var(--display);font-size:clamp(28px,8vw,36px);font-weight:500;line-height:1.3}
+.facts span{color:var(--muted)}
+
+.form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,5vw,32px);display:grid;gap:16px}
+.form label{display:grid;gap:6px;font-size:var(--fs-label);color:var(--muted)}
+.form input,.form select{width:100%;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #485062;background:#0F1218;color:var(--ink);font:var(--fs-body) var(--body)}
+.form .note{margin:0;font-size:var(--fs-label);color:var(--faint)}
+.form .btn{justify-self:start}
+
+footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
+footer p{margin:0 0 6px}
+
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+
+<section class="stage" id="stage" aria-label="社名を入れると、その名前の荷物が入荷から出荷まで運ばれるデモ">
+  <div class="top">
+    <div><b>HAKOBUNE</b><small>ハコブネ物流｜EC発送代行</small></div>
+    <div class="clock"><span>TRACKING</span><em id="clock">--:--</em></div>
+  </div>
+
+  <div class="ship">
+    <h1>御社の荷物が、<br>どう運ばれるか。</h1>
+    <form id="shipForm" autocomplete="off">
+      <input id="company" type="text" maxlength="20" placeholder="御社名（例：株式会社サンプル）" aria-label="御社名">
+      <button class="btn" type="submit" id="go">出荷する</button>
+    </form>
+  </div>
+
+  <div class="map jw-skip" id="map">
+    <svg id="svg" aria-hidden="true">
+      <path class="dash" id="dash"></path>
+      <path class="base" id="base"></path>
+      <path class="prog" id="prog"></path>
+      <g id="nodes"></g>
+    </svg>
+    <div id="labels"></div>
+    <div class="box" id="box"><div class="face"><div class="tag"><span id="boxName">御社名</span> 様<small>品名：商品一式</small></div></div></div>
+  </div>
+
+  <div class="log jw-skip" id="log" aria-live="polite"></div>
+
+  <div class="receipt" id="receipt" role="dialog" aria-label="受領書">
+    <div class="sheet">
+      <h2>受領書</h2>
+      <p class="to"><span id="rcName">御社名</span> 様</p>
+      <dl>
+        <dt>お届け</dt><dd id="rcDate">--</dd>
+        <dt>工程</dt><dd>入荷 → 検品・保管 → 梱包 → 出荷 → お届け</dd>
+        <dt>状態</dt><dd>破損なし・数量一致</dd>
+      </dl>
+      <a class="btn" href="#estimate" id="toEstimate">この流れで見積もる</a>
+      <div class="hanko" aria-hidden="true"><div><span>ハコブネ</span><strong>受領</strong><span id="hkDate">--</span></div></div>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="container">
+    <section class="section block">
+      <p class="eyebrow">WHAT WE DO</p>
+      <h2 class="h">さっき見た工程を、<br>そのまま預けられます。</h2>
+      <p class="lead">商品を送っていただくだけで、保管からお届けまでを代行します。<br>ショップの方は、売ることに集中できます。</p>
+      <ol class="cards">
+        <li><span class="no">01</span><b>入荷・検品</b><p>届いた商品の数と状態を確認し、在庫として登録します。</p></li>
+        <li><span class="no">02</span><b>保管・在庫管理</b><p>在庫数は管理画面で、いつでも確認できます。</p></li>
+        <li><span class="no">03</span><b>梱包・出荷</b><p>注文が入ったら、ショップの名前で梱包して発送します。</p></li>
+      </ol>
+      <div class="facts">
+        <div><strong>14:00</strong><span>当日出荷の締め時間</span></div>
+        <div><strong>土日も出荷</strong><span>週末の注文も、翌営業日まで待たせません</span></div>
+      </div>
+    </section>
+
+    <section class="section block" id="estimate">
+      <p class="eyebrow">ESTIMATE</p>
+      <h2 class="h">御社の出荷量で、<br>見積もりを出します。</h2>
+      <form class="form" id="estForm">
+        <label>会社名<input id="estCompany" type="text" maxlength="40" autocomplete="organization"></label>
+        <label>月の出荷件数
+          <select id="estVolume">
+            <option>〜500件</option><option>500〜2,000件</option><option>2,000件以上</option>
+          </select>
+        </label>
+        <label>主な商品
+          <select id="estItem">
+            <option>化粧品・サプリ</option><option>アパレル</option><option>食品（常温）</option><option>雑貨・その他</option>
+          </select>
+        </label>
+        <button class="btn" type="submit">見積もりを依頼する</button>
+        <p class="note">※ デモのため、入力内容はどこにも送信されません。</p>
+      </form>
+    </section>
+
+    <footer>
+      <p>このページは、GROWXの体験型サイトのデモです。<br>社名・サービス内容・数値はすべて架空のものです。</p>
+      <p>© 2026 GROWX Inc.</p>
+    </footer>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status">デモのため、送信は行われません。</div>
+
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  var map=document.getElementById('map'), svg=document.getElementById('svg');
+  var base=document.getElementById('base'), prog=document.getElementById('prog'), dash=document.getElementById('dash');
+  var gNodes=document.getElementById('nodes'), labels=document.getElementById('labels'), box=document.getElementById('box');
+  var log=document.getElementById('log'), receipt=document.getElementById('receipt');
+
+  /* 工程（時刻は架空のデモ値） */
+  var STEPS=[
+    {name:'入荷',      sub:'ショップから到着', t:'DAY1 10:02', msg:'入荷・数量を確認'},
+    {name:'検品・保管', sub:'棚番 A-12',       t:'DAY1 10:48', msg:'検品OK・棚 A-12 に保管'},
+    {name:'梱包',      sub:'ショップ名で梱包', t:'DAY2 09:15', msg:'注文を受けて梱包'},
+    {name:'出荷',      sub:'14時までに出荷',   t:'DAY2 13:40', msg:'配送会社へ引き渡し'},
+    {name:'お届け',    sub:'購入者のもとへ',   t:'DAY3 11:30', msg:'お届け完了'}
+  ];
+  /* 画面の向きで道順を変える（横長＝左から右、縦長＝下から上へジグザグ） */
+  var WIDE={vb:[1000,420], pts:[[70,330],[290,170],[510,290],[730,150],[930,250]], lab:'below'};
+  var TALL={vb:[360,520],  pts:[[80,470],[270,380],[90,280],[270,180],[150,70]],  lab:'side'};
+  var L=WIDE, len=0, nodeEls=[], labEls=[], running=false, state=0;
+
+  function smooth(p){ /* 通過点をなめらかに結ぶ（Catmull-Rom → ベジェ） */
+    var d='M'+p[0][0]+','+p[0][1];
+    for(var i=0;i<p.length-1;i++){
+      var p0=p[i-1]||p[i], p1=p[i], p2=p[i+1], p3=p[i+2]||p2;
+      d+=' C'+(p1[0]+(p2[0]-p0[0])/6)+','+(p1[1]+(p2[1]-p0[1])/6)+' '+(p2[0]-(p3[0]-p1[0])/6)+','+(p2[1]-(p3[1]-p1[1])/6)+' '+p2[0]+','+p2[1];
+    }
+    return d;
+  }
+  function build(){
+    L = (innerWidth>=640 && map.clientWidth/map.clientHeight > 1.15) ? WIDE : TALL;
+    svg.setAttribute('viewBox','0 0 '+L.vb[0]+' '+L.vb[1]);
+    svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+    var d=smooth(L.pts); base.setAttribute('d',d); prog.setAttribute('d',d); dash.setAttribute('d',d);
+    len=prog.getTotalLength();
+    prog.style.strokeDasharray=len; setProg(state);
+    gNodes.innerHTML=''; labels.innerHTML=''; nodeEls=[]; labEls=[];
+    L.pts.forEach(function(p,i){
+      var g=document.createElementNS(NS,'g'); g.setAttribute('class','node'+(i<reached?' on':''));
+      var c=document.createElementNS(NS,'circle'); c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',L===WIDE?9:8);
+      g.appendChild(c); gNodes.appendChild(g); nodeEls.push(g);
+      var lb=document.createElement('div'); lb.className='nlabel'+(i<reached?' on':'');
+      var b=document.createElement('b'); b.textContent=STEPS[i].name; lb.appendChild(b);
+      lb.appendChild(document.createTextNode(STEPS[i].sub)); labels.appendChild(lb); labEls.push(lb);
+    });
+    placeLabels(); placeBox(state);
+  }
+  function toScreen(x,y){ /* SVG座標 → 地図エリア内のpx */
+    var m=svg.getScreenCTM(), r=map.getBoundingClientRect(), pt=svg.createSVGPoint(); pt.x=x; pt.y=y;
+    var s=pt.matrixTransform(m); return [s.x-r.left, s.y-r.top];
+  }
+  function placeLabels(){
+    var W=map.clientWidth;
+    L.pts.forEach(function(p,i){
+      var s=toScreen(p[0],p[1]), lb=labEls[i];
+      if(L===WIDE){ lb.style.left=s[0]+'px'; lb.style.top=(s[1]+16)+'px'; lb.style.textAlign='center'; lb.style.transform='translate(-50%,0)'; }
+      else{
+        var right = p[0] < L.vb[0]/2;  /* 左寄りの点はラベルを右に、右寄りの点は左に */
+        lb.style.top=(s[1]+8)+'px'; lb.style.textAlign=right?'left':'right';   /* 箱は点の真上に来るので、ラベルは点の斜め下へ */
+        lb.style.left=(right? s[0]+16 : s[0]-16)+'px'; lb.style.transform=right?'none':'translate(-100%,0)';
+      }
+    });
+  }
+  function placeBox(t){
+    var pt=prog.getPointAtLength(len*t), s=toScreen(pt.x,pt.y);
+    box.style.transform='translate('+s[0]+'px,'+s[1]+'px) translate(-50%,-112%)';
+  }
+  function setProg(t){ prog.style.strokeDashoffset=len*(1-t); }
+
+  var reached=1;
+  function mark(i){
+    reached=Math.max(reached,i+1);
+    nodeEls[i]&&nodeEls[i].classList.add('on'); labEls[i]&&labEls[i].classList.add('on');
+    var p=document.createElement('p'), b=document.createElement('b'); b.textContent=STEPS[i].t;
+    p.appendChild(b); p.appendChild(document.createTextNode(STEPS[i].msg)); log.appendChild(p);
+    while(log.children.length>3) log.removeChild(log.firstChild);
+    requestAnimationFrame(function(){p.classList.add('on')});
+    document.getElementById('clock').textContent=STEPS[i].t;
+  }
+
+  /* 区間ごとの長さ（点から点まで）を求め、点で一瞬止まりながら進める */
+  function segFractions(){
+    var f=[0], n=200, k=1, prev=0;
+    for(var j=1;j<=n && k<L.pts.length;j++){
+      var q=prog.getPointAtLength(len*j/n), t=L.pts[k];
+      if(Math.hypot(q.x-t[0],q.y-t[1])<6){ f.push(j/n); k++; }
+    }
+    while(f.length<L.pts.length) f.push(1);
+    f[f.length-1]=1; return f;
+  }
+
+  function ship(name){
+    if(running) return; running=true;
+    reset(); mark(0);
+    var f=segFractions(), i=0;
+    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function leg(){
+      if(i>=f.length-1){ finish(name); return; }
+      var a=f[i], b=f[i+1], dur=reduce?10:1100, t0=performance.now();
+      (function step(now){
+        var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2, t=a+(b-a)*e;
+        state=t; setProg(t); placeBox(t);
+        if(k<1) requestAnimationFrame(step);
+        else { i++; mark(i); setTimeout(leg, reduce?10:380); }
+      })(t0);
+    }
+    setTimeout(leg, 300);
+  }
+  function reset(){
+    state=0; reached=0; setProg(0); placeBox(0); log.innerHTML='';
+    nodeEls.forEach(function(n){n.classList.remove('on')}); labEls.forEach(function(n){n.classList.remove('on')});
+    receipt.classList.remove('show');
+  }
+  function finish(name){
+    var d=new Date(); d.setDate(d.getDate()+2);
+    var ds=(d.getMonth()+1)+'/'+d.getDate();
+    document.getElementById('rcName').textContent=name;
+    document.getElementById('rcDate').textContent=d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()+' 11:30';
+    document.getElementById('hkDate').textContent=ds;
+    document.getElementById('estCompany').value=name;   /* 見積フォームに社名を引き継ぐ */
+    setTimeout(function(){ receipt.classList.add('show'); running=false; }, 500);
+  }
+
+  document.getElementById('shipForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var v=document.getElementById('company').value.trim() || '株式会社サンプル';
+    document.getElementById('boxName').textContent=v;   /* textContent のみ使用（HTMLとして解釈しない） */
+    document.getElementById('company').blur();
+    ship(v);
+  });
+  document.getElementById('toEstimate').addEventListener('click',function(){ receipt.classList.remove('show'); });
+  receipt.addEventListener('click',function(e){ if(e.target===receipt) receipt.classList.remove('show'); });
+
+  var toast=document.getElementById('toast'), tm;
+  document.getElementById('estForm').addEventListener('submit',function(e){
+    e.preventDefault(); toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
+  });
+
+  var rt; addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,120); });
+  build();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ placeLabels(); placeBox(state); });
+})();
+</script>
+<script>
+(function(){
+  var MIN=14;
+  function enforce(){
+    document.querySelectorAll('body *').forEach(function(el){
+      if(el.closest('svg')) return;
+      var has=false;
+      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
+      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
+    });
+  }
+  enforce(); addEventListener('resize',enforce);
+})();
+</script>
+<script src="assets/jp-wrap.js" data-selector=".ship h1,main h2,main .lead,main p,main li b,main li p,.facts span"></script>
+</body>
+</html>
