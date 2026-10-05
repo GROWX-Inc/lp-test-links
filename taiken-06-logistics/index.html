@@ -435,6 +435,8 @@ footer p{margin:0 0 6px}
   var rt; addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,120); });
   build();
   if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ placeLabels(); placeBox(state); });
+  /* 見出しの改行調整などで地図エリアの高さが変わったら、ラベルと箱を置き直す（PCでラベルが点に重なっていた） */
+  if('ResizeObserver' in window) new ResizeObserver(function(){ placeLabels(); placeBox(state); }).observe(map);
 })();
 </script>
 <script>
