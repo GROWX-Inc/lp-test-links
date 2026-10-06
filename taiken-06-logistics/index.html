@@ -193,27 +193,29 @@ function setTime(f){f=clamp(f,0,2);const i=Math.min(1,Math.floor(f)),k=f-i,A=SKY
 setTime(0);
 
 /* ---------- 街（ジオラマ） ---------- */
-const base=mesh(new THREE.BoxGeometry(64,.6,16),[M(C.side),M(C.side),M(C.ground),M(C.side),M(C.side),M(C.side)],false);base.position.set(3,-.3,0);scene.add(base);
-const roadM=M(C.road,{roughness:.9});const road=mesh(new THREE.BoxGeometry(62,.04,2.6),roadM,false);road.position.set(3,.02,.4);scene.add(road);
-for(let x=-27;x<33;x+=1.6){const d=mesh(new THREE.BoxGeometry(.7,.02,.08),M(C.line),false);d.position.set(x,.05,.4);scene.add(d)}
+/* 最初はコードで描いた簡易の街を出し、Blenderで作った街（assets/town.glb）が届いたら差し替える */
+const oldTown=new THREE.Group();scene.add(oldTown);
+const base=mesh(new THREE.BoxGeometry(64,.6,16),[M(C.side),M(C.side),M(C.ground),M(C.side),M(C.side),M(C.side)],false);base.position.set(3,-.3,0);oldTown.add(base);
+const roadM=M(C.road,{roughness:.9});const road=mesh(new THREE.BoxGeometry(62,.04,2.6),roadM,false);road.position.set(3,.02,.4);oldTown.add(road);
+for(let x=-27;x<33;x+=1.6){const d=mesh(new THREE.BoxGeometry(.7,.02,.08),M(C.line),false);d.position.set(x,.05,.4);oldTown.add(d)}
 const wallMats=[];   /* 建物の壁（あとで石こうの凹凸を貼る） */
 function bld(x,z,w,h,d,ci,win=true){const g=new THREE.Group();const wm0=M(C.bld[ci%4]);wallMats.push(wm0);const b=mesh(rbox(w,h,d,.1),wm0);b.position.y=h/2;g.add(b);
   const r=mesh(rbox(w+.2,.16,d+.2,.06),M(C.roof[ci%2]));r.position.y=h+.08;g.add(r);
   if(win){const wm=M('#7C8496',{roughness:.4});for(let i=0;i<Math.floor(w/.9);i++)for(let j=0;j<Math.max(1,Math.floor(h/1.1));j++){const q=mesh(new THREE.BoxGeometry(.42,.5,.04),wm,false);q.position.set(-w/2+.55+i*.9,.7+j*1.05,d/2+.02);if(q.position.x<w/2-.3&&q.position.y<h-.3)g.add(q)}}
-  g.position.set(x,0,z);scene.add(g);return g}
+  g.position.set(x,0,z);oldTown.add(g);return g}
 function tree(x,z,s=1){const g=new THREE.Group();const t=mesh(new THREE.CylinderGeometry(.06*s,.08*s,.5*s,8),M('#8A7A64'));t.position.y=.25*s;g.add(t);
-  const c=mesh(new THREE.SphereGeometry(.42*s,14,12),M(R()<.5?C.sage:C.sageD));c.position.y=.75*s;c.scale.y=1.15;g.add(c);g.position.set(x,0,z);scene.add(g)}
+  const c=mesh(new THREE.SphereGeometry(.42*s,14,12),M(R()<.5?C.sage:C.sageD));c.position.y=.75*s;c.scale.y=1.15;g.add(c);g.position.set(x,0,z);oldTown.add(g)}
 /* 出荷元（御社）・倉庫・届け先 */
-bld(-19,-3.4,4.2,2.2,3,0);const desk=mesh(rbox(1.6,.5,1,.05),M('#D9CDB6'));desk.position.set(-19,.25,-1.2);scene.add(desk);
+bld(-19,-3.4,4.2,2.2,3,0);const desk=mesh(rbox(1.6,.5,1,.05),M('#D9CDB6'));desk.position.set(-19,.25,-1.2);oldTown.add(desk);
 const wh=bld(0,-4.2,10,3.2,4.4,2);
-bld(23,-3.4,3.6,2.4,3,3);const door=mesh(new THREE.BoxGeometry(.8,1.3,.06),M('#9A8A72'));door.position.set(23,.65,-1.88);scene.add(door);
+bld(23,-3.4,3.6,2.4,3,3);const door=mesh(new THREE.BoxGeometry(.8,1.3,.06),M('#9A8A72'));door.position.set(23,.65,-1.88);oldTown.add(door);
 [[-25,-4,3,1.6,2.6,1],[-13,-4.6,2.8,2.8,2.2,3],[-8,-4.4,3.2,1.8,2.4,1],[9,-4.6,3,2.2,2.4,0],[14,-4.2,3.4,1.6,2.6,3],[29,-4.2,3,2,2.6,2]].forEach(a=>bld(...a));
 [[-23,-1.6,.9],[-15,-1.8,1],[-10,-1.7,.8],[6,-1.9,1],[17,-1.8,.9],[27,-1.6,1],[-21,3,1.1],[-12,3.2,.9],[-4,3.4,1],[8,3.1,1.1],[18,3.3,.9],[26,3,1]].forEach(a=>tree(...a));
 /* 倉庫前のベルトコンベアとスキャンの門 */
-const belt=mesh(rbox(7,.16,1,.05),M('#4A4F5C',{roughness:.6}));belt.position.set(0,.62,-1.3);scene.add(belt);
-for(const x of [-3.2,-1,1.2,3.2]){const l=mesh(new THREE.BoxGeometry(.08,.6,.8),M('#6E7380'));l.position.set(x,.3,-1.3);scene.add(l)}
+const belt=mesh(rbox(7,.16,1,.05),M('#4A4F5C',{roughness:.6}));belt.position.set(0,.62,-1.3);oldTown.add(belt);
+for(const x of [-3.2,-1,1.2,3.2]){const l=mesh(new THREE.BoxGeometry(.08,.6,.8),M('#6E7380'));l.position.set(x,.3,-1.3);oldTown.add(l)}
 const arch=new THREE.Group();const am=M(C.accent,{roughness:.5});
-[[-.62,0],[.62,0]].forEach(([z])=>{const p=mesh(new THREE.BoxGeometry(.1,1.4,.1),am);p.position.set(0,1.1,-1.3+z);arch.add(p)});const top=mesh(new THREE.BoxGeometry(.12,.1,1.36),am);top.position.set(0,1.8,-1.3);arch.add(top);scene.add(arch);
+[[-.62,0],[.62,0]].forEach(([z])=>{const p=mesh(new THREE.BoxGeometry(.1,1.4,.1),am);p.position.set(0,1.1,-1.3+z);arch.add(p)});const top=mesh(new THREE.BoxGeometry(.12,.1,1.36),am);top.position.set(0,1.8,-1.3);arch.add(top);oldTown.add(arch);
 const scanM=new THREE.MeshBasicMaterial({color:'#7FA6FF',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
 const scan=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1),scanM);scan.rotation.y=Math.PI/2;scan.position.set(0,1.1,-1.3);scene.add(scan);
 /* ほかの荷物（倉庫の中の流れ） */
@@ -221,18 +223,28 @@ const OB=8,others=new THREE.InstancedMesh(rbox(.5,.36,.5,.04),M(C.kraft),OB);oth
 
 /* ---------- 車（模型らしい丸み。会社のロゴは架空） ---------- */
 const logoTex=cvTex(512,128,(x,w,h)=>{x.fillStyle=C.white;x.fillRect(0,0,w,h);x.fillStyle=C.accent;x.fillRect(0,h-14,w,14);x.fillStyle=C.ink;x.font='700 54px "HK Mincho","Hiragino Mincho ProN",serif';if('letterSpacing' in x)x.letterSpacing='10px';x.textAlign='center';x.fillText('HAKOBUNE',w/2,h*.62)});
-function vehicle(len,cab,load=0){const g=new THREE.Group();   /* 荷台がむき出しの車：主役の箱が運ばれる姿を見せる */
-  const deck=mesh(rbox(len,.22,1.25,.06),M(C.white));deck.position.set(-.2,.66,0);g.add(deck);
-  [[.6],[-.6]].forEach(([z])=>{const r=mesh(new THREE.BoxGeometry(len,.16,.06),M(C.white));r.position.set(-.2,.85,z);g.add(r)});
-  const bk=mesh(new THREE.BoxGeometry(.06,.6,1.25),M(C.white));bk.position.set(len/2-.24,1.07,0);g.add(bk);
-  const cb=mesh(rbox(cab,1.05,1.2,.16),M(C.accent,{roughness:.55}));cb.position.set(len/2+cab/2-.15,1.05,0);g.add(cb);
-  const gl=mesh(new THREE.BoxGeometry(.05,.36,1.0),M('#2D3442',{roughness:.2}));gl.position.set(len/2+cab-.17,1.25,0);g.add(gl);
+function vehicle(len,cab,load=0){const g=new THREE.Group();g.userData.kind=len<2?'van_body':'truck_body';   /* 荷台がむき出しの車：主役の箱が運ばれる姿を見せる */
+  const deck=mesh(rbox(len,.22,1.25,.06),M(C.white));deck.position.set(-.2,.66,0);g.add(deck);const old=[deck];g.userData.old=old;   /* old＝Blenderの車体が届いたら隠す部品 */
+  [[.6],[-.6]].forEach(([z])=>{const r=mesh(new THREE.BoxGeometry(len,.16,.06),M(C.white));r.position.set(-.2,.85,z);g.add(r);old.push(r)});
+  const bk=mesh(new THREE.BoxGeometry(.06,.6,1.25),M(C.white));bk.position.set(len/2-.24,1.07,0);g.add(bk);old.push(bk);
+  const cb=mesh(rbox(cab,1.05,1.2,.16),M(C.accent,{roughness:.55}));cb.position.set(len/2+cab/2-.15,1.05,0);g.add(cb);old.push(cb);
+  const gl=mesh(new THREE.BoxGeometry(.05,.36,1.0),M('#2D3442',{roughness:.2}));gl.position.set(len/2+cab-.17,1.25,0);g.add(gl);old.push(gl);
   const lg=new THREE.Mesh(new THREE.PlaneGeometry(len*.62,len*.155),new THREE.MeshStandardMaterial({map:logoTex,roughness:.7}));lg.position.set(-.2,.66,.632);g.add(lg);
   for(let i=0;i<load;i++){const o=mesh(rbox(.55,.4,.55,.04),M(C.kraft));o.position.set(len/2-.65-(i%3)*.6,.97+Math.floor(i/3)*.41,(i%2?.25:-.25));o.rotation.y=i*.3;g.add(o)}   /* ほかの荷物も一緒に運ぶ */
   const wg=new THREE.CylinderGeometry(.24,.24,.18,20);wg.rotateX(Math.PI/2);const wm=M(C.tire,{roughness:.7});g.userData.wheels=[];
   [[-len/2+.35,.62],[len/2+cab/2-.2,.62],[-len/2+.35,-.62],[len/2+cab/2-.2,-.62]].forEach(([x,z])=>{const w=mesh(wg,wm);w.position.set(x,.24,z);g.add(w);g.userData.wheels.push(w)});
   scene.add(g);return g}
 const van=vehicle(1.7,.75,0),truck=vehicle(3.6,.95,4);
+/* Blenderで作った車体とタイヤ（vehicles.glb）が届いたら、コードで描いた車体と差し替える。荷台のロゴ・積み荷・タイヤの回転はそのまま */
+function useVehicles(GLTFLoader){const L=new THREE.TextureLoader();
+  L.load('assets/vehicles-ao.jpg',ao=>{ao.flipY=false;ao.channel=1;
+    new GLTFLoader().load('assets/vehicles.glb',v=>{const mats=new Map();
+      const prep=o=>{o.traverse(c=>{if(!c.isMesh)return;c.castShadow=!LOW;c.receiveShadow=true;const m=c.material;
+        if(!mats.has(m)){const n=LOW?new THREE.MeshLambertMaterial({color:m.color}):m;n.aoMap=ao;n.aoMapIntensity=.55;n.needsUpdate=true;mats.set(m,n)}c.material=mats.get(m)});return o};
+      const wheel=v.scene.getObjectByName('wheel');
+      [van,truck].forEach(g=>{const body=v.scene.getObjectByName(g.userData.kind);if(!body)return;
+        g.userData.old.forEach(o=>o.visible=false);g.add(prep(body.clone()));
+        if(wheel)g.userData.wheels.forEach(w=>{const n=prep(wheel.clone());n.position.copy(w.position);w.parent.add(n);w.visible=false;w.userData.rep=n})})})})}
 
 /* ---------- 主役：社名入りの段ボール ---------- */
 let company='御社';
@@ -264,6 +276,23 @@ if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undef
     if(an&&ar){rep(an,40,2);rep(ar,40,2);roadM.normalMap=an;roadM.normalScale.set(.5,.5);roadM.roughnessMap=ar;roadM.needsUpdate=true}
     if(pl){rep(pl,.45,.45);wallMats.forEach(m=>{m.normalMap=pl;m.normalScale.set(.7,.7);m.needsUpdate=true})}
   })}
+/* Blenderで作った街：形と色（town.glb）＋焼き付けた柔らかい影（town-ao.jpg）＋繰り返しの質感（CC0）。最初の画面のあとに読む */
+Promise.all([import('./assets/gltf-loader.min.js'),new Promise(r=>new THREE.TextureLoader().load('assets/town-ao.jpg',r,undefined,()=>r(null)))]).then(([{GLTFLoader},ao])=>{
+  useVehicles(GLTFLoader);
+  new GLTFLoader().load('assets/town.glb',g=>{
+    const L=new THREE.TextureLoader(),tile=(u,rx)=>{const t=L.load(u);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rx);return t};
+    const pl=LOW?null:tile('assets/plaster-normal.jpg',.45),an=LOW?null:tile('assets/asphalt-normal.jpg',.65),pv=LOW?null:tile('assets/paving-normal.jpg',.5);
+    if(ao){ao.flipY=false;ao.channel=1}   /* 影はUVの2組目に焼き付けてある */
+    const done=new Map();
+    g.scene.traverse(o=>{if(!o.isMesh)return;o.castShadow=!LOW;o.receiveShadow=true;
+      const m=o.material;if(done.has(m)){o.material=done.get(m);return}
+      let n=m;if(LOW)n=new THREE.MeshLambertMaterial({color:m.color});
+      if(ao){n.aoMap=ao;n.aoMapIntensity=1}
+      if(!LOW){if(/^wall/.test(m.name)){n.normalMap=pl;n.normalScale.set(.6,.6)}
+        if(m.name==='road'){n.normalMap=an;n.normalScale.set(.5,.5)}
+        if(m.name==='ground'){n.normalMap=pv;n.normalScale.set(.35,.35)}}
+      n.needsUpdate=true;done.set(m,n);o.material=n});
+    scene.remove(oldTown);scene.add(g.scene)})});
 await yieldNow();
 if(LOW){scene.traverse(o=>{if(o.material&&!Array.isArray(o.material)&&o.material.isMeshStandardMaterial){const m=o.material;o.material=new THREE.MeshLambertMaterial({color:m.color,map:m.map,transparent:m.transparent,opacity:m.opacity})}})}
 
@@ -307,7 +336,7 @@ function placeAll(t,now){
     setTime(t<5.6?lerp(0,1,a(1,5.6)):lerp(1,2,a(5.6,8.6)));
   }
   van.position.set(vx,0,.4);truck.position.set(tx,0,.4);
-  const sp=(g,v)=>g.userData.wheels.forEach(w=>w.rotation.z=-v/.24);sp(van,vx);sp(truck,tx);
+  const sp=(g,v)=>g.userData.wheels.forEach(w=>{w.rotation.z=-v/.24;if(w.userData.rep)w.userData.rep.rotation.z=w.rotation.z});sp(van,vx);sp(truck,tx);
   /* 止まるたびに小さく弾む（余韻） */
   box.position.set(bx,by+(RM?0:Math.max(0,bounce)*.12*Math.sin(bounce*Math.PI*3)),bz);bounce=Math.max(0,bounce-.03);
   /* スキャン：箱が門をくぐる瞬間だけ光る */
@@ -345,7 +374,7 @@ function frame(now){
   const so=sun.userData.off||[0,12,6];sun.position.set(camT.x+so[0],so[1],camT.z+so[2]);sun.target.position.copy(camT);
   renderer.render(scene,cam);
   /* 地点の札：3Dの地点の上に */
-  tags.forEach((el,i)=>{V.set(ST[i]+(i===0?-.4:i===2?-1:0),i===1?3.0:2.7,i===1?-2:-.6);const[x,y]=toScreen(V),w=el.offsetWidth/2;el.style.left=x+'px';el.style.top=y+'px';el.style.visibility=(x-w<4||x+w>innerWidth-4||V.z>1)?'hidden':'visible'});   /* 画面の外に出た地点の札は隠す */
+  tags.forEach((el,i)=>{V.set(ST[i]+(i===0?-.4:i===2?-1:0),i===1?3.0:2.7,i===1?-2:-.6);const[x,y]=toScreen(V),w=el.offsetWidth/2;el.style.left=x+'px';el.style.top=y+'px';el.style.visibility=(x-w<4||x+w>innerWidth-4||y<96||V.z>1)?'hidden':'visible'});   /* 画面の外に出た地点の札は隠す */
   /* 受領印のボタン：箱の上に */
   if(phase==='wait'){V.set(b.bx,b.by+1.2,b.bz);const[x,y]=toScreen(V);const sb=$('#stampBtn');sb.style.left=x+'px';sb.style.top=Math.max(130,y)+'px';sb.classList.add('on')}
   if(first){first=false;requestAnimationFrame(()=>$('#loader').classList.add('done'))}
