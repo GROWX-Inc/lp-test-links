@@ -278,20 +278,19 @@ if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undef
     if(an&&ar){rep(an,40,2);rep(ar,40,2);roadM.normalMap=an;roadM.normalScale.set(.5,.5);roadM.roughnessMap=ar;roadM.needsUpdate=true}
     if(pl){rep(pl,.45,.45);wallMats.forEach(m=>{m.normalMap=pl;m.normalScale.set(.7,.7);m.needsUpdate=true})}
   })}
-/* Blenderで作った実寸の街（town.glb：濵田さんのGeminiの見本・図面から。外壁は図面の写真）＋繰り返しの質感（CC0）。最初の画面のあとに読む */
+/* Blenderで作った実寸の街（town.glb：濵田さんのGeminiの見本・図面・質感画像から。外壁は図面の写真、道路・歩道・駐車場・縁石もGeminiの質感）。最初の画面のあとに読む */
 Promise.all([import('./assets/gltf-loader.min.js')]).then(([{GLTFLoader}])=>{
   useVehicles(GLTFLoader);
   new GLTFLoader().load('assets/town.glb',g=>{
     const L=new THREE.TextureLoader(),tile=(u,rx)=>{const t=L.load(u);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rx);return t};
-    const pl=LOW?null:tile('assets/plaster-normal.jpg',.45),an=LOW?null:tile('assets/asphalt-normal.jpg',.65),pv=LOW?null:tile('assets/paving-normal.jpg',.5);
+    const pl=LOW?null:tile('assets/plaster-normal.jpg',.45),an=LOW?null:tile('assets/asphalt-normal.jpg',.65);
     const done=new Map();
     g.scene.traverse(o=>{if(!o.isMesh)return;o.castShadow=!LOW;o.receiveShadow=true;
       const m=o.material;if(done.has(m)){o.material=done.get(m);return}
       let n=m;if(LOW)n=new THREE.MeshLambertMaterial({color:m.color});
       if(!LOW){if(/^wall/.test(m.name)){n.normalMap=pl;n.normalScale.set(.6,.6)}
         if(m.map){m.map.anisotropy=8}
-        if(m.name==='road'){n.normalMap=an;n.normalScale.set(.5,.5);n.color.set('#74767A')}
-        if(m.name==='ground'){n.normalMap=pv;n.normalScale.set(.35,.35)}}
+        if(m.name==='road'){n.normalMap=an;n.normalScale.set(.4,.4)}}
       n.needsUpdate=true;done.set(m,n);o.material=n});
     scene.remove(oldTown);scene.add(g.scene)})});
 await yieldNow();
