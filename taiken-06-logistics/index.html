@@ -171,7 +171,7 @@ renderer.shadowMap.enabled=!LOW;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
 /* ---------- 色（生成り＋藍） ---------- */
 const C={paper:'#EFE8DA',ground:'#E6DECD',side:'#CFC6B3',road:'#BDB6AA',line:'#F4EFE4',bld:['#F5F0E6','#E8E1D3','#DCD5C7','#EDE6D8'],roof:['#C9C1B2','#B8B0A2'],sage:'#A7B39A',sageD:'#8E9B82',kraft:'#C29A6B',ink:'#1E2433',accent:'#2E4A86',white:'#F7F4EE',tire:'#2B2E35'};
-const scene=new THREE.Scene();scene.background=new THREE.Color(C.paper);scene.fog=new THREE.Fog(C.paper,26,60);
+const scene=new THREE.Scene();scene.background=new THREE.Color(C.paper);scene.fog=new THREE.Fog(C.paper,40,120);
 const cam=new THREE.PerspectiveCamera(30,1,.1,120);
 const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.82,metalness:0,...o});   /* つや消しの模型素材 */
 const mesh=(g,m,sh=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x};
@@ -183,9 +183,9 @@ function rbox(w,h,d,r=.08){const s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,
 /* ---------- 光：時刻に合わせて朝→昼→午後 ---------- */
 const hemi=new THREE.HemisphereLight('#FFF6E8','#BFB4A0',1.1);scene.add(hemi);
 const sun=new THREE.DirectionalLight('#FFE2B8',2.4);sun.castShadow=!LOW;
-sun.shadow.mapSize.set(MOB?1024:2048,MOB?1024:2048);sun.shadow.camera.left=-14;sun.shadow.camera.right=14;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-10;sun.shadow.camera.far=60;sun.shadow.bias=-.0006;sun.shadow.radius=4;
+sun.shadow.mapSize.set(MOB?1024:2048,MOB?1024:2048);sun.shadow.camera.left=-22;sun.shadow.camera.right=22;sun.shadow.camera.top=18;sun.shadow.camera.bottom=-18;sun.shadow.camera.far=90;sun.shadow.bias=-.0006;sun.shadow.radius=4;
 scene.add(sun,sun.target);
-const SKY=[['#F3E7D3','#FFE2B8',[-12,9,8]],['#EFEDE6','#FFFFFF',[2,16,6]],['#F2E2CE','#FFD1A0',[14,8,7]]];   /* 朝・昼・午後：背景・日差しの色・太陽の位置 */
+const SKY=[['#E6E1D8','#FFE2B8',[-14,12,10]],['#DCE5EE','#FFFFFF',[3,20,8]],['#EAD9C7','#FFD1A0',[16,11,9]]];   /* 実写の空：朝はうっすら暖色、昼は淡い青、午後は夕方寄り */   /* 朝・昼・午後：背景・日差しの色・太陽の位置 */
 const tc1=new THREE.Color(),tc2=new THREE.Color();
 function setTime(f){f=clamp(f,0,2);const i=Math.min(1,Math.floor(f)),k=f-i,A=SKY[i],B=SKY[i+1];
   tc1.set(A[0]).lerp(tc2.set(B[0]),k);scene.background.copy(tc1);scene.fog.color.copy(tc1);
@@ -278,20 +278,19 @@ if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undef
     if(an&&ar){rep(an,40,2);rep(ar,40,2);roadM.normalMap=an;roadM.normalScale.set(.5,.5);roadM.roughnessMap=ar;roadM.needsUpdate=true}
     if(pl){rep(pl,.45,.45);wallMats.forEach(m=>{m.normalMap=pl;m.normalScale.set(.7,.7);m.needsUpdate=true})}
   })}
-/* Blenderで作った街：形と色（town.glb）＋焼き付けた柔らかい影（town-ao.jpg）＋繰り返しの質感（CC0）。最初の画面のあとに読む */
-Promise.all([import('./assets/gltf-loader.min.js'),new Promise(r=>new THREE.TextureLoader().load('assets/town-ao.jpg',r,undefined,()=>r(null)))]).then(([{GLTFLoader},ao])=>{
+/* Blenderで作った実寸の街（town.glb：濵田さんのGeminiの見本・図面から。外壁は図面の写真）＋繰り返しの質感（CC0）。最初の画面のあとに読む */
+Promise.all([import('./assets/gltf-loader.min.js')]).then(([{GLTFLoader}])=>{
   useVehicles(GLTFLoader);
   new GLTFLoader().load('assets/town.glb',g=>{
     const L=new THREE.TextureLoader(),tile=(u,rx)=>{const t=L.load(u);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rx,rx);return t};
     const pl=LOW?null:tile('assets/plaster-normal.jpg',.45),an=LOW?null:tile('assets/asphalt-normal.jpg',.65),pv=LOW?null:tile('assets/paving-normal.jpg',.5);
-    if(ao){ao.flipY=false;ao.channel=1}   /* 影はUVの2組目に焼き付けてある */
     const done=new Map();
     g.scene.traverse(o=>{if(!o.isMesh)return;o.castShadow=!LOW;o.receiveShadow=true;
       const m=o.material;if(done.has(m)){o.material=done.get(m);return}
       let n=m;if(LOW)n=new THREE.MeshLambertMaterial({color:m.color});
-      if(ao){n.aoMap=ao;n.aoMapIntensity=1}
       if(!LOW){if(/^wall/.test(m.name)){n.normalMap=pl;n.normalScale.set(.6,.6)}
-        if(m.name==='road'){n.normalMap=an;n.normalScale.set(.5,.5)}
+        if(m.map){m.map.anisotropy=8}
+        if(m.name==='road'){n.normalMap=an;n.normalScale.set(.5,.5);n.color.set('#74767A')}
         if(m.name==='ground'){n.normalMap=pv;n.normalScale.set(.35,.35)}}
       n.needsUpdate=true;done.set(m,n);o.material=n});
     scene.remove(oldTown);scene.add(g.scene)})});
@@ -370,7 +369,7 @@ function frame(now){
     if(k>=1&&phase==='stamp'){phase='done';$('#finale').classList.add('show');$('#log').style.opacity=0}}
   /* カメラ：少し上から見下ろし、箱について横へ */
   const pt=innerWidth<innerHeight;runK+=((phase==='idle'?0:1)-runK)*(1-Math.exp(-dt*(RM?20:1.6)));   /* 入力中は箱に寄り、走り出したら街を見渡す */
-  const near=pt?[.5,4.6,7.4]:[1.2,3.9,6.6],far=pt?[1.4,10.5,16.5]:[2.2,8.6,13.5],off=near.map((v,j)=>lerp(v,far[j],runK));
+  const near=pt?[.8,7.2,13.5]:[2.6,5.6,12],far=pt?[2,19,30]:[4,14,24],off=near.map((v,j)=>lerp(v,far[j],runK));
   camT.lerp(V.set(b.bx+(pt?0:lerp(.6,1.6,runK)),lerp(.7,.6,runK),b.bz*lerp(.8,.3,runK)),1-Math.exp(-dt*(RM?20:pt?11:4)));   /* 縦長の画面は見える幅が狭いので、箱をしっかり追う */
   camP.set(camT.x+off[0],off[1],camT.z+off[2]);cam.position.copy(camP);cam.lookAt(camT);
   const so=sun.userData.off||[0,12,6];sun.position.set(camT.x+so[0],so[1],camT.z+so[2]);sun.target.position.copy(camT);
