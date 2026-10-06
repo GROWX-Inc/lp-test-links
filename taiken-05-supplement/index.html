@@ -37,7 +37,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 .brand small{display:block;font-family:var(--body);font-weight:500;font-size:14px;letter-spacing:.16em;color:var(--muted)}
 .steps{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 24px);right:var(--gutter);display:flex;gap:6px;pointer-events:none}
 .steps i{display:block;width:22px;height:2px;border-radius:2px;background:rgba(255,255,255,.28);transition:background .4s}
-.steps i.on{background:var(--gold)}
+.steps i.on{background:var(--ink)}
 
 /* 読み込み中：ブランド名を光がなぞる（何も出ない時間を作らない） */
 #loader{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:var(--bg);transition:opacity .9s,visibility .9s}
@@ -49,15 +49,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font
 /* 操作のヒント */
 .hint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);transform:translateX(-50%);display:flex;align-items:center;gap:10px;
   padding:10px 18px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-size:14px;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .4s}
-.hint i{width:2px;height:16px;background:var(--gold);border-radius:2px;animation:drip 1.6s ease-in-out infinite}
+.hint i{width:2px;height:16px;background:var(--ink);border-radius:2px;animation:drip 1.6s ease-in-out infinite}
 @keyframes drip{0%{transform:translateY(-4px);opacity:0}40%{opacity:1}100%{transform:translateY(6px);opacity:0}}
 .hint.crack i{width:24px;height:2px;animation:pull 1.4s ease-in-out infinite}
 @keyframes pull{0%,100%{transform:scaleX(.4)}50%{transform:scaleX(1.3)}}
 
 /* 説明線（3Dのパーツに付く） */
 .callout{position:fixed;left:0;top:0;display:flex;align-items:center;gap:8px;opacity:0;will-change:transform,opacity}
-.callout::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none;box-shadow:0 0 0 4px rgba(226,194,122,.18)}
-.callout i{display:block;width:clamp(16px,3vw,40px);height:1px;background:var(--gold);flex:none;transform-origin:left}
+.callout::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink);flex:none;box-shadow:0 0 0 4px rgba(243,241,234,.14)}
+.callout i{display:block;width:clamp(16px,3vw,40px);height:1px;background:rgba(243,241,234,.7);flex:none;transform-origin:left}   /* 金はUIの1か所（ボタンか数字）だけ */
 .callout b{display:block;font-family:var(--display);font-weight:700;font-size:16px;line-height:1.5;white-space:nowrap;text-shadow:0 1px 12px rgba(0,0,0,.8)}
 .callout span{display:block;font-size:14px;line-height:1.5;color:var(--muted);white-space:nowrap;text-shadow:0 1px 12px rgba(0,0,0,.8)}
 
@@ -196,8 +196,9 @@ beam.position.y=4.6;scene.add(beam);
 
 /* 台座：低い円柱と金の縁 */
 const ped=new THREE.Group();scene.add(ped);
-ped.add(new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.75,.28,96),new THREE.MeshStandardMaterial({color:'#111729',roughness:.35,metalness:.5})));
-const ring=new THREE.Mesh(new THREE.TorusGeometry(1.7,.012,8,160),new THREE.MeshBasicMaterial({color:'#E2C27A',toneMapped:false}));ring.rotation.x=Math.PI/2;ring.position.y=.14;ped.add(ring);
+const pedM=new THREE.MeshStandardMaterial({color:'#111729',roughness:.35,metalness:.5});
+ped.add(new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.75,.28,96),pedM));
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.7,.012,8,160),new THREE.MeshBasicMaterial({color:'#A8905A',toneMapped:false}));   /* 金はUIの1か所に絞るため、台座の縁は落ち着いた色に */ring.rotation.x=Math.PI/2;ring.position.y=.14;ped.add(ring);
 ped.position.y=.14;
 const shadow=new THREE.Mesh(new THREE.PlaneGeometry(3.2,3.2),new THREE.MeshBasicMaterial({map:radial([[0,'rgba(0,0,0,.65)'],[.5,'rgba(0,0,0,.25)'],[1,'rgba(0,0,0,0)']]),transparent:true,depthWrite:false}));
 shadow.rotation.x=-Math.PI/2;shadow.position.y=.285;scene.add(shadow);
@@ -212,11 +213,17 @@ const capGeo=new THREE.LatheGeometry([[.5,2.54],[.56,2.54],[.565,2.6],[.565,3.0]
 const ridge=cvTex(512,16,(x)=>{for(let i=0;i<512;i+=8){x.fillStyle='#fff';x.fillRect(i,0,4,16);x.fillStyle='#000';x.fillRect(i+4,0,4,16)}});ridge.wrapS=THREE.RepeatWrapping;ridge.repeat.set(12,1);
 /* ラベル：表に商品名、裏に成分表示（すべて架空） */
 let labelCanvas,labelTex=null;
-function drawLabel(){
-  const c=labelCanvas||(labelCanvas=document.createElement('canvas'));c.width=2048;c.height=640;const x=c.getContext('2d'),W=c.width,H=c.height;
-  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#E8C877');g.addColorStop(1,'#C9A04A');x.fillStyle=g;x.fillRect(0,0,W,H);
-  const r=rnd(5);for(let i=0;i<1500;i++){x.fillStyle=`rgba(255,255,255,${r()*.05})`;x.fillRect(r()*W,r()*H,2,2)}
-  x.fillStyle='#1B1505';x.fillRect(0,H*.07,W,4);x.fillRect(0,H*.92,W,4);
+/* ラベルは同じ配置で2枚描く：①見た目の色 ②質感（緑＝ざらつき・青＝金属感）。
+   金の紙は少し金属的な艶（箔）、墨の文字はマットな紙（DESIGN.md 6章） */
+let maskCanvas,maskTex=null;
+function drawLabel(){drawLabelTo(false);drawLabelTo(true)}
+function drawLabelTo(mask){
+  const c=mask?(maskCanvas||(maskCanvas=document.createElement('canvas'))):(labelCanvas||(labelCanvas=document.createElement('canvas')));
+  c.width=2048;c.height=640;const x=c.getContext('2d'),W=c.width,H=c.height;
+  if(mask){x.fillStyle='rgb(0,105,40)';x.fillRect(0,0,W,H)}
+  else{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#E8C877');g.addColorStop(1,'#C9A04A');x.fillStyle=g;x.fillRect(0,0,W,H);
+    const r=rnd(5);for(let i=0;i<1500;i++){x.fillStyle=`rgba(255,255,255,${r()*.05})`;x.fillRect(r()*W,r()*H,2,2)}}
+  x.fillStyle=mask?'rgb(0,220,0)':'#1B1505';x.fillRect(0,H*.07,W,4);x.fillRect(0,H*.92,W,4);
   const M='"NM Mincho","Hiragino Mincho ProN",serif', S='"Hiragino Sans","Noto Sans JP",sans-serif';
   /* 表（中央）：正面から見えるのは周の約3分の1なので、幅の3割に収める */
   x.textAlign='center';x.font=`700 ${H*.12}px ${M}`;if('letterSpacing' in x)x.letterSpacing='8px';x.fillText('NIGHT MONSTER',W*.5,H*.46);
@@ -231,9 +238,10 @@ function drawLabel(){
     [['GABA','100mg'],['内容量','60粒（30日分）'],['製造ロット','NM-2610']].forEach(([a,b])=>{x.fillText(a,lx,y);x.textAlign='right';x.fillText(b,lx+W*.26,y);x.textAlign='left';y+=H*.11});
     x.font=`400 ${H*.04}px ${S}`;x.fillText('※ デモ用の架空の表示です',lx,H*.86)};
   back(0);back(W);   /* 背面の中央は布の継ぎ目。左右の端に半分ずつ描いて、つなげて読めるようにする */
-  if(labelTex)labelTex.needsUpdate=true;
+  if(mask){if(maskTex)maskTex.needsUpdate=true}else if(labelTex)labelTex.needsUpdate=true;
 }
 drawLabel();labelTex=new THREE.CanvasTexture(labelCanvas);labelTex.colorSpace=THREE.SRGBColorSpace;labelTex.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+maskTex=new THREE.CanvasTexture(maskCanvas);
 document.fonts&&document.fonts.ready.then(drawLabel);
 await yieldNow();
 
@@ -241,7 +249,7 @@ const bottle=new THREE.Group();ped.add(bottle);bottle.position.y=.14;
 const P={};
 P.body=new THREE.Mesh(bodyGeo,glassM);P.body.renderOrder=2;
 P.base=new THREE.Mesh(baseGeo,new THREE.MeshPhysicalMaterial({color:'#3A2410',roughness:.18,clearcoat:1}));
-P.label=new THREE.Mesh(new THREE.CylinderGeometry(1.012,1.012,1.25,128,1,true,Math.PI,Math.PI*2),new THREE.MeshPhysicalMaterial({map:labelTex,roughness:.45,clearcoat:.35,clearcoatRoughness:.3}));
+P.label=new THREE.Mesh(new THREE.CylinderGeometry(1.012,1.012,1.25,128,1,true,Math.PI,Math.PI*2),new THREE.MeshPhysicalMaterial({map:labelTex,roughness:1,metalness:1,roughnessMap:maskTex,metalnessMap:maskTex,clearcoat:.2,clearcoatRoughness:.4}));
 P.label.geometry.translate(0,1.1,0);P.label.renderOrder=3;
 P.cap=new THREE.Mesh(capGeo,new THREE.MeshStandardMaterial({color:'#1A1D27',roughness:.45,metalness:.3,bumpMap:ridge,bumpScale:2}));
 /* 読む場面で光らせる枠（成分表示の行） */
@@ -298,7 +306,7 @@ function countUp(){if(counted)return;counted=true;const t0=performance.now(),dur
   (function f(n){const k=clamp((n-t0)/dur);amtEl.innerHTML=Math.round(100*o3(k))+'<small>mg</small>';if(k<1)requestAnimationFrame(f)})(t0)}
 
 /* ---------- 毎フレーム ---------- */
-let last=performance.now(),T=0,spill=0,first=true,hintMode='';const port=()=>innerWidth<innerHeight;
+let last=performance.now(),T=0,spill=0,first=true,hintMode='',dirty=false;const port=()=>innerWidth<innerHeight;
 function frame(now){
   if(LOW&&now-last<33){requestAnimationFrame(frame);return}   /* ソフトウェア描画では30fpsに抑える */
   if(LOW&&!first&&Math.abs(pRaw-p)<1e-4&&!down&&Math.abs(spinV)<1e-4&&Math.abs(crackT-crack)<1e-3&&(spill<=0||spill>=1)){last=now;requestAnimationFrame(frame);return}   /* 何も変わらないときは描き直さない */
@@ -384,6 +392,14 @@ function frame(now){
   if(first){first=false;requestAnimationFrame(()=>$('#loader').classList.add('done'))}
   requestAnimationFrame(frame);
 }
+/* 本物の素材（CC0）：撮影スタジオの映り込み・ガラスのくもり・紙の繊維・石の凹凸。最初の画面のあとに読む */
+if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undefined,()=>r(null)));
+  Promise.all(['assets/env-studio.jpg','assets/glass-rough.jpg','assets/paper-normal.jpg','assets/stone-normal.jpg','assets/stone-rough.jpg'].map(ld)).then(([env,gr,pn,sn,sr])=>{
+    if(env){env.mapping=THREE.EquirectangularReflectionMapping;env.colorSpace=THREE.SRGBColorSpace;const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromEquirectangular(env).texture;pm.dispose();env.dispose()}
+    if(gr){glassM.roughnessMap=gr;glassM.roughness=.42;glassM.needsUpdate=true}
+    if(pn){pn.wrapS=pn.wrapT=THREE.RepeatWrapping;pn.repeat.set(6,2);P.label.material.normalMap=pn;P.label.material.normalScale.set(.25,.25);P.label.material.needsUpdate=true}
+    if(sn&&sr){[sn,sr].forEach(t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,2)});pedM.normalMap=sn;pedM.normalScale.set(.5,.5);pedM.roughnessMap=sr;pedM.roughness=.7;pedM.needsUpdate=true}
+    dirty=true});}
 /* GPUのない端末：質感の計算が重い素材を、軽い素材に置き換える（色・模様・透明度はそのまま） */
 if(LOW){const cache=new Map();scene.traverse(o=>{const m=o.material;if(!m||!(m.isMeshStandardMaterial))return;
   if(!cache.has(m))cache.set(m,new THREE.MeshLambertMaterial({color:m.color,map:m.map||null,transparent:m.transparent,opacity:m.opacity,side:m.side,depthWrite:m.depthWrite}));
