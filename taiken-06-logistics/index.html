@@ -194,9 +194,10 @@ setTime(0);
 
 /* ---------- 街（ジオラマ） ---------- */
 const base=mesh(new THREE.BoxGeometry(64,.6,16),[M(C.side),M(C.side),M(C.ground),M(C.side),M(C.side),M(C.side)],false);base.position.set(3,-.3,0);scene.add(base);
-const road=mesh(new THREE.BoxGeometry(62,.04,2.6),M(C.road,{roughness:.9}),false);road.position.set(3,.02,.4);scene.add(road);
+const roadM=M(C.road,{roughness:.9});const road=mesh(new THREE.BoxGeometry(62,.04,2.6),roadM,false);road.position.set(3,.02,.4);scene.add(road);
 for(let x=-27;x<33;x+=1.6){const d=mesh(new THREE.BoxGeometry(.7,.02,.08),M(C.line),false);d.position.set(x,.05,.4);scene.add(d)}
-function bld(x,z,w,h,d,ci,win=true){const g=new THREE.Group();const b=mesh(rbox(w,h,d,.1),M(C.bld[ci%4]));b.position.y=h/2;g.add(b);
+const wallMats=[];   /* 建物の壁（あとで石こうの凹凸を貼る） */
+function bld(x,z,w,h,d,ci,win=true){const g=new THREE.Group();const wm0=M(C.bld[ci%4]);wallMats.push(wm0);const b=mesh(rbox(w,h,d,.1),wm0);b.position.y=h/2;g.add(b);
   const r=mesh(rbox(w+.2,.16,d+.2,.06),M(C.roof[ci%2]));r.position.y=h+.08;g.add(r);
   if(win){const wm=M('#7C8496',{roughness:.4});for(let i=0;i<Math.floor(w/.9);i++)for(let j=0;j<Math.max(1,Math.floor(h/1.1));j++){const q=mesh(new THREE.BoxGeometry(.42,.5,.04),wm,false);q.position.set(-w/2+.55+i*.9,.7+j*1.05,d/2+.02);if(q.position.x<w/2-.3&&q.position.y<h-.3)g.add(q)}}
   g.position.set(x,0,z);scene.add(g);return g}
@@ -247,7 +248,7 @@ const kraftSide=cvTex(256,256,(x,w,h)=>{x.fillStyle='#C49B6C';x.fillRect(0,0,w,h
 const boxMats=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:boxFace()}),M('#fff',{map:kraftSide})];
 const box=new THREE.Group();const boxM=mesh(rbox(.9,.66,.9,.05),boxMats);box.add(boxM);scene.add(box);
 /* ExtrudeGeometry の面の割り当て：0=前後の面 1=側面。前面にだけ伝票を出すため、伝票は別の板として貼る */
-boxM.material=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide})];
+boxM.material=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide})];const boxSideMats=boxM.material;
 const label=new THREE.Mesh(new THREE.PlaneGeometry(.82,.6),M('#fff',{map:boxMats[4].map,roughness:.85}));label.position.set(0,0,.456);box.add(label);
 function printName(v){company=v.trim()||'御社';const t=boxFace();label.material.map.dispose();label.material.map=t;label.material.needsUpdate=true;bounce=1}
 /* 受領印（届け先で押す）と、押した跡 */
@@ -255,6 +256,14 @@ const inkTex=cvTex(256,256,(x,w,h)=>{x.strokeStyle='#B3322B';x.lineWidth=12;x.be
 const ink=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),new THREE.MeshStandardMaterial({map:inkTex,transparent:true,opacity:0,roughness:.9,depthWrite:false}));ink.rotation.x=-Math.PI/2;ink.position.y=.335;box.add(ink);
 const stamp=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.12,.16,.5,20),M('#3A2E26',{roughness:.5}));sh.position.y=.45;stamp.add(sh);const sb=mesh(new THREE.CylinderGeometry(.27,.27,.12,28),M('#2B2E35'));sb.position.y=.12;stamp.add(sb);stamp.visible=false;scene.add(stamp);
 
+/* 本物の質感（CC0・ambientCG）：段ボールの波目・アスファルトのざらつき・石こうの壁。最初の画面のあとに読む */
+if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undefined,()=>r(null)));
+  Promise.all(['assets/cardboard-normal.jpg','assets/asphalt-normal.jpg','assets/asphalt-rough.jpg','assets/plaster-normal.jpg'].map(ld)).then(([cb,an,ar,pl])=>{
+    const rep=(t,x,y)=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(x,y);return t};
+    if(cb){rep(cb,1.4,1.4);boxSideMats.forEach(m=>{m.normalMap=cb;m.normalScale.set(.6,.6);m.needsUpdate=true})}
+    if(an&&ar){rep(an,40,2);rep(ar,40,2);roadM.normalMap=an;roadM.normalScale.set(.5,.5);roadM.roughnessMap=ar;roadM.needsUpdate=true}
+    if(pl){rep(pl,.45,.45);wallMats.forEach(m=>{m.normalMap=pl;m.normalScale.set(.7,.7);m.needsUpdate=true})}
+  })}
 await yieldNow();
 if(LOW){scene.traverse(o=>{if(o.material&&!Array.isArray(o.material)&&o.material.isMeshStandardMaterial){const m=o.material;o.material=new THREE.MeshLambertMaterial({color:m.color,map:m.map,transparent:m.transparent,opacity:m.opacity})}})}
 
