@@ -181,22 +181,25 @@ scene.add(new THREE.AmbientLight('#1A2140',.6));
 function cvTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t}
 const radial=(stops)=>cvTex(256,256,(x,w,h)=>{const g=x.createRadialGradient(128,128,0,128,128,128);stops.forEach(s=>g.addColorStop(s[0],s[1]));x.fillStyle=g;x.fillRect(0,0,w,h)});
 
-/* 床：わずかに映り込む濃紺の床と、スポットライトの光だまり */
-const floor=new THREE.Mesh(new THREE.CircleGeometry(30,64),new THREE.MeshStandardMaterial({color:'#0B1020',roughness:.45,metalness:.25,envMapIntensity:.45}));
+/* 床：映り込まない濃紺の床（見本どおり）と、スポットライトの光だまり */
+const floor=new THREE.Mesh(new THREE.CircleGeometry(30,64),new THREE.MeshStandardMaterial({color:'#0B1020',roughness:.9,metalness:0,envMapIntensity:.15}));
 floor.rotation.x=-Math.PI/2;scene.add(floor);
 const pool=new THREE.Mesh(new THREE.PlaneGeometry(9,9),new THREE.MeshBasicMaterial({map:radial([[0,'rgba(255,226,170,.30)'],[.45,'rgba(255,214,150,.10)'],[1,'rgba(0,0,0,0)']]),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false}));
 pool.rotation.x=-Math.PI/2;pool.position.y=.005;scene.add(pool);
 /* 背景：後ろの壁にぼんやりした光（ホリゾント） */
-const wall=new THREE.Mesh(new THREE.PlaneGeometry(40,20),new THREE.MeshBasicMaterial({map:radial([[0,'rgba(40,52,100,1)'],[.6,'rgba(12,16,34,1)'],[1,'rgba(7,10,20,1)']]),toneMapped:false,fog:false}));
+const wall=new THREE.Mesh(new THREE.PlaneGeometry(40,20),new THREE.MeshBasicMaterial({map:radial([[0,'rgba(24,30,56,1)'],[.55,'rgba(9,12,24,1)'],[1,'rgba(5,7,14,1)']]),toneMapped:false,fog:false}));
 wall.position.set(0,6,-12);scene.add(wall);
 /* スポットライトの光の筋（上から差す円すい。加算で淡く） */
-const beamTex=cvTex(64,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(255,236,190,.0)');g.addColorStop(.25,'rgba(255,236,190,.10)');g.addColorStop(1,'rgba(255,236,190,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});
-const beam=new THREE.Mesh(new THREE.CylinderGeometry(.35,2.6,9,48,1,true),new THREE.MeshBasicMaterial({map:beamTex,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false}));
+/* 見本（plan/05-kv/out）：光の筋は上ほど明るく、台座の幅まで広がる。外側の広い円すい＋内側の芯の2重 */
+const beamTex=cvTex(64,256,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(255,232,190,.13)');g.addColorStop(.35,'rgba(255,232,190,.06)');g.addColorStop(.8,'rgba(255,232,190,.02)');g.addColorStop(1,'rgba(255,232,190,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});
+const beamM=new THREE.MeshBasicMaterial({map:beamTex,transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false});
+const beam=new THREE.Mesh(new THREE.CylinderGeometry(.5,2.4,9,48,1,true),beamM);
 beam.position.y=4.6;scene.add(beam);
+const beamCore=new THREE.Mesh(new THREE.CylinderGeometry(.18,1.1,9,32,1,true),beamM);beamCore.position.y=4.6;scene.add(beamCore);
 
 /* 台座：低い円柱と金の縁 */
 const ped=new THREE.Group();scene.add(ped);
-const pedM=new THREE.MeshStandardMaterial({color:'#111729',roughness:.35,metalness:.5});
+const pedM=new THREE.MeshStandardMaterial({color:'#1A2342',roughness:.5,metalness:.2});
 ped.add(new THREE.Mesh(new THREE.CylinderGeometry(1.7,1.75,.28,96),pedM));
 const ring=new THREE.Mesh(new THREE.TorusGeometry(1.7,.012,8,160),new THREE.MeshBasicMaterial({color:'#A8905A',toneMapped:false}));   /* 金はUIの1か所に絞るため、台座の縁は落ち着いた色に */ring.rotation.x=Math.PI/2;ring.position.y=.14;ped.add(ring);
 ped.position.y=.14;
@@ -206,7 +209,7 @@ await yieldNow();
 
 /* ---------- 商品（すべてコードで作る） ---------- */
 const V=(x,y)=>new THREE.Vector2(Math.max(1e-4,x),y);
-const glassM=new THREE.MeshPhysicalMaterial({color:'#7A4A22',roughness:.08,transparent:true,opacity:.62,clearcoat:1,clearcoatRoughness:.04,envMapIntensity:1.8,side:THREE.DoubleSide,depthWrite:false});
+const glassM=new THREE.MeshPhysicalMaterial({color:'#7A4A22',roughness:.08,transparent:true,opacity:.62,clearcoat:1,clearcoatRoughness:.04,envMapIntensity:1.8,side:THREE.DoubleSide,depthWrite:true});
 const bodyGeo=new THREE.LatheGeometry([[.97,.14],[.99,.18],[1,.3],[1,2],[.985,2.14],[.93,2.27],[.8,2.38],[.62,2.45],[.5,2.49],[.49,2.56],[.49,2.62]].map(a=>V(a[0],a[1])),96);
 const baseGeo=new THREE.LatheGeometry([[0,0],[.86,0],[.95,.02],[.99,.07],[1,.15],[.97,.16],[0,.16]].map(a=>V(a[0],a[1])),96);
 const capGeo=new THREE.LatheGeometry([[.5,2.54],[.56,2.54],[.565,2.6],[.565,3.0],[.55,3.05],[0,3.06]].map(a=>V(a[0],a[1])),96);
@@ -220,8 +223,8 @@ function drawLabel(){drawLabelTo(false);drawLabelTo(true)}
 function drawLabelTo(mask){
   const c=mask?(maskCanvas||(maskCanvas=document.createElement('canvas'))):(labelCanvas||(labelCanvas=document.createElement('canvas')));
   c.width=2048;c.height=640;const x=c.getContext('2d'),W=c.width,H=c.height;
-  if(mask){x.fillStyle='rgb(0,105,40)';x.fillRect(0,0,W,H)}
-  else{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#E8C877');g.addColorStop(1,'#C9A04A');x.fillStyle=g;x.fillRect(0,0,W,H);
+  if(mask){x.fillStyle='rgb(0,88,95)';x.fillRect(0,0,W,H)}
+  else{const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#F0D38A');g.addColorStop(1,'#D6AE5C');x.fillStyle=g;x.fillRect(0,0,W,H);
     const r=rnd(5);for(let i=0;i<1500;i++){x.fillStyle=`rgba(255,255,255,${r()*.05})`;x.fillRect(r()*W,r()*H,2,2)}}
   x.fillStyle=mask?'rgb(0,220,0)':'#1B1505';x.fillRect(0,H*.07,W,4);x.fillRect(0,H*.92,W,4);
   const M='"NM Mincho","Hiragino Mincho ProN",serif', S='"Hiragino Sans","Noto Sans JP",sans-serif';
@@ -251,7 +254,7 @@ P.body=new THREE.Mesh(bodyGeo,glassM);P.body.renderOrder=2;
 P.base=new THREE.Mesh(baseGeo,new THREE.MeshPhysicalMaterial({color:'#3A2410',roughness:.18,clearcoat:1}));
 P.label=new THREE.Mesh(new THREE.CylinderGeometry(1.012,1.012,1.25,128,1,true,Math.PI,Math.PI*2),new THREE.MeshPhysicalMaterial({map:labelTex,roughness:1,metalness:1,roughnessMap:maskTex,metalnessMap:maskTex,clearcoat:.2,clearcoatRoughness:.4}));
 P.label.geometry.translate(0,1.1,0);P.label.renderOrder=3;
-P.cap=new THREE.Mesh(capGeo,new THREE.MeshStandardMaterial({color:'#1A1D27',roughness:.45,metalness:.3,bumpMap:ridge,bumpScale:2}));
+P.cap=new THREE.Mesh(capGeo,new THREE.MeshStandardMaterial({color:'#0D0F15',roughness:.55,metalness:.15,bumpMap:ridge,bumpScale:2}));
 /* 読む場面で光らせる枠（成分表示の行） */
 /* ラベルの曲面に沿った細い帯（背面の「GABA」の行の高さ） */
 const glow=new THREE.Mesh(new THREE.CylinderGeometry(1.018,1.018,.12,48,1,true,Math.PI-.9,1.8),new THREE.MeshBasicMaterial({color:'#FFE6A6',transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,toneMapped:false}));
@@ -303,8 +306,57 @@ addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lx;lx=e.cl
     else{crack=.72*(1-Math.pow(1-raw,2));crackT=crack}}   /* 引くほど重くなり、割れ具合は7割で止まる */
   else{spin+=dx*.01;spinV=dx*.01}});
 
+/* ---------- 仕上げ（見本の写真の見え方に寄せる）：光のにじみ・背景のぼけ・色調・フィルムの粒子 ----------
+   しくみ：①場面を一度、画面と同じ大きさの下書きに描く ②それを4分の1に縮めてぼかした版を作る
+   ③「ピントからの距離」に応じて、くっきり版とぼかし版を混ぜる（背景ほどぼける）＋明るい所をにじませる＋四隅を暗く
+   GPUのない端末・描画が重い端末では使わない（元の描き方に戻る） */
+let post=null;
+if(!LOW){try{
+  const GL2=renderer.capabilities.isWebGL2,HF=THREE.HalfFloatType;
+  const rt=(o)=>new THREE.WebGLRenderTarget(1,1,{type:HF,depthBuffer:false,...o});
+  const main=rt({depthBuffer:true,samples:GL2&&!(MOB&&devicePixelRatio>=2)?4:0});main.depthTexture=new THREE.DepthTexture(1,1);
+  const qa=rt(),qb=rt();
+  const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2)),qs=new THREE.Scene(),qc=new THREE.OrthographicCamera(-1,1,1,-1,0,1);qs.add(quad);
+  const VS='varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}';
+  const down=new THREE.ShaderMaterial({uniforms:{t:{value:null},px:{value:new THREE.Vector2()}},vertexShader:VS,
+    fragmentShader:'uniform sampler2D t;uniform vec2 px;varying vec2 vUv;void main(){gl_FragColor=.25*(texture2D(t,vUv+px*vec2(-1.,-1.))+texture2D(t,vUv+px*vec2(1.,-1.))+texture2D(t,vUv+px*vec2(-1.,1.))+texture2D(t,vUv+px*vec2(1.,1.)));}',toneMapped:false});
+  const blur=new THREE.ShaderMaterial({uniforms:{t:{value:null},d:{value:new THREE.Vector2()}},vertexShader:VS,
+    fragmentShader:'uniform sampler2D t;uniform vec2 d;varying vec2 vUv;void main(){vec4 c=texture2D(t,vUv)*.2270270;c+=(texture2D(t,vUv+d*1.3846153)+texture2D(t,vUv-d*1.3846153))*.3162162;c+=(texture2D(t,vUv+d*3.2307692)+texture2D(t,vUv-d*3.2307692))*.0702702;gl_FragColor=c;}',toneMapped:false});
+  const comp=new THREE.ShaderMaterial({uniforms:{tS:{value:main.texture},tD:{value:main.depthTexture},tB:{value:qa.texture},cn:{value:cam.near},cf:{value:cam.far},focus:{value:12},dof:{value:1},time:{value:0},res:{value:new THREE.Vector2()}},vertexShader:VS,
+    fragmentShader:`uniform sampler2D tS,tD,tB;uniform float cn,cf,focus,dof,time;uniform vec2 res;varying vec2 vUv;
+float h(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void main(){vec3 s=texture2D(tS,vUv).rgb,b=texture2D(tB,vUv).rgb;
+  float z=cn*cf/(cf-texture2D(tD,vUv).x*(cf-cn));
+  float coc=smoothstep(.12,.9,clamp(abs(z-focus)/(focus*.85),0.,1.))*dof;   /* ピントから遠いほどぼかす */
+  vec3 c=mix(s,b,coc);
+  c+=max(b-vec3(.6),0.)*.5+b*.06;   /* 明るい所のにじみ＋全体にうっすら光のもや */
+  vec2 q=(vUv-.5)*vec2(res.x/res.y,1.)*.85;c*=1.-.55*smoothstep(.3,1.05,length(q));   /* 四隅を暗く（光が中央に集まる） */
+  gl_FragColor=vec4(c,1.);
+  #include <tonemapping_fragment>
+  #include <colorspace_fragment>
+  vec3 g=gl_FragColor.rgb;g+=vec3(.006,.010,.026)*(1.-g)*(1.-g);   /* 暗部を深い紺に寄せる */
+  g+=(h(vUv*res+fract(time*7.))-.5)*.03;gl_FragColor.rgb=g;}`});   /* フィルムの細かい粒子 */
+  const pass=(m,to)=>{quad.material=m;renderer.setRenderTarget(to);renderer.render(qs,qc)};
+  post={
+    setSize(){const v=renderer.getDrawingBufferSize(new THREE.Vector2()),w=Math.max(1,v.x>>2),h=Math.max(1,v.y>>2);
+      main.setSize(v.x,v.y);qa.setSize(w,h);qb.setSize(w,h);comp.uniforms.res.value.copy(v);down.uniforms.px.value.set(1/v.x,1/v.y)},
+    render(focus,dof,t){const w=qa.width,hh=qa.height;
+      renderer.setRenderTarget(main);renderer.render(scene,cam);
+      down.uniforms.t.value=main.texture;pass(down,qa);
+      for(let i=0;i<2;i++){blur.uniforms.t.value=qa.texture;blur.uniforms.d.value.set(1/w,0);pass(blur,qb);
+        blur.uniforms.t.value=qb.texture;blur.uniforms.d.value.set(0,1/hh);pass(blur,qa)}
+      comp.uniforms.focus.value=focus;comp.uniforms.dof.value=dof;comp.uniforms.time.value=t;pass(comp,null)},
+    dispose(){[main,qa,qb].forEach(r=>r.dispose())}};
+}catch(e){post=null}}
+/* 描画が重い端末（最初の約2秒の平均が1枚30ミリ秒を超える）は、仕上げを外して元の描き方に戻す */
+let pf=0,pft=0;const lookV=new THREE.Vector3();
+function draw(lk,dt){
+  if(post){if(pf<120){pf++;if(pf>30)pft+=dt;if(pf===120&&pft/90>.03){post.dispose();post=null;renderer.setRenderTarget(null)}}}
+  if(post){lookV.set(lk[0],lk[1],lk[2]);post.render(cam.position.distanceTo(lookV),RM?.6:1,T)}
+  else renderer.render(scene,cam)}
+
 /* ---------- 画面サイズ ---------- */
-function resize(){renderer.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+function resize(){renderer.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();if(post)post.setSize()}
 addEventListener('resize',resize);resize();readScroll();
 
 /* ---------- 文字の重ね（3Dの位置→画面の位置） ---------- */
@@ -382,12 +434,12 @@ function frame(now){
   const cp=[0,0,0],lk=[0,0,0];
   for(let j=0;j<3;j++){let v=lerp(far[j],wide[j],A),l=lerp(lookF[j],lookW[j],A);v=lerp(v,crackC[j],H);l=lerp(l,lookC[j],H);v=lerp(v,readC[j],Rd);l=lerp(l,lookR[j],Rd);cp[j]=v;lk[j]=l}
   cam.position.set(cp[0],cp[1],cp[2]);cam.lookAt(lk[0],lk[1],lk[2]);
-  beam.material.opacity=(1-.5*H)*dip;key.intensity=2.2*dip;
+  beamM.opacity=(1-.5*H)*dip;key.intensity=2.2*dip;
   if(dust){const pa=dust.geometry.attributes.position;dust.userData.sd.forEach((d,i)=>{d.y+=d.v*dt*.25;if(d.y>7.6)d.y=.6;
       const a=d.a+Math.sin(T*.2+d.ph)*.3;pa.setXYZ(i,Math.cos(a)*d.r,d.y,Math.sin(a)*d.r)});pa.needsUpdate=true;dust.material.opacity=.45*(1-.6*H)*(1-.6*Rd)*dip}
-  glow.material.opacity=Rd*(.16+.08*Math.sin(T*3));   /* 成分表示の「GABA」の行を光らせる */
+  glow.material.opacity=Rd*(.09+.04*Math.sin(T*3));   /* 成分表示の「GABA」の行を光らせる */
 
-  renderer.render(scene,cam);
+  draw(lk,dt);
 
   /* ---- 文字の重ね ---- */
   right.set(1,0,0).applyQuaternion(cam.quaternion);
@@ -418,7 +470,7 @@ if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undef
   Promise.all(['assets/env-studio.jpg','assets/glass-rough.jpg','assets/paper-normal.jpg','assets/stone-normal.jpg','assets/stone-rough.jpg'].map(ld)).then(([env,gr,pn,sn,sr])=>{
     if(env){env.mapping=THREE.EquirectangularReflectionMapping;env.colorSpace=THREE.SRGBColorSpace;const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromEquirectangular(env).texture;pm.dispose();env.dispose()}
     if(gr){glassM.roughnessMap=gr;glassM.roughness=.42;glassM.needsUpdate=true}
-    if(pn){pn.wrapS=pn.wrapT=THREE.RepeatWrapping;pn.repeat.set(6,2);P.label.material.normalMap=pn;P.label.material.normalScale.set(.25,.25);P.label.material.needsUpdate=true}
+    if(pn){pn.wrapS=pn.wrapT=THREE.RepeatWrapping;pn.repeat.set(6,2);P.label.material.normalMap=pn;P.label.material.normalScale.set(.5,.5);P.label.material.needsUpdate=true}
     if(sn&&sr){[sn,sr].forEach(t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(2,2)});pedM.normalMap=sn;pedM.normalScale.set(.5,.5);pedM.roughnessMap=sr;pedM.roughness=.7;pedM.needsUpdate=true}
     dirty=true});}
 /* GPUのない端末：質感の計算が重い素材を、軽い素材に置き換える（色・模様・透明度はそのまま） */
