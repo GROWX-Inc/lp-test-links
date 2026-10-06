@@ -21,7 +21,6 @@
   --body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
   color-scheme:light;
 }
-html.look-b{--accent:#E8B422;--accent-ink:#1E1A08}
 *,*::before,*::after{box-sizing:border-box}
 html,body{max-width:100%;overflow:hidden;height:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
@@ -61,7 +60,6 @@ html.low .tilt{display:none}
 .tag span{display:block;font-size:14px;color:var(--muted);line-height:1.4}
 .tag.on{opacity:1}
 .tag.on b{color:var(--accent)}
-html.look-b .tag.on b{color:var(--ink)}
 
 /* 記録（左下） */
 .log{position:fixed;z-index:2;left:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:grid;gap:2px;font-size:14px;font-variant-numeric:tabular-nums;pointer-events:none}
@@ -151,7 +149,6 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,seg=(p,a,b)=>clamp((p-a)/(b-a));
 const io3=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,o3=t=>1-Math.pow(1-t,3);
 const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,MOB=Math.min(innerWidth,innerHeight)<700;
-const LOOKB=new URLSearchParams(location.search).get('look')==='b';if(LOOKB)document.documentElement.classList.add('look-b');
 function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const R=rnd(7);
 const toastEl=$('#toast');let tt;function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove('show'),2400)}
@@ -172,8 +169,8 @@ renderer.setPixelRatio(LOW?.75:Math.min(devicePixelRatio||1,MOB?1.5:1.75));
 renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
 renderer.shadowMap.enabled=!LOW;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
-/* ---------- 色（DESIGN：生成り＋藍。B案は黄） ---------- */
-const C={paper:'#EFE8DA',ground:'#E6DECD',side:'#CFC6B3',road:'#BDB6AA',line:'#F4EFE4',bld:['#F5F0E6','#E8E1D3','#DCD5C7','#EDE6D8'],roof:['#C9C1B2','#B8B0A2'],sage:'#A7B39A',sageD:'#8E9B82',kraft:'#C29A6B',ink:'#1E2433',accent:LOOKB?'#E8B422':'#2E4A86',white:'#F7F4EE',tire:'#2B2E35'};
+/* ---------- 色（生成り＋藍） ---------- */
+const C={paper:'#EFE8DA',ground:'#E6DECD',side:'#CFC6B3',road:'#BDB6AA',line:'#F4EFE4',bld:['#F5F0E6','#E8E1D3','#DCD5C7','#EDE6D8'],roof:['#C9C1B2','#B8B0A2'],sage:'#A7B39A',sageD:'#8E9B82',kraft:'#C29A6B',ink:'#1E2433',accent:'#2E4A86',white:'#F7F4EE',tire:'#2B2E35'};
 const scene=new THREE.Scene();scene.background=new THREE.Color(C.paper);scene.fog=new THREE.Fog(C.paper,26,60);
 const cam=new THREE.PerspectiveCamera(30,1,.1,120);
 const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.82,metalness:0,...o});   /* つや消しの模型素材 */
@@ -216,7 +213,7 @@ const belt=mesh(rbox(7,.16,1,.05),M('#4A4F5C',{roughness:.6}));belt.position.set
 for(const x of [-3.2,-1,1.2,3.2]){const l=mesh(new THREE.BoxGeometry(.08,.6,.8),M('#6E7380'));l.position.set(x,.3,-1.3);scene.add(l)}
 const arch=new THREE.Group();const am=M(C.accent,{roughness:.5});
 [[-.62,0],[.62,0]].forEach(([z])=>{const p=mesh(new THREE.BoxGeometry(.1,1.4,.1),am);p.position.set(0,1.1,-1.3+z);arch.add(p)});const top=mesh(new THREE.BoxGeometry(.12,.1,1.36),am);top.position.set(0,1.8,-1.3);arch.add(top);scene.add(arch);
-const scanM=new THREE.MeshBasicMaterial({color:LOOKB?'#FFD95A':'#7FA6FF',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
+const scanM=new THREE.MeshBasicMaterial({color:'#7FA6FF',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
 const scan=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1),scanM);scan.rotation.y=Math.PI/2;scan.position.set(0,1.1,-1.3);scene.add(scan);
 /* ほかの荷物（倉庫の中の流れ） */
 const OB=8,others=new THREE.InstancedMesh(rbox(.5,.36,.5,.04),M(C.kraft),OB);others.castShadow=!LOW;others.receiveShadow=true;scene.add(others);const OD=new THREE.Object3D();
@@ -339,14 +336,13 @@ function frame(now){
   const so=sun.userData.off||[0,12,6];sun.position.set(camT.x+so[0],so[1],camT.z+so[2]);sun.target.position.copy(camT);
   renderer.render(scene,cam);
   /* 地点の札：3Dの地点の上に */
-  tags.forEach((el,i)=>{V.set(ST[i]+(i===0?-.4:i===2?-1:0),i===1?3.0:2.7,i===1?-2:-.6);const[x,y]=toScreen(V);el.style.left=x+'px';el.style.top=y+'px'});
+  tags.forEach((el,i)=>{V.set(ST[i]+(i===0?-.4:i===2?-1:0),i===1?3.0:2.7,i===1?-2:-.6);const[x,y]=toScreen(V),w=el.offsetWidth/2;el.style.left=x+'px';el.style.top=y+'px';el.style.visibility=(x-w<4||x+w>innerWidth-4||V.z>1)?'hidden':'visible'});   /* 画面の外に出た地点の札は隠す */
   /* 受領印のボタン：箱の上に */
   if(phase==='wait'){V.set(b.bx,b.by+1.2,b.bz);const[x,y]=toScreen(V);const sb=$('#stampBtn');sb.style.left=x+'px';sb.style.top=Math.max(130,y)+'px';sb.classList.add('on')}
   if(first){first=false;requestAnimationFrame(()=>$('#loader').classList.add('done'))}
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
-window.__demo={ship:(n)=>{$('#company').value=n;printName(n);$('#shipForm').requestSubmit()},jump:(s)=>{t0=performance.now()-s*1000}};   /* 確認用 */
 }
 </script>
 <script src="assets/jp-wrap.js" data-selector=".finale small" defer></script>
