@@ -7,10 +7,9 @@
 <meta name="description" content="質問に答えるたびに道が分かれ、カメラがその道を進む。3つ答えた先に担当者が立っている、体験型サイトのデモ。GROWX 体験カタログ 07。">
 <meta name="robots" content="noindex">
 <script>document.documentElement.classList.add('js')</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
 <style>
+/* 見出しの明朝は使う文字だけに軽量化して同梱（外部サーバーに頼らない＝電波なしでも開ける） */
+@font-face{font-family:"WK Mincho";src:url(assets/mincho.woff2) format("woff2");font-weight:500 700;font-display:swap}
 :root{
   --gutter: clamp(15px, 4.5vw, 20px);
   --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
@@ -21,8 +20,8 @@
   --muted:#BBC1D2;   /* 10.4:1 */
   --faint:#A5ACC0;   /* 8.0:1 */
   --dawn:#F3B57A;    /* 10.0:1 */
-  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
-  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --display:"WK Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -42,18 +41,10 @@ svg{display:block}
 
 /* ===== 体験ステージ ===== */
 .stage{position:relative;height:100svh;min-height:600px;overflow:hidden;background:#070B1A}
-.scene{position:absolute;inset:0;width:100%;height:100%}
-#world{will-change:transform}
-/* 星のまたたき（待機中の呼吸） */
-#stars circle{animation:tw 3.2s ease-in-out infinite}
-#stars circle:nth-child(3n){animation-duration:2.4s;animation-delay:-1.1s}
-#stars circle:nth-child(3n+1){animation-duration:4.1s;animation-delay:-2.3s}
-@keyframes tw{50%{opacity:.2}}
-/* 選択肢に指を乗せると、その側の道が光って予告する */
-.br{transition:opacity .3s,stroke-width .3s}
-.scene.lean-l .br.l,.scene.lean-r .br.r{stroke:#FFE7B0;stroke-width:2.8;opacity:1}
-.scene.lean-l .br.r,.scene.lean-r .br.l{opacity:.3}
-.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,240,220,.55),transparent 60%);opacity:0;pointer-events:none;transition:opacity .35s}
+.stage{background:#070B1A center 38%/cover no-repeat}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.2s}
+#gl.on{opacity:1}
+.flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 55%,rgba(255,244,228,.75),rgba(255,236,214,.25) 70%);opacity:0;pointer-events:none;transition:opacity .35s;z-index:2}
 .flash.on{opacity:1}
 
 .top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 18px);left:var(--gutter);right:var(--gutter);z-index:3;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;pointer-events:none}
@@ -83,10 +74,9 @@ svg{display:block}
   opacity:0;transform:translateY(20px);pointer-events:none;transition:opacity .5s,transform .5s}
 .meet.show{opacity:1;transform:none;pointer-events:auto}
 .meet .head{display:flex;gap:14px;align-items:center;margin-bottom:10px}
-.meet .face{width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden;background:#F7E2C6;
+.meet .face{width:76px;height:76px;flex:none;border-radius:50%;overflow:hidden;background:#E9E6E1 50% 3%/230% auto no-repeat;
   transform:perspective(400px) rotateY(90deg);transition:transform .7s cubic-bezier(.2,1,.3,1) .45s}
 .meet.show .face{transform:none}
-.meet .face svg{width:100%;height:100%}
 .meet .who small{display:block;font-size:var(--fs-label);color:var(--dawn);letter-spacing:.06em}
 .meet .who b{display:block;font-family:var(--display);font-size:var(--fs-h2);font-weight:500;line-height:1.4}
 .meet .who span{display:block;font-size:var(--fs-label);color:var(--muted)}
@@ -109,8 +99,7 @@ h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-heig
 .flow p{margin:0;color:var(--muted)}
 .team{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px}
 .team .mem{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
-.team .face{width:56px;height:56px;flex:none;border-radius:50%;overflow:hidden;background:#F7E2C6}
-.team .face svg{width:100%;height:100%}
+.team .face{width:56px;height:56px;flex:none;border-radius:50%;overflow:hidden;background:#E9E6E1 50% 3%/230% auto no-repeat}
 .team .txt{display:block}
 .team b{display:block;font-size:var(--fs-body)}
 .team .txt span{display:block;font-size:var(--fs-label);color:var(--muted)}
@@ -127,6 +116,8 @@ footer p{margin:0 0 6px}
   background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
+/* 3Dが使えない端末：遠景の写真を背景に敷き、答えるたびに差し替える */
+html.no-gl .stage{transition:background-image .6s}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
@@ -135,47 +126,7 @@ footer p{margin:0 0 6px}
 <body>
 
 <section class="stage" id="stage" aria-label="3つの質問に答えると道が分かれて進み、最後に担当者が現れるデモ">
-  <svg class="scene" viewBox="0 0 400 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-        <stop id="s0" offset="0" stop-color="#070B1A"/>
-        <stop id="s1" offset=".55" stop-color="#121A36"/>
-        <stop id="s2" offset="1" stop-color="#1E2445"/>
-      </linearGradient>
-      <radialGradient id="sunG"><stop offset="0" stop-color="#FFF4D8"/><stop offset=".45" stop-color="#FFC27A"/><stop offset="1" stop-color="#FF9A5A" stop-opacity="0"/></radialGradient>
-      <linearGradient id="roadG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2B3350"/><stop offset="1" stop-color="#151A2C"/></linearGradient>
-    </defs>
-    <rect x="-3000" width="6400" height="700" fill="url(#sky)"/>
-    <g id="stars" fill="#fff">
-      <circle cx="-260" cy="90" r="1"/><circle cx="-140" cy="40" r="1.1"/><circle cx="-60" cy="180" r=".9"/><circle cx="-320" cy="210" r=".8"/><circle cx="460" cy="70" r="1"/><circle cx="540" cy="160" r="1.1"/><circle cx="620" cy="50" r=".9"/><circle cx="700" cy="220" r=".8"/>
-      <circle cx="40" cy="60" r="1"/><circle cx="120" cy="30" r="1.2"/><circle cx="210" cy="80" r=".9"/><circle cx="300" cy="40" r="1.1"/><circle cx="360" cy="110" r="1"/>
-      <circle cx="80" cy="150" r=".8"/><circle cx="250" cy="160" r="1"/><circle cx="170" cy="200" r=".7"/><circle cx="330" cy="210" r=".8"/><circle cx="20" cy="230" r=".9"/>
-    </g>
-    <circle id="sun" cx="200" cy="330" r="70" fill="url(#sunG)"/>
-    <g id="world">
-      <path d="M-3000 296 L-200 292 Q-80 260 0 300 Q60 262 120 284 T240 276 T400 288 Q520 258 640 294 L3400 296 V1000 H-3000Z" fill="#0F1530" id="hillFar"/>
-      <path d="M-3000 330 L-160 326 Q-60 304 0 330 Q90 300 170 322 T400 316 Q500 298 600 324 L3400 330 V1000 H-3000Z" fill="#0A0F22" id="hillNear"/>
-      <!-- 道：手前から分かれ道まで、そこから左右へ -->
-      <path d="M58 900 L180 430 L220 430 L342 900Z" fill="url(#roadG)"/>
-      <path d="M180 430 C160 380 140 340 126 304 L136 304 C152 340 176 382 200 430Z" fill="url(#roadG)"/>
-      <path d="M220 430 C240 380 260 340 274 304 L264 304 C248 340 224 382 200 430Z" fill="url(#roadG)"/>
-      <path d="M58 900 L180 430 C160 380 140 340 126 304" fill="none" stroke="#4A5578" stroke-width="1.5"/>
-      <path d="M342 900 L220 430 C240 380 260 340 274 304" fill="none" stroke="#4A5578" stroke-width="1.5"/>
-      <path id="lane" d="M200 900 L200 440" fill="none" stroke="#E9D9A6" stroke-width="3" stroke-dasharray="14 18"/>
-      <path class="br l" d="M190 418 C172 380 152 342 131 306" fill="none" stroke="#E9D9A6" stroke-width="1.6" stroke-dasharray="7 9"/>
-      <path class="br r" d="M210 418 C228 380 248 342 269 306" fill="none" stroke="#E9D9A6" stroke-width="1.6" stroke-dasharray="7 9"/>
-      <circle cx="200" cy="432" r="7" fill="#F3B57A" opacity=".9"/>
-      <circle cx="200" cy="432" r="16" fill="#F3B57A" opacity=".18"/>
-      <!-- 道ばたの街灯（JSで並べる。進むと後ろへ流れる） -->
-      <g id="lamps"></g>
-      <!-- 終点に立つ人（最後だけ表示） -->
-      <g id="person" opacity="0" transform="translate(200 420)">
-        <ellipse cx="0" cy="12" rx="14" ry="3" fill="#000" opacity=".35"/>
-        <path d="M-9 10 L-7 -10 Q0 -16 7 -10 L9 10Z" fill="#2B3350"/>
-        <circle cx="0" cy="-18" r="6" fill="#F7D9B5"/>
-      </g>
-    </g>
-  </svg>
+  <canvas id="gl" aria-hidden="true"></canvas>
   <div class="flash" id="flash"></div>
 
   <div class="top">
@@ -239,207 +190,183 @@ footer p{margin:0 0 6px}
 
 <div class="toast" id="toast" role="status">デモのため、送信は行われません。</div>
 
-<script>
-(function(){
-  /* 質問（左＝0、右＝1） */
-  var Q=[
-    {t:'いま一番ほしいのは？',       a:['収入を上げたい','時間の自由']},
-    {t:'次にしたいのは？',     a:['経験を活かす','新しい分野へ']},
-    {t:'転職したい時期は？',           a:['すぐにでも','良い求人次第']}
-  ];
-  /* 担当者（Q1×Q2 の組み合わせで4人。人物はすべて架空） */
-  var P=[
-    {n:'山本 誠',  r:'年収アップ転職の担当', hair:'#2B2420', shirt:'#2F4A7A', short:true,
-     m:'経験は、思うより高く評価されます。'},
-    {n:'佐藤 美咲',r:'未経験からの挑戦の担当', hair:'#3A2A22', shirt:'#7A3F55', short:false,
-     m:'伸びている業界なら、未経験でも入口はあります。'},
-    {n:'田中 葵',  r:'リモート・時短の担当',   hair:'#1F1A18', shirt:'#2F6A5E', short:false,
-     m:'時間と場所を先に決めて、仕事を探しましょう。'},
-    {n:'伊藤 遥',  r:'副業・フリーランスの担当', hair:'#5A3B28', shirt:'#6A5A2F', short:true,
-     m:'会社に縛られない働き方も、選べます。'}
-  ];
-  var SKY=[ /* 答えるたびに夜が明ける */
-    ['#070B1A','#121A36','#1E2445',1.0,336],
-    ['#0E1634','#2A2F5C','#5A456E',.6,318],
-    ['#1C2A5A','#5B5A8A','#C97B6B',.25,300],
-    ['#3E6AA8','#E3A07A','#F6D3A0',0,262]
-  ];
+<script type="module">
+/* ===== 07 WORKS人材：川沿いの遊歩道（実寸の3D）。質問に答えるたびに道が分かれ、選んだ道をカメラが進み、空が明けていく =====
+   見た目：Blenderで作った遊歩道・芝生・木・手すり・街灯（assets/riverside.glb）、遠景は濵田さんがGeminiで作った4時刻の写真（sky0〜3）、
+   担当者は同じくGeminiの人物写真（p1〜p4。背景を抜いた架空の人物） */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,MOB=matchMedia('(pointer:coarse)').matches||innerWidth<768;
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t,ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
 
-  var world=document.getElementById('world'), lane=document.getElementById('lane'), brs=document.querySelectorAll('.br');
-  var qbox=document.getElementById('qbox'), meet=document.getElementById('meet'), flash=document.getElementById('flash');
-  var dots=document.querySelectorAll('.dots i');
-  var step=0, ans=[], busy=false;
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* 質問（左＝0、右＝1） */
+const Q=[
+  {t:'いま一番ほしいのは？',a:['収入を上げたい','時間の自由']},
+  {t:'次にしたいのは？',a:['経験を活かす','新しい分野へ']},
+  {t:'転職したい時期は？',a:['すぐにでも','良い求人次第']}
+];
+/* 担当者（Q1×Q2 の組み合わせで4人。人物はすべて架空） */
+const P=[
+  {n:'山本 誠',r:'年収アップ転職の担当',img:'assets/p1.png',m:'経験は、思うより高く評価されます。'},
+  {n:'佐藤 美咲',r:'未経験からの挑戦の担当',img:'assets/p2.png',m:'伸びている業界なら、未経験でも入口はあります。'},
+  {n:'田中 葵',r:'リモート・時短の担当',img:'assets/p3.png',m:'時間と場所を先に決めて、仕事を探しましょう。'},
+  {n:'伊藤 遥',r:'副業・フリーランスの担当',img:'assets/p4.png',m:'会社に縛られない働き方も、選べます。'}
+];
 
-  function hex(h){return [1,3,5].map(function(i){return parseInt(h.substr(i,2),16)})}
-  function mix(a,b,t){var x=hex(a),y=hex(b);return 'rgb('+x.map(function(v,i){return Math.round(v+(y[i]-v)*t)}).join(',')+')'}
-  var skyNow=0;
-  function setSky(f){ /* f は 0〜3 の連続値 */
-    f=Math.max(0,Math.min(3,f)); var i=Math.min(2,Math.floor(f)), t=f-i, A=SKY[i], B=SKY[i+1];
-    ['s0','s1','s2'].forEach(function(id,k){document.getElementById(id).setAttribute('stop-color',mix(A[k],B[k],t))});
-    document.getElementById('stars').setAttribute('opacity',A[3]+(B[3]-A[3])*t);
-    document.getElementById('sun').setAttribute('cy',A[4]+(B[4]-A[4])*t);
-    skyNow=f;
-  }
-  function ease(k){return k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2}
+/* ---------- 画面の部品（3Dがなくても動く） ---------- */
+const qbox=$('#qbox'),meet=$('#meet'),flash=$('#flash'),dots=$$('.dots i'),stage=$('#stage');
+let step=0,ans=[],busy=false,G=null;   /* G＝3Dの場面（読み込めたら入る） */
+function ask(){const q=Q[step];$('#qn').textContent='QUESTION '+(step+1)+' / 3';$('#qt').textContent=q.t;$('#a0').textContent=q.a[0];$('#a1').textContent=q.a[1];
+  dots.forEach((d,i)=>d.classList.toggle('on',i<=step));qbox.classList.remove('out');G&&G.lean(0)}
+function skyCss(i){if(!G)stage.style.backgroundImage=`url(assets/sky${i}.jpg)`}   /* 3Dなしのとき：遠景の写真を差し替えるだけ */
+function choose(a){if(busy)return;busy=true;ans.push(a);qbox.classList.add('out');
+  const next=()=>{step++;if(step<3){ask();busy=false}else arrive()};
+  if(G)G.walk(a,step,step===2,next);else{skyCss(step+1);flash.classList.add('on');setTimeout(()=>{flash.classList.remove('on');next()},RM?10:500)}}
+$$('.choice').forEach(b=>{b.addEventListener('click',()=>choose(+b.dataset.a));const v=+b.dataset.a?1:-1;
+  b.addEventListener('pointerenter',()=>{if(!busy&&G)G.lean(v)});b.addEventListener('focus',()=>{if(!busy&&G)G.lean(v)});
+  ['pointerleave','blur'].forEach(ev=>b.addEventListener(ev,()=>G&&G.lean(0)))});
+function arrive(){const p=P[ans[0]*2+ans[1]];
+  $('#mFace').style.backgroundImage=`url(${p.img})`;$('#mName').textContent=p.n;$('#mRole').textContent=p.r;
+  const old=$('#mMsg'),msg=document.createElement('p');msg.className='msg';msg.id='mMsg';
+  msg.textContent=p.m+(ans[2]===0?'今週、30分だけ話しませんか。':'良い求人が出たら、お知らせします。');old.parentNode.replaceChild(msg,old);   /* 要素ごと作り直す＝改行位置を一から計算 */
+  const ul=$('#mPath');ul.innerHTML='';ans.forEach((a,i)=>{const li=document.createElement('li');li.textContent=Q[i].a[a];ul.appendChild(li)});
+  G&&G.meet(p.img);
+  setTimeout(()=>{meet.classList.add('show');window.jpWrap&&window.jpWrap.run()},RM?0:(G?1600:300))}
+$('#retry').addEventListener('click',()=>{meet.classList.remove('show');step=0;ans=[];busy=false;skyCss(0);G&&G.reset();ask()});
+const team=$('#team');P.forEach((p,i)=>{const d=document.createElement('div'),f=document.createElement('div');d.className='mem rv';d.style.setProperty('--i',i+2);f.className='face';f.style.backgroundImage=`url(${p.img})`;
+  const t=document.createElement('span');t.className='txt';const b=document.createElement('b'),sp=document.createElement('span');b.textContent=p.n;sp.textContent=p.r;t.append(b,sp);d.append(f,t);team.appendChild(d)});
+const toast=$('#toast');let tm;function demo(){toast.classList.add('show');clearTimeout(tm);tm=setTimeout(()=>toast.classList.remove('show'),2400)}
+$('#consult').addEventListener('click',demo);$('#register').addEventListener('click',demo);
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -10% 0px',threshold:.15});$$('.rv').forEach(el=>io.observe(el))}
+else $$('.rv').forEach(el=>el.classList.add('in'));
+ask();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 
-  function ask(){
-    var q=Q[step];
-    document.getElementById('qn').textContent='QUESTION '+(step+1)+' / 3';
-    document.getElementById('qt').textContent=q.t;
-    document.getElementById('a0').textContent=q.a[0];
-    document.getElementById('a1').textContent=q.a[1];
-    dots.forEach(function(d,i){d.classList.toggle('on',i<=step)});
-    qbox.classList.remove('out');
-    if(typeof setLean==='function' && sceneEl) setLean(0);   /* 前の問題の「予告」を消す */
-  }
+/* ---------- 3Dの場面：最初の画面が出たあとに読み込む ---------- */
+if(document.readyState!=='complete')await new Promise(r=>addEventListener('load',r,{once:true}));
+await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,120))));
+let THREE=null,renderer=null;
+try{THREE=await import('./assets/three.module.min.js');renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:!(MOB&&devicePixelRatio>=2),powerPreference:'high-performance'})}catch(e){renderer=null}
+if(!renderer){document.documentElement.classList.add('no-gl');skyCss(step)}
+else G=await build();
 
-  /* カメラが選んだ道を進む：分かれ道の先を画面の中心へ寄せながら拡大する */
-  function fly(side,done){
-    var T=[side?272:128,300], s0=skyNow, dur=reduce?10:1500, t0=performance.now();
-    (function f(now){
-      var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=ease(k), sc=1+2.6*e;   /* 最初のフレームは now が t0 より手前のことがあるので0で止める */
-      var fx=200+(T[0]-200)*e, fy=500+(T[1]-500)*e;
-      world.setAttribute('transform','translate(200 500) scale('+sc+') translate('+(-fx)+' '+(-fy)+')');
-      lane.setAttribute('stroke-dashoffset',-k*160);
-      brs.forEach(function(b){b.setAttribute('stroke-dashoffset',-k*60)});
-      setSky(s0+e*(step+1-s0));
-      if(k>.78) flash.classList.add('on');
-      if(k<1) requestAnimationFrame(f);
-      else setTimeout(function(){ world.setAttribute('transform',''); flash.classList.remove('on'); done(); }, reduce?10:160);
-    })(t0);
-  }
+async function build(){
+const yieldNow=()=>new Promise(r=>setTimeout(r,0));
+let LOW=false;try{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');LOW=/swiftshader|llvmpipe|software/i.test(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'')}catch(e){}
+renderer.setPixelRatio(LOW?.75:Math.min(devicePixelRatio||1,MOB?1.5:1.75));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.shadowMap.enabled=!LOW;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(46,1,.1,400);
+scene.fog=new THREE.Fog('#0B1530',40,170);scene.background=new THREE.Color('#0B1530');
 
-  function choose(a){
-    if(busy) return; busy=true;
-    ans.push(a); qbox.classList.add('out');
-    fly(a,function(){
-      step++;
-      if(step<3){ ask(); busy=false; }
-      else arrive();
-    });
-  }
-  document.querySelectorAll('.choice').forEach(function(b){ b.addEventListener('click',function(){choose(+b.dataset.a)}) });
+/* 時刻（0夜・1夜明け前・2日の出・3朝）：空の上端の色・霧・空の光・日差し・街灯の明るさ・露出 */
+const SKY=[
+  {top:'#02274E',fog:'#141C33',hs:'#3A4C7A',hg:'#0E1018',hi:.55,sun:'#9FB4FF',si:.25,sp:[-30,40,-60],lamp:2.6,ex:1.0,water:'#16243D'},
+  {top:'#3763AF',fog:'#3A3F66',hs:'#7D82C8',hg:'#2A2430',hi:.8,sun:'#C9A6E8',si:.5,sp:[30,20,-120],lamp:1.6,ex:1.05,water:'#2E3A66'},
+  {top:'#97B4D0',fog:'#C9B7A8',hs:'#E8C9A8',hg:'#5A4A3A',hi:1.0,sun:'#FFC27A',si:2.2,sp:[20,8,-140],lamp:.4,ex:1.05,water:'#6B6E80'},
+  {top:'#5FACE6',fog:'#C8DCEB',hs:'#CFE4FF',hg:'#6E6A55',hi:1.15,sun:'#FFF4E0',si:2.8,sp:[40,60,-80],lamp:0,ex:1.0,water:'#3E6E96'}
+];
+const hemi=new THREE.HemisphereLight('#fff','#444',1);scene.add(hemi);
+const sun=new THREE.DirectionalLight('#fff',1);sun.castShadow=!LOW;sun.shadow.mapSize.set(MOB?1024:2048,MOB?1024:2048);
+Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,near:1,far:200});sun.shadow.bias=-.0005;sun.shadow.normalBias=.03;scene.add(sun,sun.target);
+await yieldNow();
 
-  function face(p){ /* 架空の担当者のイラスト */
-    var hair = p.short
-      ? '<path d="M22 42 Q22 18 50 16 Q78 18 78 42 Q72 30 50 28 Q30 30 22 42Z" fill="'+p.hair+'"/>'
-      : '<path d="M20 70 Q16 20 50 16 Q84 20 80 70 L72 70 Q76 34 50 30 Q26 34 28 70Z" fill="'+p.hair+'"/>';
-    return '<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="#F7E2C6"/>'+
-      '<path d="M14 100 Q16 74 50 72 Q84 74 86 100Z" fill="'+p.shirt+'"/>'+
-      '<rect x="43" y="58" width="14" height="16" rx="5" fill="#E9BE96"/>'+
-      '<ellipse cx="50" cy="44" rx="22" ry="25" fill="#F2CDA6"/>'+hair+
-      '<circle cx="42" cy="46" r="2.2" fill="#3A2A22"/><circle cx="58" cy="46" r="2.2" fill="#3A2A22"/>'+
-      '<path d="M43 56 Q50 61 57 56" stroke="#B5664F" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
-  }
+/* 遠景：川の向こう岸の写真を、大きな円筒の内側に貼る（左95°〜右80°）。2枚を重ねて、時刻が変わるときに入れ替える */
+const TL=new THREE.TextureLoader(),tex=u=>new Promise(r=>TL.load(u,t=>{t.colorSpace=THREE.SRGBColorSpace;r(t)},undefined,()=>r(null)));
+const skyT=await Promise.all([0,1,2,3].map(i=>tex(`assets/sky${i}.jpg`)));
+skyT.forEach(t=>{if(!t)return;t.wrapS=THREE.RepeatWrapping;t.repeat.x=-1;t.offset.x=1;t.anisotropy=4});   /* 内側から見るので左右を反転 */
+const R=140,TH=175/180*Math.PI,H=R*TH*848/2000;
+const skyGeo=new THREE.CylinderGeometry(R,R,H,64,1,true,100/180*Math.PI,TH);
+const skyA=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({map:skyT[0],side:THREE.BackSide,fog:false,toneMapped:false,depthWrite:false}));
+const skyB=new THREE.Mesh(skyGeo,new THREE.MeshBasicMaterial({map:skyT[1],side:THREE.BackSide,fog:false,toneMapped:false,transparent:true,opacity:0,depthWrite:false}));
+[skyA,skyB].forEach((m,i)=>{m.position.y=-.9+(.645-.5)*H;m.renderOrder=-2+i;scene.add(m)});
+/* 映り込み用：遠景の写真をそのまま周りの景色として使う（ガラスや手すりに空の色が映る） */
+const pm=new THREE.PMREMGenerator(renderer),envs=skyT.map(t=>{if(!t)return null;const c=t.clone();c.repeat.x=1;c.offset.x=0;c.mapping=THREE.EquirectangularReflectionMapping;c.needsUpdate=true;return pm.fromEquirectangular(c).texture});pm.dispose();
+await yieldNow();
 
-  function arrive(){
-    var p=P[ans[0]*2+ans[1]];
-    var person=document.getElementById('person');
-    person.setAttribute('opacity','1');
-    /* 担当者が、選んだ道の奥から歩いてくる。同時に景色を少し持ち上げる（カードに隠れないように） */
-    var sx=ans[2]?268:132, t0=performance.now(), dur=reduce?10:1300;
-    (function walk(now){
-      var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=ease(k), w=1-Math.pow(1-k,2);
-      var x=sx+(200-sx)*w, y=306+(420-306)*w, sc=.32+.68*w, bob=-Math.abs(Math.sin(k*Math.PI*7))*2.2*(1-k);
-      person.setAttribute('transform','translate('+x+' '+(y+bob)+') scale('+sc+')');
-      world.setAttribute('transform','translate(0 '+(-170*Math.min(1,e*1.4))+')');
-      if(k<1) requestAnimationFrame(walk);
-    })(t0);
-    document.getElementById('mFace').innerHTML=face(p);   /* 固定の図形のみ（入力値は含まない） */
-    document.getElementById('mName').textContent=p.n;
-    document.getElementById('mRole').textContent=p.r;
-    var old=document.getElementById('mMsg'), msg=document.createElement('p');
-    msg.className='msg'; msg.id='mMsg';
-    msg.textContent=p.m+(ans[2]===0?'今週、30分だけ話しませんか。':'良い求人が出たら、お知らせします。');
-    old.parentNode.replaceChild(msg,old);   /* 新しい要素にすると、改行位置を一から計算できる */
-    var ul=document.getElementById('mPath'); ul.innerHTML='';
-    ans.forEach(function(a,i){var li=document.createElement('li'); li.textContent=Q[i].a[a]; ul.appendChild(li)});
-    setTimeout(function(){
-      meet.classList.add('show');
-      if(window.jpWrap) window.jpWrap.run();   /* 差し替えた文章の改行位置を計算し直す */
-    }, reduce?0:950);
-  }
+/* 川：さざ波の写真を流しながら、少し透かして遠景の映り込みを見せる */
+const wt=await tex('assets/water.jpg');if(wt){wt.wrapS=wt.wrapT=THREE.RepeatWrapping;wt.repeat.set(30,40)}
+const water=new THREE.Mesh(new THREE.PlaneGeometry(260,320),new THREE.MeshStandardMaterial({map:wt,color:'#2E3A66',roughness:.18,metalness:.4,transparent:true,opacity:.62,depthWrite:false}));
+water.rotation.x=-Math.PI/2;water.position.set(3.45+130,-.9,-120);scene.add(water);
 
-  document.getElementById('retry').addEventListener('click',function(){
-    meet.classList.remove('show'); var pe=document.getElementById('person'); pe.setAttribute('opacity','0'); pe.setAttribute('transform','translate(200 420)'); world.setAttribute('transform','');
-    step=0; ans=[]; busy=false; setSky(0); ask();
-  });
+/* 遊歩道（Blender） */
+const {GLTFLoader}=await import('./assets/gltf-loader.min.js');
+const gltf=await new Promise(r=>new GLTFLoader().load('assets/riverside.glb',r,undefined,()=>r(null)));
+let lampM=null;
+if(gltf){gltf.scene.traverse(o=>{if(!o.isMesh)return;o.castShadow=!LOW&&!/lawn|walkway/.test(o.material.name);o.receiveShadow=true;const m=o.material;
+  if(m.map)m.map.anisotropy=8;
+  if(m.name==='leafCards'){m.alphaTest=.5;m.side=THREE.DoubleSide}
+  if(m.name==='lampLight')lampM=m;
+  if(LOW&&m.isMeshStandardMaterial&&m.name!=='leafCards'){o.material=new THREE.MeshLambertMaterial({color:m.color,map:m.map,emissive:m.emissive})}});
+  scene.add(gltf.scene)}
+await yieldNow();
 
-  var team=document.getElementById('team');
-  P.forEach(function(p){
-    var d=document.createElement('div'), f=document.createElement('div'); d.className='mem rv'; d.style.setProperty('--i',P.indexOf(p)+2); f.className='face'; f.innerHTML=face(p);
-    var t=document.createElement('span'); t.className='txt'; var b=document.createElement('b'), s=document.createElement('span');
-    b.textContent=p.n; s.textContent=p.r; t.appendChild(b); t.appendChild(s); d.appendChild(f); d.appendChild(t); team.appendChild(d);
-  });
+/* 道の中心線（Blenderの PATH と同じ式）：手前の一本道 → 左は公園へ曲がる／右は川沿いをまっすぐ */
+const V2=(x,z)=>new THREE.Vector2(x,z);
+function bez(p0,p1,p2,p3,t){const u=1-t;return V2(u*u*u*p0.x+3*u*u*t*p1.x+3*u*t*t*p2.x+t*t*t*p3.x,u*u*u*p0.y+3*u*u*t*p1.y+3*u*t*t*p2.y+t*t*t*p3.y)}
+const PATH_L=[];for(let i=0;i<=16;i++)PATH_L.push(bez(V2(0,-24),V2(0,-33),V2(-9,-41),V2(-18,-48),i/16));for(let k=1;k<18;k++)PATH_L.push(V2(-18-1.1*k*3,-48-.9*k*3));
+const PATH_R=[];for(let z=-24;z>=-150;z-=3)PATH_R.push(V2(.6*Math.max(0,-24-z)/126,z));
+const MAIN=[];for(let z=14;z>=-24;z-=2)MAIN.push(V2(0,z));
+function along(pts,d){let acc=0;for(let i=1;i<pts.length;i++){const s=pts[i].distanceTo(pts[i-1]);if(acc+s>=d){const t=(d-acc)/s;return pts[i-1].clone().lerp(pts[i],t)}acc+=s}return pts[pts.length-1].clone()}
+const route=side=>MAIN.concat((side?PATH_R:PATH_L).slice(1));
 
-  var toast=document.getElementById('toast'), tm;
-  function demo(){ toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400); }
-  document.getElementById('consult').addEventListener('click',demo);
-  document.getElementById('register').addEventListener('click',demo);
+/* 担当者：背景を抜いた写真を板に貼り、常にこちらを向かせる。足元に柔らかい影 */
+const personT={};await Promise.all(P.map(async p=>{personT[p.img]=await tex(p.img)}));
+const person=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({transparent:true,alphaTest:.02,opacity:0,toneMapped:false,fog:false}));
+person.visible=false;scene.add(person);
+const sh=new THREE.Mesh(new THREE.CircleGeometry(.5,24),new THREE.MeshBasicMaterial({color:'#000',transparent:true,opacity:0,depthWrite:false}));sh.rotation.x=-Math.PI/2;sh.scale.set(1,.5,1);scene.add(sh);
 
-  /* 街灯：道の両脇に、奥ほど小さく並べる（固定の図形のみ） */
-  var lamps=document.getElementById('lamps'), NS='http://www.w3.org/2000/svg', LH='';
-  [.12,.38,.62,.84].forEach(function(t){
-    var y=900-470*t, s=1-.78*t;
-    [[58+122*t-16*s,-1],[342-122*t+16*s,1]].forEach(function(q){
-      var x=q[0], d=q[1], top=y-70*s, ax=x-d*12*s;
-      LH+='<path d="M'+x+' '+y+' V'+top+' L'+ax+' '+top+'" stroke="#3B4566" stroke-width="'+(2.4*s)+'" fill="none"/>'+
-          '<circle cx="'+ax+'" cy="'+(top+3*s)+'" r="'+(14*s)+'" fill="#FFD9A0" opacity=".16"/>'+
-          '<circle cx="'+ax+'" cy="'+(top+3*s)+'" r="'+(3.6*s)+'" fill="#FFE3B8"/>';
-    });
-  });
-  lamps.innerHTML=LH;
+/* ---------- 時刻の切り替え ---------- */
+const c1=new THREE.Color(),c2=new THREE.Color();
+function setTime(f){f=clamp(f,0,3);const i=Math.min(2,Math.floor(f)),k=f-i,A=SKY[i],B=SKY[i+1];
+  const col=(a,b)=>c1.set(a).lerp(c2.set(b),k).clone();
+  scene.background.copy(col(A.top,B.top));scene.fog.color.copy(col(A.fog,B.fog));
+  hemi.color.copy(col(A.hs,B.hs));hemi.groundColor.copy(col(A.hg,B.hg));hemi.intensity=lerp(A.hi,B.hi,k);
+  sun.color.copy(col(A.sun,B.sun));sun.intensity=lerp(A.si,B.si,k);sun.userData.p=A.sp.map((v,j)=>lerp(v,B.sp[j],k));
+  if(lampM){lampM.emissiveIntensity=lerp(A.lamp,B.lamp,k)}
+  water.material.color.copy(col(A.water,B.water));renderer.toneMappingExposure=lerp(A.ex,B.ex,k);
+  const e=envs[Math.round(f)];if(e&&scene.environment!==e){scene.environment=e;scene.environmentIntensity!==undefined&&(scene.environmentIntensity=.6)}
+  skyA.material.map=skyT[i];skyB.material.map=skyT[i+1];skyB.material.opacity=k}
+setTime(0);
 
-  /* 指（マウス）の位置で景色が少しずれる。触らないときは、ゆっくり自然に揺れる */
-  var LAY=[[document.getElementById('stars'),5],[document.getElementById('sun'),8],[document.getElementById('hillFar'),9],[document.getElementById('hillNear'),15]];
-  var tx=0,ty=0,cx=0,cy=0,lastMove=-1e9, leanT=0, leanC=0, sceneEl=document.querySelector('.scene'), live=true;
-  var stageEl=document.getElementById('stage');
-  stageEl.addEventListener('pointermove',function(e){
-    var r=stageEl.getBoundingClientRect(); tx=(e.clientX-r.left)/r.width*2-1; ty=(e.clientY-r.top)/r.height*2-1; lastMove=performance.now();
-  });
-  function setLean(v){
-    leanT=v; sceneEl.classList.toggle('lean-l',v<0); sceneEl.classList.toggle('lean-r',v>0);
-  }
-  document.querySelectorAll('.choice').forEach(function(b){
-    var v=+b.dataset.a?1:-1;
-    b.addEventListener('pointerenter',function(){ if(!busy) setLean(v); });
-    b.addEventListener('pointerdown',function(){ if(!busy) setLean(v); });
-    b.addEventListener('focus',function(){ if(!busy) setLean(v); });
-    ['pointerleave','blur'].forEach(function(ev){ b.addEventListener(ev,function(){ setLean(0); }); });
-  });
-  function loop(now){
-    if(!live) return;
-    var idle=now-lastMove>2500, t=now/1000;
-    var gx=idle?Math.sin(t*.35)*.45:tx, gy=idle?Math.sin(t*.27)*.25:ty;
-    cx+=(gx-cx)*.06; cy+=(gy-cy)*.06; leanC+=((busy?0:leanT)-leanC)*.12;
-    LAY.forEach(function(l){ l[0].setAttribute('transform','translate('+(-cx*l[1]).toFixed(2)+' '+(-cy*l[1]*.4).toFixed(2)+')'); });
-    if(!busy) world.setAttribute('transform', Math.abs(leanC)<.002?'':'translate('+(-leanC*16).toFixed(2)+' 0) rotate('+(leanC*1.2).toFixed(2)+' 200 500)');
-    requestAnimationFrame(loop);
-  }
-  if(!reduce){
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(es){ var v=es[0].isIntersecting; if(v&&!live){ live=true; requestAnimationFrame(loop); } live=v; }).observe(stageEl);
-    }
-    requestAnimationFrame(loop);
-  }
+/* ---------- カメラ ---------- */
+let mode='idle',T=0,walkT0=0,walkSide=0,walkFinal=false,walkDone=null,walkFrom=0,dist=0,leanT=0,leanC=0,tod=0,todFrom=0,meetT0=-1;
+const camP=new THREE.Vector3(),look=new THREE.Vector3();
+function camAt(side,d,lean){const pts=route(side),p=along(pts,d),a=along(pts,d+7);
+  const sway=RM?0:Math.sin(T*.6)*.03;
+  camP.set(p.x+lean*.25,1.6+sway+(RM?0:Math.abs(Math.sin(d*1.9))*.025),p.y);look.set(a.x,mode==='meet'?(innerWidth<innerHeight?-.2:-.6):1.25,a.y);   /* 担当者に会ったら、カードの上に人が見えるようにカメラを少し下へ向ける（縦長ほど強く） */
+  if(mode==='idle'||mode==='lean'){look.x+=.6+lean*1.8;look.z=p.y-7}   /* 待っている間は分かれ道の方を見る */
+  cam.position.copy(camP);cam.lookAt(look)}
+const WALK=RM?.01:2.4,DIST_STEP=36,DIST_MEET=34;
+const api={
+  lean(v){leanT=v},
+  walk(side,s,final,done){mode='walk';walkSide=side;walkFinal=final;walkDone=done;walkT0=performance.now();todFrom=tod;leanT=0},
+  meet(img){const t=personT[img];person.material.map=t;person.material.needsUpdate=true;
+    const ar=t?t.image.width/t.image.height:.3;person.scale.set(1.72*ar,1.72,1);
+    const p=along(route(walkSide),DIST_MEET+6);person.position.set(p.x,.86,p.y);sh.position.set(p.x,.035,p.y);person.visible=true;meetT0=performance.now()},
+  reset(){mode='idle';dist=0;meetT0=-1;person.visible=false;person.material.opacity=0;sh.material.opacity=0;tod=0;setTime(0)}
+};
 
-  /* 下層：画面に入ったら浮かび上がる */
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{rootMargin:'0px 0px -10% 0px',threshold:.15});
-    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
-  } else document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
-
-  /* 画面の縦横比に合わせて、見える範囲（viewBox）を左右に広げる。横長の画面でも地平線が切れない */
-  var scene=document.querySelector('.scene');
-  function fit(){
-    var st=document.getElementById('stage'), W=Math.max(400, 700*st.clientWidth/st.clientHeight);
-    scene.setAttribute('viewBox',(200-W/2)+' 0 '+W+' 700');
-  }
-  addEventListener('resize',fit); fit();
-
-  setSky(0); ask();
-})();
+/* ---------- 毎フレーム ---------- */
+function resize(){renderer.setSize(innerWidth,innerHeight,false);const pt=innerWidth<innerHeight;cam.fov=pt?64:46;cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+let last=performance.now(),first=true;
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;
+  leanC+=(leanT-leanC)*(1-Math.exp(-dt*5));
+  if(mode==='walk'){const k=clamp((now-walkT0)/1000/WALK),e=ease(k);
+    dist=lerp(0,walkFinal?DIST_MEET:DIST_STEP,e);tod=lerp(todFrom,todFrom+1,e);setTime(tod);
+    if(!walkFinal&&k>.8)flash.classList.add('on');
+    if(k>=1){if(walkFinal){mode='meet'}else{mode='idle';dist=0;setTimeout(()=>flash.classList.remove('on'),RM?0:180)}const d=walkDone;walkDone=null;d&&d()}}
+  const moving=mode==='walk'||mode==='meet';camAt(moving?walkSide:(leanC>0?1:0),dist,moving?0:leanC);
+  if(meetT0>0){const k=clamp((now-meetT0)/1200),e=ease(k);person.material.opacity=e;sh.material.opacity=.2*e;
+    person.position.y=.86;person.lookAt(cam.position.x,.86,cam.position.z)}
+  water.material.map&&(water.material.map.offset.y=(T*.006)%1,water.material.map.offset.x=(T*.002)%1);
+  const sp=sun.userData.p||[0,40,0];sun.position.set(camP.x+sp[0],sp[1],camP.z+sp[2]);sun.target.position.set(camP.x,0,camP.z-10);
+  renderer.render(scene,cam);
+  if(first){first=false;$('#gl').classList.add('on')}
+  requestAnimationFrame(frame)}
+try{if(renderer.compileAsync)await renderer.compileAsync(scene,cam)}catch(e){}
+requestAnimationFrame(frame);
+return api;
+}
 </script>
 <script>
 (function(){
@@ -455,6 +382,6 @@ footer p{margin:0 0 6px}
   enforce(); addEventListener('resize',enforce);
 })();
 </script>
-<script src="assets/jp-wrap.js" data-selector="main h2,main .lead,main p,.flow b,.meet .msg"></script>
+<script src="assets/jp-wrap.js" defer data-selector="main h2,main .lead,main p,.flow b,.meet .msg"></script>
 </body>
 </html>
