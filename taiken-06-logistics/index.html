@@ -3,456 +3,348 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ハコブネ物流｜御社の荷物で見る、発送代行（体験デモ）</title>
-<meta name="description" content="社名を入れると、その名前の荷物が入荷から出荷まで運ばれていく体験型サイトのデモ。GROWX 体験カタログ 06。">
+<title>ハコブネ物流｜御社の荷物が届く（体験デモ）</title>
+<meta name="description" content="社名を入れると、その名前の箱がミニチュアの街を集荷から納品まで運ばれていく体験型サイトのデモ。GROWX 体験カタログ 06。">
 <meta name="robots" content="noindex">
-<script>document.documentElement.classList.add('js')</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<meta name="theme-color" content="#EFE8DA">
+<link rel="preload" href="assets/mincho.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* ===== 06：1つのミニチュアの街の中で、カメラが社名入りの箱を追う（体験型）=====
+   気分：几帳面・あたたかい・確実／色：生成り＋藍（アクセント1色）／光：時刻に合わせて朝→昼→午後
+   外部サーバーに頼らない（three.js とフォントは assets/ 内）。文字14px以上・ボタン48px以上・横スクロール0 */
+@font-face{font-family:"HK Mincho";src:url(assets/mincho.woff2) format("woff2");font-weight:700;font-display:swap}
 :root{
-  --gutter: clamp(15px, 4.5vw, 20px);
-  --fs-label:14px; --fs-body:16px; --fs-lead:18px; --fs-h3:20px;
-  --fs-h2:clamp(24px, 6.6vw, 28px); --fs-h1:clamp(26px, 7vw, 30px);
-
-  --bg:#0E1116; --panel:#161A21; --line:#2B313C;
-  --ink:#F2F2EE;     /* 16.9:1 */
-  --muted:#B8BEC9;   /* 10.0:1 */
-  --faint:#A2A9B6;   /* 7.8:1 */
-  --safety:#F2C230;  /* 11.4:1 */
-  --track:#3A4150;
-  --paper:#F7F4EC; --paperInk:#1E1E1E; --stamp:#C0392B;
-
-  --display:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
-  --body:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
-  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  color-scheme:dark;
+  --gutter:clamp(16px,4.5vw,40px);
+  --paper:#EFE8DA; --ink:#1E2433; --muted:#4E5566; --accent:#2E4A86; --accent-ink:#FFFFFF;
+  --panel:rgba(250,247,240,.9); --line:rgba(30,36,51,.16);
+  --display:"HK Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+  color-scheme:light;
 }
 *,*::before,*::after{box-sizing:border-box}
-html,body{max-width:100%;overflow-x:clip}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:var(--fs-body);line-height:1.75;-webkit-font-smoothing:antialiased}
-svg{display:block;max-width:100%}
-a{color:inherit}
-.container{width:100%;max-width:1040px;margin:0 auto;padding:0 var(--gutter)}
-.section{width:100%;padding-left:0;padding-right:0}
-.section *{min-width:0;max-width:100%}
+html,body{max-width:100%;overflow:hidden;height:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+#gl{position:fixed;inset:0;width:100%;height:100%;display:block}
+/* ミニチュア感：画面の上下だけを少しぼかす（手前と奥がぼける模型写真の見え方） */
+.tilt{position:fixed;left:0;right:0;pointer-events:none;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.tilt.t{top:0;height:24%;-webkit-mask-image:linear-gradient(#000,transparent);mask-image:linear-gradient(#000,transparent)}
+.tilt.b{bottom:0;height:20%;-webkit-mask-image:linear-gradient(transparent,#000);mask-image:linear-gradient(transparent,#000)}
+html.low .tilt{display:none}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 26px;border-radius:999px;border:0;
-  background:var(--safety);color:#1D1600;font:700 var(--fs-body)/1 var(--body);text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .15s}
-@media (hover:hover){.btn:hover:not(:disabled){transform:translateY(-2px)}}
-.btn:active:not(:disabled){transform:translateY(1px) scale(.98)}
-.btn:disabled{opacity:.55;cursor:default}
-.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #FFE38A;outline-offset:3px}
+.brand{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 16px);left:var(--gutter);font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.2em;color:var(--ink)}
+.brand small{display:block;font-family:var(--body);font-weight:500;font-size:14px;letter-spacing:.08em;color:var(--muted)}
+.clock{position:fixed;z-index:3;top:calc(env(safe-area-inset-top,0px) + 16px);right:var(--gutter);text-align:right;font-variant-numeric:tabular-nums}
+.clock small{display:block;font-size:14px;color:var(--muted);letter-spacing:.08em}
+.clock b{display:block;font-family:var(--display);font-size:24px;line-height:1.2}
 
-/* ===== 体験ステージ ===== */
-.stage{position:relative;isolation:isolate;height:100svh;min-height:600px;overflow:hidden;display:grid;grid-template-rows:auto auto 1fr auto;
-  background:radial-gradient(ellipse at 50% 40%,#18202C,var(--bg) 70%)}
-.stage::before{ /* 方眼の床がゆっくり流れる（倉庫のコンベア感） */
-  content:"";position:absolute;inset:-28px;z-index:-1;pointer-events:none;
-  background:
-    linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px,
-    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px) 0 0/28px 28px;
-  animation:flow 9s linear infinite}
-@keyframes flow{to{transform:translate(28px,28px)}}
-.top{padding:calc(env(safe-area-inset-top,0px) + 18px) var(--gutter) 0;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.top b{display:block;font-family:var(--display);font-weight:500;font-size:var(--fs-h3);letter-spacing:.16em;line-height:1.4;white-space:nowrap}
-.top small{display:block;font-size:var(--fs-label);color:var(--faint);letter-spacing:.12em}
-.top .clock{font-family:var(--mono);font-size:var(--fs-label);color:var(--faint);text-align:right;white-space:nowrap}
-.top .clock em{display:block;font-style:normal;color:var(--safety);font-size:var(--fs-lead)}
-
-.ship{padding:14px var(--gutter) 0;width:100%;max-width:560px}
-.ship h1{font-family:var(--display);font-weight:500;font-size:var(--fs-h1);line-height:1.5;margin:0 0 10px}
+/* 出荷：社名を入れる */
+.ship{position:fixed;z-index:4;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);max-width:520px;margin:0 auto;
+  padding:16px;border-radius:16px;background:var(--panel);border:1px solid var(--line);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  display:grid;gap:10px;transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.ship.out{opacity:0;transform:translateY(20px);pointer-events:none}
+.ship label{font-size:14px;color:var(--muted)}
 .ship form{display:flex;gap:8px}
-.ship input{flex:1;min-width:0;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #485062;background:rgba(10,12,16,.75);color:var(--ink);font:var(--fs-body) var(--body)}
-.ship input::placeholder{color:#9AA1AE}
+.ship input{flex:1;min-width:0;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid rgba(30,36,51,.3);background:#fff;color:var(--ink);font:16px var(--body)}
+.ship input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 26px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);
+  font:700 16px/1.2 var(--body);cursor:pointer;white-space:nowrap;transition:transform .2s cubic-bezier(.22,1,.36,1)}
+@media (hover:hover){.btn:hover{transform:translateY(-2px)}}
+.btn:active{transform:translateY(1px) scale(.98)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid rgba(30,36,51,.35)}
 
-.map{position:relative;min-height:0}
-.map svg{position:absolute;inset:0;width:100%;height:100%;max-width:none}
-.map .base{fill:none;stroke:var(--track);stroke-width:3;stroke-linecap:round}
-.map .prog{fill:none;stroke:var(--safety);stroke-width:3;stroke-linecap:round}
-.map .dash{fill:none;stroke:rgba(242,194,48,.35);stroke-width:1.5;stroke-dasharray:2 10}
-.node circle{fill:#252B36;stroke:#5A6274;stroke-width:2;transition:fill .3s,stroke .3s}
-.node.on circle{fill:var(--safety);stroke:var(--safety)}
-.nlabel{position:absolute;transform:translate(-50%,0);background:rgba(14,17,22,.82);padding:2px 8px;border-radius:6px;font-size:var(--fs-label);line-height:1.4;color:var(--muted);text-align:center;white-space:nowrap;transition:color .3s;pointer-events:none}
-.nlabel b{display:block;font-weight:700;color:var(--ink);font-size:var(--fs-label)}
-.nlabel.on b{color:var(--safety)}
+/* 地点の札（3Dの地点に付く） */
+.tag{position:fixed;left:0;top:0;z-index:2;padding:6px 12px;border-radius:10px;background:var(--panel);border:1px solid var(--line);white-space:nowrap;
+  opacity:0;transform:translate(-50%,-100%);transition:opacity .4s;font-variant-numeric:tabular-nums;pointer-events:none}
+.tag b{display:block;font-family:var(--display);font-size:16px;line-height:1.3}
+.tag span{display:block;font-size:14px;color:var(--muted);line-height:1.4}
+.tag.on{opacity:1}
+.tag.on b{color:var(--accent)}
 
-.box{position:absolute;left:0;top:0;width:min(150px,38vw);transform:translate(-50%,-110%);pointer-events:none;will-change:transform;z-index:3}
-.box .face{position:relative;background:linear-gradient(180deg,#D3A56B,#B98A52);border-radius:4px;padding:14px 10px 10px;color:#2A1C0B;box-shadow:0 10px 24px rgba(0,0,0,.45)}
-/* 箱に起きる出来事（クラスの付け外しで動かす） */
-.box .tape{position:absolute;left:44%;width:12%;top:0;bottom:0;background:rgba(255,255,255,.3);transform:scaleY(0);transform-origin:top;transition:transform .5s cubic-bezier(.3,.9,.4,1)}
-.box.taped .tape{transform:none}
-.box .scan{position:absolute;left:-8%;right:-8%;top:0;height:3px;border-radius:2px;background:var(--safety);box-shadow:0 0 12px var(--safety);opacity:0;z-index:2}
-.box.scanning .scan{animation:scan .45s ease-in-out 2 alternate}
-@keyframes scan{0%{top:0;opacity:1}100%{top:calc(100% - 3px);opacity:1}}
-.box .chip{position:absolute;right:-10px;top:-14px;z-index:3;padding:0 10px;border-radius:999px;background:var(--safety);color:#1D1600;font-size:var(--fs-label);font-weight:700;line-height:1.7;transform:scale(0);transition:transform .35s cubic-bezier(.2,1.6,.4,1)}
-.box.checked .chip{transform:none}
-.box .truck{position:absolute;left:-16%;right:-16%;top:100%;height:26px;opacity:0;transform:translateX(-24px);transition:opacity .3s,transform .45s cubic-bezier(.2,1,.4,1)}
-.box .truck::before{content:"";position:absolute;left:0;right:24%;top:0;height:8px;border-radius:2px;background:#5A6274}
-.box .truck .cab{position:absolute;right:0;width:26%;top:-16px;height:24px;border-radius:4px 10px 2px 2px;background:var(--safety)}
-.box .truck .cab::after{content:"";position:absolute;right:4px;top:4px;width:45%;height:8px;border-radius:2px 6px 0 0;background:#2A3240}
-.box .truck .w{position:absolute;top:4px;width:16px;height:16px;border-radius:50%;background:#1A1D24;border:3px solid #8A93A6;border-top-color:#1A1D24}
-.box .truck .w1{left:12%}.box .truck .w2{right:8%}
-.box.ontruck .truck{opacity:1;transform:none}
-.box.ontruck .truck .w{animation:spin .4s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.box.idle .face{animation:bob 2.6s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-5px)}}
-.box.typed .face{animation:typed .28s ease-out}
-@keyframes typed{40%{transform:translateY(-6px) scale(1.03)}}
-.box.drop .face{animation:drop .65s cubic-bezier(.3,1.5,.5,1)}
-@keyframes drop{0%{transform:translateY(-60px);opacity:0}60%{opacity:1}}
-.box.ontruck .face{animation:rumble .2s linear infinite}
-@keyframes rumble{50%{transform:translateY(-1.5px)}}
-.box.land .face{animation:land .5s cubic-bezier(.3,1.6,.5,1)}
-@keyframes land{0%{transform:translateY(-24px)}55%{transform:translateY(0) scale(1.06,.92)}}
-.ripple{fill:none;stroke:var(--safety);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ripple .9s ease-out forwards;pointer-events:none}
-@keyframes ripple{from{transform:scale(1);opacity:.9}to{transform:scale(3.4);opacity:0}}
-.box .tag{position:relative;background:#FFFCF4;border-radius:2px;padding:4px 8px;font-size:var(--fs-label);font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1E1E1E}
-.box .tag small{display:block;font-weight:500;font-size:var(--fs-label);color:#4A4A4A}
-
-.log{padding:0 var(--gutter) calc(env(safe-area-inset-bottom,0px) + 16px);font-family:var(--mono);font-size:var(--fs-label);line-height:1.7;color:var(--muted);min-height:calc(3*1.7em + 16px)}
-.log p{margin:0;opacity:0;transform:translateX(-6px);transition:.35s}
+/* 記録（左下） */
+.log{position:fixed;z-index:2;left:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:grid;gap:2px;font-size:14px;font-variant-numeric:tabular-nums;pointer-events:none}
+.log p{margin:0;opacity:0;transform:translateX(-8px);transition:opacity .4s cubic-bezier(.22,1,.36,1),transform .4s cubic-bezier(.22,1,.36,1);text-shadow:0 1px 0 rgba(255,255,255,.7)}
 .log p.on{opacity:1;transform:none}
-.log p b{color:var(--safety);font-weight:500;margin-right:10px}
+.log p b{display:inline-block;min-width:3.4em;font-weight:700}
 
-/* 受領書 */
-.receipt{position:absolute;inset:0;z-index:6;display:grid;place-items:center;padding:var(--gutter);background:rgba(8,10,14,.72);opacity:0;pointer-events:none;transition:opacity .4s}
-.receipt.show{opacity:1;pointer-events:auto}
-.sheet{position:relative;width:min(420px,100%);background:var(--paper);color:var(--paperInk);border-radius:6px;padding:22px 22px 20px;box-shadow:0 30px 70px rgba(0,0,0,.55);
-  transform:translateY(16px) rotate(-1deg);transition:transform .5s}
-.receipt.show .sheet{transform:none;animation:thud .32s .68s}
-@keyframes thud{30%{transform:translate(2px,4px) rotate(.5deg)}65%{transform:translate(-2px,-1px)}}
-.sheet h2{margin:0 0 4px;font-family:var(--display);font-size:var(--fs-h3);letter-spacing:.3em}
-.sheet .to{margin:10px 0 2px;font-size:var(--fs-lead);font-weight:700;border-bottom:1px solid #9C978C;padding-bottom:4px;overflow-wrap:anywhere}
-.sheet dl{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;margin:12px 0 16px;font-size:var(--fs-label);color:#3A3A3A}
-.sheet dt{color:#555}
-.sheet dd{margin:0;font-family:var(--mono)}
-.sheet .btn{width:100%}
-.hanko{position:absolute;right:16px;top:12px;width:96px;height:96px;border-radius:50%;border:3px solid var(--stamp);color:var(--stamp);display:grid;place-items:center;text-align:center;
-  font-family:var(--display);font-weight:700;line-height:1.15;transform:rotate(-12deg) scale(2.2);opacity:0}
-.hanko span{display:block;font-size:var(--fs-label)}
-.hanko strong{display:block;font-size:var(--fs-h3);letter-spacing:.1em}
-.receipt.show .hanko{animation:stamp .45s .35s cubic-bezier(.2,1.6,.4,1) forwards}
-@keyframes stamp{to{transform:rotate(-12deg) scale(1);opacity:.9}}
+/* 受領印を押す */
+.stampBtn{position:fixed;z-index:4;left:0;top:0;width:104px;height:104px;border-radius:50%;border:3px solid #B3322B;background:rgba(255,255,255,.92);color:#B3322B;
+  font-family:var(--display);font-weight:700;font-size:16px;line-height:1.3;cursor:pointer;display:grid;place-items:center;text-align:center;
+  opacity:0;pointer-events:none;transform:translate(-50%,-50%) scale(.8);transition:opacity .3s,transform .3s cubic-bezier(.22,1,.36,1)}
+.stampBtn.on{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 12px rgba(179,50,43,.12)}}
+.stampBtn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 
-/* ===== 下層 ===== */
-main{position:relative;z-index:1}
-.block{padding:clamp(64px,12vw,112px) 0 0}
-.eyebrow{font-family:var(--mono);font-size:var(--fs-label);letter-spacing:.18em;color:var(--safety);margin:0 0 8px}
-h2.h{font-family:var(--display);font-weight:500;font-size:var(--fs-h2);line-height:1.5;margin:0 0 16px}
-.lead{color:var(--muted);margin:0 0 28px;max-width:40em}
-.cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:14px}
-.cards li{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
-.cards .no{font-family:var(--mono);color:var(--safety);font-size:var(--fs-label);display:block;margin-bottom:6px}
-.cards b{display:block;font-size:var(--fs-lead);margin-bottom:4px}
-.cards p{margin:0;color:var(--muted)}
-.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:14px;margin-top:14px}
-.facts div{border-top:2px solid var(--safety);padding-top:12px}
-.facts strong{display:block;font-family:var(--display);font-size:clamp(28px,8vw,36px);font-weight:500;line-height:1.3}
-.facts span{color:var(--muted)}
+/* 終点 */
+.finale{position:fixed;z-index:4;left:var(--gutter);right:var(--gutter);bottom:calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1)}
+.finale.show{opacity:1;transform:none;pointer-events:auto}
+.finale p{margin:0;font-family:var(--display);font-weight:700;font-size:20px;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.finale .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.finale small{font-size:14px;color:var(--muted);max-width:32em;line-height:1.6}
 
-.form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,5vw,32px);display:grid;gap:16px}
-.form label{display:grid;gap:6px;font-size:var(--fs-label);color:var(--muted)}
-.form input,.form select{width:100%;min-height:52px;padding:0 14px;border-radius:12px;border:1px solid #485062;background:#0F1218;color:var(--ink);font:var(--fs-body) var(--body)}
-.form .note{margin:0;font-size:var(--fs-label);color:var(--faint)}
-.form .btn{justify-self:start}
+/* 見積フォーム（送信しない） */
+.modal{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:var(--gutter);background:rgba(30,36,51,.35);opacity:0;pointer-events:none;transition:opacity .3s}
+.modal.show{opacity:1;pointer-events:auto}
+.sheet{width:min(440px,100%);background:#FBF8F2;border-radius:16px;padding:22px;display:grid;gap:14px;box-shadow:0 20px 50px rgba(30,36,51,.25)}
+.sheet h2{margin:0;font-family:var(--display);font-size:20px}
+.sheet label{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.sheet input,.sheet select{width:100%;min-height:52px;padding:0 12px;border-radius:12px;border:1px solid rgba(30,36,51,.3);background:#fff;color:var(--ink);font:16px var(--body)}
+.sheet .acts{display:flex;gap:10px;flex-wrap:wrap}
+.sheet p{margin:0;font-size:14px;color:var(--muted)}
 
-.js .rv{opacity:0;transform:translateY(28px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1);transition-delay:calc(var(--i,0)*90ms)}
-.js .rv.in{opacity:1;transform:none}
-
-footer{margin-top:clamp(72px,14vw,120px);padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 32px);border-top:1px solid var(--line);font-size:var(--fs-label);color:var(--faint)}
-footer p{margin:0 0 6px}
-
-.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
-  background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:12px;font-size:var(--fs-label);font-weight:500;transition:.35s;pointer-events:none}
+#loader{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:var(--paper);transition:opacity .8s,visibility .8s}
+#loader.done{opacity:0;visibility:hidden}
+#loader b{position:relative;display:block;overflow:hidden;font-family:var(--display);font-size:clamp(26px,6vw,44px);letter-spacing:.22em;color:#6E6A60}
+#loader b::after{content:"";position:absolute;inset:0 -60%;background:linear-gradient(100deg,transparent 42%,rgba(255,255,255,.85) 50%,transparent 58%);animation:sweep 2s ease-in-out infinite}
+@keyframes sweep{from{transform:translateX(-35%)}to{transform:translateX(35%)}}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-10px);z-index:20;opacity:0;width:max-content;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:.35s;pointer-events:none}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
-}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.nogl{display:none}
+html.no-gl .nogl{display:grid;position:fixed;inset:0;z-index:5;place-content:center;gap:10px;padding:0 var(--gutter);text-align:center;background:var(--paper)}
+@media (max-width:600px){.log{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 84px)}.clock b{font-size:20px}}
+@media (prefers-reduced-motion:reduce){#loader b::after,.stampBtn.on{animation:none}}
 </style>
 </head>
 <body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="tilt t" aria-hidden="true"></div><div class="tilt b" aria-hidden="true"></div>
+<div class="brand">HAKOBUNE<small>ハコブネ物流｜EC発送代行</small></div>
+<div class="clock" aria-live="polite"><small id="clockStep">出荷前</small><b id="clockTime">--:--</b></div>
 
-<section class="stage" id="stage" aria-label="社名を入れると、その名前の荷物が入荷から出荷まで運ばれるデモ">
-  <div class="top">
-    <div><b>HAKOBUNE</b><small>ハコブネ物流｜EC発送代行</small></div>
-    <div class="clock"><span>TRACKING</span><em id="clock">--:--</em></div>
-  </div>
+<div class="tag" data-k="0"><b>集荷</b><span>08:30</span></div>
+<div class="tag" data-k="1"><b>仕分け倉庫</b><span>10:10</span></div>
+<div class="tag" data-k="2"><b>幹線輸送</b><span>12:00</span></div>
+<div class="tag" data-k="3"><b>納品・受領</b><span>15:40</span></div>
+<div class="log" id="log" aria-live="polite"></div>
 
-  <div class="ship">
-    <h1>御社の荷物が、<br>どう運ばれるか。</h1>
-    <form id="shipForm" autocomplete="off">
-      <input id="company" type="text" maxlength="20" placeholder="御社名（例：株式会社サンプル）" aria-label="御社名">
-      <button class="btn" type="submit" id="go">出荷する</button>
-    </form>
-  </div>
+<div class="ship" id="ship">
+  <label for="company">社名を入れて、出荷してください</label>
+  <form id="shipForm" autocomplete="off"><input id="company" type="text" maxlength="18" placeholder="例：株式会社みなと"><button class="btn" type="submit">出荷</button></form>
+</div>
+<button class="stampBtn" id="stampBtn" type="button">受領印を<br>押す</button>
+<div class="finale" id="finale">
+  <p>御社の荷物も、この流れで</p>
+  <div class="row"><button class="btn" type="button" id="toEst">見積を依頼する</button><button class="btn ghost" type="button" id="again">もう一度出荷する</button></div>
+  <small>このページは、GROWXの体験型サイトのデモです。社名・時刻・サービス内容はすべて架空のもので、入力内容はどこにも送信・保存されません。</small>
+</div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="estTitle">
+  <form class="sheet" id="estForm">
+    <h2 id="estTitle">見積を依頼する</h2>
+    <label>会社名<input id="estCompany" type="text" maxlength="40"></label>
+    <label>月の出荷件数<select><option>〜500件</option><option>500〜2,000件</option><option>2,000件以上</option></select></label>
+    <label>主な商品<select><option>化粧品・サプリ</option><option>アパレル</option><option>食品（常温）</option><option>雑貨・その他</option></select></label>
+    <div class="acts"><button class="btn" type="submit">送信する</button><button class="btn ghost" type="button" id="closeEst">閉じる</button></div>
+    <p>※ デモのため、送信は行われません。</p>
+  </form>
+</div>
+<div class="nogl"><b style="font-family:var(--display);font-size:24px">ハコブネ物流</b><p>集荷 08:30 → 仕分け倉庫 10:10 → 幹線輸送 12:00 → 納品・受領 15:40</p><p>御社の荷物も、この流れで</p></div>
+<div id="loader" aria-hidden="true"><b>HAKOBUNE</b></div>
+<div class="toast" id="toast" role="status"></div>
 
-  <div class="map jw-skip" id="map">
-    <svg id="svg" aria-hidden="true">
-      <path class="dash" id="dash"></path>
-      <path class="base" id="base"></path>
-      <path class="prog" id="prog"></path>
-      <g id="nodes"></g>
-    </svg>
-    <div id="labels"></div>
-    <div class="box idle" id="box"><div class="face"><i class="tape"></i><i class="scan"></i><div class="tag"><span id="boxName">御社名</span> 様<small>品名：商品一式</small></div><b class="chip">検品OK</b></div><div class="truck" aria-hidden="true"><i class="cab"></i><i class="w w1"></i><i class="w w2"></i></div></div>
-  </div>
+<script type="module">
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const clamp=(v,a=0,b=1)=>v<a?a:v>b?b:v,lerp=(a,b,t)=>a+(b-a)*t,seg=(p,a,b)=>clamp((p-a)/(b-a));
+const io3=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,o3=t=>1-Math.pow(1-t,3);
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,MOB=Math.min(innerWidth,innerHeight)<700;
+function rnd(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rnd(7);
+const toastEl=$('#toast');let tt;function toast(m){toastEl.textContent=m;toastEl.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toastEl.classList.remove('show'),2400)}
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 
-  <div class="log jw-skip" id="log" aria-live="polite"></div>
+if(document.readyState!=='complete')await new Promise(r=>addEventListener('load',r,{once:true}));
+await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,120))));
+const yieldNow=()=>new Promise(r=>setTimeout(r,0));
+let THREE;try{THREE=await import('./assets/three.module.min.js')}catch(e){}
+let renderer=null;
+if(THREE){try{renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:!(MOB&&devicePixelRatio>=2),powerPreference:'high-performance'})}catch(e){renderer=null}}
+if(!renderer){document.documentElement.classList.add('no-gl');$('#loader').classList.add('done')}else await start();
 
-  <div class="receipt" id="receipt" role="dialog" aria-label="受領書">
-    <div class="sheet">
-      <h2>受領書</h2>
-      <p class="to"><span id="rcName">御社名</span> 様</p>
-      <dl>
-        <dt>お届け</dt><dd id="rcDate">--</dd>
-        <dt>工程</dt><dd>入荷 → 検品・保管 → 梱包 → 出荷 → お届け</dd>
-        <dt>状態</dt><dd>破損なし・数量一致</dd>
-      </dl>
-      <a class="btn" href="#estimate" id="toEstimate">この流れで見積もる</a>
-      <div class="hanko" aria-hidden="true"><div><span>ハコブネ</span><strong>受領</strong><span id="hkDate">--</span></div></div>
-    </div>
-  </div>
-</section>
+async function start(){
+let LOW=false;try{const gl=renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');LOW=/swiftshader|llvmpipe|software/i.test(ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):'')}catch(e){}
+if(LOW)document.documentElement.classList.add('low');
+renderer.setPixelRatio(LOW?.75:Math.min(devicePixelRatio||1,MOB?1.5:1.75));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=!LOW;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
-<main>
-  <div class="container">
-    <section class="section block">
-      <p class="eyebrow rv">WHAT WE DO</p>
-      <h2 class="h rv" style="--i:1">さっき見た工程を、<br>そのまま預けられます。</h2>
-      <p class="lead rv" style="--i:2">商品を送っていただくだけで、保管からお届けまでを代行します。<br>ショップの方は、売ることに集中できます。</p>
-      <ol class="cards">
-        <li class="rv" style="--i:2"><span class="no">01</span><b>入荷・検品</b><p>届いた商品の数と状態を確認し、在庫として登録します。</p></li>
-        <li class="rv" style="--i:3"><span class="no">02</span><b>保管・在庫管理</b><p>在庫数は管理画面で、いつでも確認できます。</p></li>
-        <li class="rv" style="--i:4"><span class="no">03</span><b>梱包・出荷</b><p>注文が入ったら、ショップの名前で梱包して発送します。</p></li>
-      </ol>
-      <div class="facts">
-        <div class="rv" style="--i:1"><strong>14:00</strong><span>当日出荷の締め時間</span></div>
-        <div class="rv" style="--i:2"><strong>土日も出荷</strong><span>週末の注文も、翌営業日まで待たせません</span></div>
-      </div>
-    </section>
+/* ---------- 色（生成り＋藍） ---------- */
+const C={paper:'#EFE8DA',ground:'#E6DECD',side:'#CFC6B3',road:'#BDB6AA',line:'#F4EFE4',bld:['#F5F0E6','#E8E1D3','#DCD5C7','#EDE6D8'],roof:['#C9C1B2','#B8B0A2'],sage:'#A7B39A',sageD:'#8E9B82',kraft:'#C29A6B',ink:'#1E2433',accent:'#2E4A86',white:'#F7F4EE',tire:'#2B2E35'};
+const scene=new THREE.Scene();scene.background=new THREE.Color(C.paper);scene.fog=new THREE.Fog(C.paper,26,60);
+const cam=new THREE.PerspectiveCamera(30,1,.1,120);
+const M=(c,o={})=>new THREE.MeshStandardMaterial({color:c,roughness:.82,metalness:0,...o});   /* つや消しの模型素材 */
+const mesh=(g,m,sh=true)=>{const x=new THREE.Mesh(g,m);x.castShadow=sh;x.receiveShadow=true;return x};
+function cvTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t}
+/* 角の丸い箱（模型らしさ） */
+function rbox(w,h,d,r=.08){const s=new THREE.Shape(),x=-w/2,y=-h/2;s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.quadraticCurveTo(x+w,y,x+w,y+r);s.lineTo(x+w,y+h-r);s.quadraticCurveTo(x+w,y+h,x+w-r,y+h);s.lineTo(x+r,y+h);s.quadraticCurveTo(x,y+h,x,y+h-r);s.lineTo(x,y+r);s.quadraticCurveTo(x,y,x+r,y);
+  const g=new THREE.ExtrudeGeometry(s,{depth:d-2*r,bevelEnabled:true,bevelThickness:r,bevelSize:r*.9,bevelSegments:3,curveSegments:6});g.translate(0,0,-(d-2*r)/2);g.computeVertexNormals();return g}
 
-    <section class="section block" id="estimate">
-      <p class="eyebrow rv">ESTIMATE</p>
-      <h2 class="h rv" style="--i:1">御社の出荷量で、<br>見積もりを出します。</h2>
-      <form class="form rv" style="--i:2" id="estForm">
-        <label>会社名<input id="estCompany" type="text" maxlength="40" autocomplete="organization"></label>
-        <label>月の出荷件数
-          <select id="estVolume">
-            <option>〜500件</option><option>500〜2,000件</option><option>2,000件以上</option>
-          </select>
-        </label>
-        <label>主な商品
-          <select id="estItem">
-            <option>化粧品・サプリ</option><option>アパレル</option><option>食品（常温）</option><option>雑貨・その他</option>
-          </select>
-        </label>
-        <button class="btn" type="submit">見積もりを依頼する</button>
-        <p class="note">※ デモのため、入力内容はどこにも送信されません。</p>
-      </form>
-    </section>
+/* ---------- 光：時刻に合わせて朝→昼→午後 ---------- */
+const hemi=new THREE.HemisphereLight('#FFF6E8','#BFB4A0',1.1);scene.add(hemi);
+const sun=new THREE.DirectionalLight('#FFE2B8',2.4);sun.castShadow=!LOW;
+sun.shadow.mapSize.set(MOB?1024:2048,MOB?1024:2048);sun.shadow.camera.left=-14;sun.shadow.camera.right=14;sun.shadow.camera.top=10;sun.shadow.camera.bottom=-10;sun.shadow.camera.far=60;sun.shadow.bias=-.0006;sun.shadow.radius=4;
+scene.add(sun,sun.target);
+const SKY=[['#F3E7D3','#FFE2B8',[-12,9,8]],['#EFEDE6','#FFFFFF',[2,16,6]],['#F2E2CE','#FFD1A0',[14,8,7]]];   /* 朝・昼・午後：背景・日差しの色・太陽の位置 */
+const tc1=new THREE.Color(),tc2=new THREE.Color();
+function setTime(f){f=clamp(f,0,2);const i=Math.min(1,Math.floor(f)),k=f-i,A=SKY[i],B=SKY[i+1];
+  tc1.set(A[0]).lerp(tc2.set(B[0]),k);scene.background.copy(tc1);scene.fog.color.copy(tc1);
+  sun.color.set(A[1]).lerp(tc2.set(B[1]),k);sun.userData.off=A[2].map((v,j)=>lerp(v,B[2][j],k))}
+setTime(0);
 
-    <footer>
-      <p>このページは、GROWXの体験型サイトのデモです。<br>社名・サービス内容・数値はすべて架空のものです。</p>
-      <p>© 2026 GROWX Inc.</p>
-    </footer>
-  </div>
-</main>
+/* ---------- 街（ジオラマ） ---------- */
+const base=mesh(new THREE.BoxGeometry(64,.6,16),[M(C.side),M(C.side),M(C.ground),M(C.side),M(C.side),M(C.side)],false);base.position.set(3,-.3,0);scene.add(base);
+const road=mesh(new THREE.BoxGeometry(62,.04,2.6),M(C.road,{roughness:.9}),false);road.position.set(3,.02,.4);scene.add(road);
+for(let x=-27;x<33;x+=1.6){const d=mesh(new THREE.BoxGeometry(.7,.02,.08),M(C.line),false);d.position.set(x,.05,.4);scene.add(d)}
+function bld(x,z,w,h,d,ci,win=true){const g=new THREE.Group();const b=mesh(rbox(w,h,d,.1),M(C.bld[ci%4]));b.position.y=h/2;g.add(b);
+  const r=mesh(rbox(w+.2,.16,d+.2,.06),M(C.roof[ci%2]));r.position.y=h+.08;g.add(r);
+  if(win){const wm=M('#7C8496',{roughness:.4});for(let i=0;i<Math.floor(w/.9);i++)for(let j=0;j<Math.max(1,Math.floor(h/1.1));j++){const q=mesh(new THREE.BoxGeometry(.42,.5,.04),wm,false);q.position.set(-w/2+.55+i*.9,.7+j*1.05,d/2+.02);if(q.position.x<w/2-.3&&q.position.y<h-.3)g.add(q)}}
+  g.position.set(x,0,z);scene.add(g);return g}
+function tree(x,z,s=1){const g=new THREE.Group();const t=mesh(new THREE.CylinderGeometry(.06*s,.08*s,.5*s,8),M('#8A7A64'));t.position.y=.25*s;g.add(t);
+  const c=mesh(new THREE.SphereGeometry(.42*s,14,12),M(R()<.5?C.sage:C.sageD));c.position.y=.75*s;c.scale.y=1.15;g.add(c);g.position.set(x,0,z);scene.add(g)}
+/* 出荷元（御社）・倉庫・届け先 */
+bld(-19,-3.4,4.2,2.2,3,0);const desk=mesh(rbox(1.6,.5,1,.05),M('#D9CDB6'));desk.position.set(-19,.25,-1.2);scene.add(desk);
+const wh=bld(0,-4.2,10,3.2,4.4,2);
+bld(23,-3.4,3.6,2.4,3,3);const door=mesh(new THREE.BoxGeometry(.8,1.3,.06),M('#9A8A72'));door.position.set(23,.65,-1.88);scene.add(door);
+[[-25,-4,3,1.6,2.6,1],[-13,-4.6,2.8,2.8,2.2,3],[-8,-4.4,3.2,1.8,2.4,1],[9,-4.6,3,2.2,2.4,0],[14,-4.2,3.4,1.6,2.6,3],[29,-4.2,3,2,2.6,2]].forEach(a=>bld(...a));
+[[-23,-1.6,.9],[-15,-1.8,1],[-10,-1.7,.8],[6,-1.9,1],[17,-1.8,.9],[27,-1.6,1],[-21,3,1.1],[-12,3.2,.9],[-4,3.4,1],[8,3.1,1.1],[18,3.3,.9],[26,3,1]].forEach(a=>tree(...a));
+/* 倉庫前のベルトコンベアとスキャンの門 */
+const belt=mesh(rbox(7,.16,1,.05),M('#4A4F5C',{roughness:.6}));belt.position.set(0,.62,-1.3);scene.add(belt);
+for(const x of [-3.2,-1,1.2,3.2]){const l=mesh(new THREE.BoxGeometry(.08,.6,.8),M('#6E7380'));l.position.set(x,.3,-1.3);scene.add(l)}
+const arch=new THREE.Group();const am=M(C.accent,{roughness:.5});
+[[-.62,0],[.62,0]].forEach(([z])=>{const p=mesh(new THREE.BoxGeometry(.1,1.4,.1),am);p.position.set(0,1.1,-1.3+z);arch.add(p)});const top=mesh(new THREE.BoxGeometry(.12,.1,1.36),am);top.position.set(0,1.8,-1.3);arch.add(top);scene.add(arch);
+const scanM=new THREE.MeshBasicMaterial({color:'#7FA6FF',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
+const scan=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1),scanM);scan.rotation.y=Math.PI/2;scan.position.set(0,1.1,-1.3);scene.add(scan);
+/* ほかの荷物（倉庫の中の流れ） */
+const OB=8,others=new THREE.InstancedMesh(rbox(.5,.36,.5,.04),M(C.kraft),OB);others.castShadow=!LOW;others.receiveShadow=true;scene.add(others);const OD=new THREE.Object3D();
 
-<div class="toast" id="toast" role="status">デモのため、送信は行われません。</div>
+/* ---------- 車（模型らしい丸み。会社のロゴは架空） ---------- */
+const logoTex=cvTex(512,128,(x,w,h)=>{x.fillStyle=C.white;x.fillRect(0,0,w,h);x.fillStyle=C.accent;x.fillRect(0,h-14,w,14);x.fillStyle=C.ink;x.font='700 54px "HK Mincho","Hiragino Mincho ProN",serif';if('letterSpacing' in x)x.letterSpacing='10px';x.textAlign='center';x.fillText('HAKOBUNE',w/2,h*.62)});
+function vehicle(len,cab,load=0){const g=new THREE.Group();   /* 荷台がむき出しの車：主役の箱が運ばれる姿を見せる */
+  const deck=mesh(rbox(len,.22,1.25,.06),M(C.white));deck.position.set(-.2,.66,0);g.add(deck);
+  [[.6],[-.6]].forEach(([z])=>{const r=mesh(new THREE.BoxGeometry(len,.16,.06),M(C.white));r.position.set(-.2,.85,z);g.add(r)});
+  const bk=mesh(new THREE.BoxGeometry(.06,.6,1.25),M(C.white));bk.position.set(len/2-.24,1.07,0);g.add(bk);
+  const cb=mesh(rbox(cab,1.05,1.2,.16),M(C.accent,{roughness:.55}));cb.position.set(len/2+cab/2-.15,1.05,0);g.add(cb);
+  const gl=mesh(new THREE.BoxGeometry(.05,.36,1.0),M('#2D3442',{roughness:.2}));gl.position.set(len/2+cab-.17,1.25,0);g.add(gl);
+  const lg=new THREE.Mesh(new THREE.PlaneGeometry(len*.62,len*.155),new THREE.MeshStandardMaterial({map:logoTex,roughness:.7}));lg.position.set(-.2,.66,.632);g.add(lg);
+  for(let i=0;i<load;i++){const o=mesh(rbox(.55,.4,.55,.04),M(C.kraft));o.position.set(len/2-.65-(i%3)*.6,.97+Math.floor(i/3)*.41,(i%2?.25:-.25));o.rotation.y=i*.3;g.add(o)}   /* ほかの荷物も一緒に運ぶ */
+  const wg=new THREE.CylinderGeometry(.24,.24,.18,20);wg.rotateX(Math.PI/2);const wm=M(C.tire,{roughness:.7});g.userData.wheels=[];
+  [[-len/2+.35,.62],[len/2+cab/2-.2,.62],[-len/2+.35,-.62],[len/2+cab/2-.2,-.62]].forEach(([x,z])=>{const w=mesh(wg,wm);w.position.set(x,.24,z);g.add(w);g.userData.wheels.push(w)});
+  scene.add(g);return g}
+const van=vehicle(1.7,.75,0),truck=vehicle(3.6,.95,4);
 
-<script>
-(function(){
-  var NS='http://www.w3.org/2000/svg';
-  var map=document.getElementById('map'), svg=document.getElementById('svg');
-  var base=document.getElementById('base'), prog=document.getElementById('prog'), dash=document.getElementById('dash');
-  var gNodes=document.getElementById('nodes'), labels=document.getElementById('labels'), box=document.getElementById('box');
-  var log=document.getElementById('log'), receipt=document.getElementById('receipt');
+/* ---------- 主役：社名入りの段ボール ---------- */
+let company='御社';
+function boxFace(){return cvTex(512,384,(x,w,h)=>{
+  x.fillStyle='#C49B6C';x.fillRect(0,0,w,h);const r=rnd(3);for(let i=0;i<2600;i++){x.fillStyle=`rgba(${r()<.5?90:255},${r()<.5?60:230},30,${r()*.06})`;x.fillRect(r()*w,r()*h,1+r()*3,1)}   /* クラフト紙の繊維 */
+  x.fillStyle='rgba(255,245,225,.25)';x.fillRect(w*.42,0,w*.16,h);   /* テープ */
+  x.fillStyle='#FBF8F1';x.fillRect(w*.08,h*.26,w*.84,h*.5);x.strokeStyle='rgba(30,36,51,.35)';x.lineWidth=2;x.strokeRect(w*.08,h*.26,w*.84,h*.5);   /* 伝票 */
+  x.fillStyle='#1E2433';x.font='600 24px "Hiragino Sans","Noto Sans JP",sans-serif';x.fillText('お届け先',w*.12,h*.36);
+  let fs=58;const name=company+' 様';x.font=`700 ${fs}px "Hiragino Sans","Noto Sans JP",sans-serif`;while(x.measureText(name).width>w*.76&&fs>22){fs-=2;x.font=`700 ${fs}px "Hiragino Sans","Noto Sans JP",sans-serif`}
+  x.shadowColor='rgba(30,36,51,.35)';x.shadowBlur=1.5;x.fillText(name,w*.12,h*.6);x.shadowBlur=0;   /* 黒インクのわずかなにじみ */
+  x.font='500 20px "Hiragino Sans","Noto Sans JP",sans-serif';x.fillStyle='rgba(30,36,51,.7)';x.fillText('ハコブネ物流｜品名：商品一式',w*.12,h*.71)})}
+const kraftSide=cvTex(256,256,(x,w,h)=>{x.fillStyle='#C49B6C';x.fillRect(0,0,w,h);const r=rnd(9);for(let i=0;i<1400;i++){x.fillStyle=`rgba(90,60,30,${r()*.06})`;x.fillRect(r()*w,r()*h,1+r()*3,1)};x.fillStyle='rgba(255,245,225,.25)';x.fillRect(w*.42,0,w*.16,h)});
+const boxMats=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:boxFace()}),M('#fff',{map:kraftSide})];
+const box=new THREE.Group();const boxM=mesh(rbox(.9,.66,.9,.05),boxMats);box.add(boxM);scene.add(box);
+/* ExtrudeGeometry の面の割り当て：0=前後の面 1=側面。前面にだけ伝票を出すため、伝票は別の板として貼る */
+boxM.material=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide})];
+const label=new THREE.Mesh(new THREE.PlaneGeometry(.82,.6),M('#fff',{map:boxMats[4].map,roughness:.85}));label.position.set(0,0,.456);box.add(label);
+function printName(v){company=v.trim()||'御社';const t=boxFace();label.material.map.dispose();label.material.map=t;label.material.needsUpdate=true;bounce=1}
+/* 受領印（届け先で押す）と、押した跡 */
+const inkTex=cvTex(256,256,(x,w,h)=>{x.strokeStyle='#B3322B';x.lineWidth=12;x.beginPath();x.arc(128,128,108,0,7);x.stroke();x.fillStyle='#B3322B';x.font='700 70px "HK Mincho","Hiragino Mincho ProN",serif';x.textAlign='center';x.fillText('受領',128,140);x.font='600 30px sans-serif';x.fillText('15:40',128,190)});
+const ink=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),new THREE.MeshStandardMaterial({map:inkTex,transparent:true,opacity:0,roughness:.9,depthWrite:false}));ink.rotation.x=-Math.PI/2;ink.position.y=.335;box.add(ink);
+const stamp=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.12,.16,.5,20),M('#3A2E26',{roughness:.5}));sh.position.y=.45;stamp.add(sh);const sb=mesh(new THREE.CylinderGeometry(.27,.27,.12,28),M('#2B2E35'));sb.position.y=.12;stamp.add(sb);stamp.visible=false;scene.add(stamp);
 
-  /* 工程（時刻は架空のデモ値） */
-  var STEPS=[
-    {name:'入荷',      sub:'ショップから到着', t:'DAY1 10:02', msg:'入荷・数量を確認'},
-    {name:'検品・保管', sub:'棚番 A-12',       t:'DAY1 10:48', msg:'検品OK・棚 A-12 に保管'},
-    {name:'梱包',      sub:'ショップ名で梱包', t:'DAY2 09:15', msg:'注文を受けて梱包'},
-    {name:'出荷',      sub:'14時までに出荷',   t:'DAY2 13:40', msg:'配送会社へ引き渡し'},
-    {name:'お届け',    sub:'購入者のもとへ',   t:'DAY3 11:30', msg:'お届け完了'}
-  ];
-  /* 画面の向きで道順を変える（横長＝左から右、縦長＝下から上へジグザグ） */
-  var WIDE={vb:[1000,420], pts:[[70,330],[290,170],[510,290],[730,150],[930,250]], lab:'below'};
-  var TALL={vb:[360,520],  pts:[[80,470],[270,380],[90,280],[270,180],[150,70]],  lab:'side'};
-  var L=WIDE, len=0, nodeEls=[], labEls=[], running=false, state=0;
+await yieldNow();
+if(LOW){scene.traverse(o=>{if(o.material&&!Array.isArray(o.material)&&o.material.isMeshStandardMaterial){const m=o.material;o.material=new THREE.MeshLambertMaterial({color:m.color,map:m.map,transparent:m.transparent,opacity:m.opacity})}})}
 
-  function smooth(p){ /* 通過点をなめらかに結ぶ（Catmull-Rom → ベジェ） */
-    var d='M'+p[0][0]+','+p[0][1];
-    for(var i=0;i<p.length-1;i++){
-      var p0=p[i-1]||p[i], p1=p[i], p2=p[i+1], p3=p[i+2]||p2;
-      d+=' C'+(p1[0]+(p2[0]-p0[0])/6)+','+(p1[1]+(p2[1]-p0[1])/6)+' '+(p2[0]-(p3[0]-p1[0])/6)+','+(p2[1]-(p3[1]-p1[1])/6)+' '+p2[0]+','+p2[1];
-    }
-    return d;
+/* ---------- 体験の進行（出荷を押してから約9秒） ---------- */
+const STEPS=[{t:'08:30',n:'集荷',m:'集荷しました'},{t:'10:10',n:'仕分け倉庫',m:'スキャン・仕分け完了'},{t:'12:00',n:'幹線輸送',m:'幹線トラックで輸送中'},{t:'15:40',n:'納品・受領',m:'お届け先に到着'}];
+const ST=[-19,0,8,22];                    /* 各地点のx位置 */
+let phase='idle',t0=0,bounce=0,stamped=false,stampT=0,logged=-1;
+const DESK={x:-19,y:.5+.33,z:-1.2};
+function resetAll(){phase='idle';stamped=false;logged=-1;$('#log').innerHTML='';$$('.tag').forEach(e=>e.classList.remove('on'));$('#clockStep').textContent='出荷前';$('#clockTime').textContent='--:--';
+  ink.material.opacity=0;stamp.visible=false;$('#log').style.opacity=1;$('#ship').classList.remove('out');$('#finale').classList.remove('show');$('#stampBtn').classList.remove('on');setTime(0)}
+function logStep(i){if(i<=logged)return;logged=i;const s=STEPS[i],p=document.createElement('p');const b=document.createElement('b');b.textContent=s.t;p.append(b,' '+s.n+'　'+s.m);$('#log').appendChild(p);requestAnimationFrame(()=>p.classList.add('on'));
+  $$('.tag')[i].classList.add('on');$('#clockStep').textContent=s.n;$('#clockTime').textContent=s.t}
+$('#company').addEventListener('input',e=>printName(e.target.value));
+$('#shipForm').addEventListener('submit',e=>{e.preventDefault();if(phase!=='idle')return;printName($('#company').value);$('#company').blur();$('#ship').classList.add('out');phase='run';t0=performance.now()});
+$('#stampBtn').addEventListener('click',()=>{if(phase!=='wait')return;phase='stamp';stampT=performance.now();$('#stampBtn').classList.remove('on')});
+$('#toEst').addEventListener('click',()=>{$('#estCompany').value=company==='御社'?'':company;$('#modal').classList.add('show')});
+$('#closeEst').addEventListener('click',()=>$('#modal').classList.remove('show'));
+$('#estForm').addEventListener('submit',e=>{e.preventDefault();$('#modal').classList.remove('show');toast('デモのため、送信は行われません。')});
+$('#again').addEventListener('click',resetAll);
+
+/* 箱の位置を時間から決める（物が工程を実演する） */
+const V=new THREE.Vector3();
+function placeAll(t,now){
+  /* 0〜1.4秒：集荷トラックが来て箱を積む／1.4〜3.2秒：倉庫へ／3.2〜4.8秒：ベルトとスキャン／4.8〜5.6秒：幹線トラックへ／5.6〜8.2秒：届け先へ／8.2〜9秒：降ろす */
+  const a=(s,e)=>clamp((t-s)/(e-s));
+  let vx=-27,tx=4,bx=DESK.x,by=DESK.y,bz=DESK.z,brz=0;
+  if(phase==='idle'){vx=-27;tx=4}
+  else{
+    vx=lerp(-27,-19.2,o3(a(0,1.1)));                                   /* 集荷トラックが来る */
+    const lift=a(1.1,1.5);if(t<1.5){bx=lerp(DESK.x,-19.7,lift);by=lerp(DESK.y,1.1,lift)+Math.sin(lift*Math.PI)*.8;bz=lerp(DESK.z,.4,lift)}
+    if(t>=1.5&&t<3.2){vx=lerp(-19.2,-4.6,io3(a(1.5,3.2)));bx=vx-.5;by=1.1;bz=.4}
+    if(t>=3.2){vx=lerp(-4.6,-2,o3(a(3.2,3.8)))-(t>4?(t-4)*6:0)}
+    if(t>=3.2&&t<4.8){const k=a(3.2,3.6);bx=lerp(-5.1,-3.2,k);by=lerp(1.1,.9,k)+Math.sin(k*Math.PI)*.4;bz=lerp(.4,-1.3,k);if(t>3.6){bx=lerp(-3.2,3.2,io3(a(3.6,4.8)));by=.9;bz=-1.3}}
+    tx=lerp(4,6.2,o3(a(3.4,4.6)));
+    if(t>=4.8&&t<5.6){const k=a(4.8,5.6);bx=lerp(3.2,tx-1.5,k);by=lerp(.9,1.1,k)+Math.sin(k*Math.PI)*.6;bz=lerp(-1.3,.4,k)}
+    if(t>=5.6){tx=lerp(6.2,21.6,io3(a(5.6,8.2)));bx=tx-1.5;by=1.1;bz=.4}
+    if(t>=9.0)tx=lerp(21.6,38,io3(a(9.0,10.6)));   /* 降ろしたらトラックは去り、届いた箱だけが残る */
+    if(t>=8.2){const k=a(8.2,9);bx=lerp(tx-1.5,23,k);by=lerp(1.1,.33,o3(k))+Math.sin(k*Math.PI)*.5;bz=lerp(.4,-1.2,k)}
+    if(t>4.2)logStep(1);if(t>5.6)logStep(2);if(t>=1.2)logStep(0);if(t>=8.9)logStep(3);
+    /* 光：集荷08:30（朝）→12:00（昼）→15:40（午後） */
+    setTime(t<5.6?lerp(0,1,a(1,5.6)):lerp(1,2,a(5.6,8.6)));
   }
-  function build(){
-    L = (innerWidth>=640 && map.clientWidth/map.clientHeight > 1.15) ? WIDE : TALL;
-    svg.setAttribute('viewBox','0 0 '+L.vb[0]+' '+L.vb[1]);
-    svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-    var d=smooth(L.pts); base.setAttribute('d',d); prog.setAttribute('d',d); dash.setAttribute('d',d);
-    len=prog.getTotalLength();
-    prog.style.strokeDasharray=len; setProg(state);
-    gNodes.innerHTML=''; labels.innerHTML=''; nodeEls=[]; labEls=[];
-    L.pts.forEach(function(p,i){
-      var g=document.createElementNS(NS,'g'); g.setAttribute('class','node'+(i<reached?' on':''));
-      var c=document.createElementNS(NS,'circle'); c.setAttribute('cx',p[0]); c.setAttribute('cy',p[1]); c.setAttribute('r',L===WIDE?9:8);
-      g.appendChild(c); gNodes.appendChild(g); nodeEls.push(g);
-      var lb=document.createElement('div'); lb.className='nlabel'+(i<reached?' on':'');
-      var b=document.createElement('b'); b.textContent=STEPS[i].name; lb.appendChild(b);
-      lb.appendChild(document.createTextNode(STEPS[i].sub)); labels.appendChild(lb); labEls.push(lb);
-    });
-    placeLabels(); placeBox(state);
-  }
-  function toScreen(x,y){ /* SVG座標 → 地図エリア内のpx */
-    var m=svg.getScreenCTM(), r=map.getBoundingClientRect(), pt=svg.createSVGPoint(); pt.x=x; pt.y=y;
-    var s=pt.matrixTransform(m); return [s.x-r.left, s.y-r.top];
-  }
-  function placeLabels(){
-    var W=map.clientWidth;
-    L.pts.forEach(function(p,i){
-      var s=toScreen(p[0],p[1]), lb=labEls[i];
-      if(L===WIDE){ lb.style.left=s[0]+'px'; lb.style.top=(s[1]+16)+'px'; lb.style.textAlign='center'; lb.style.transform='translate(-50%,0)'; }
-      else{
-        var right = p[0] < L.vb[0]/2;  /* 左寄りの点はラベルを右に、右寄りの点は左に */
-        lb.style.top=(s[1]+8)+'px'; lb.style.textAlign=right?'left':'right';   /* 箱は点の真上に来るので、ラベルは点の斜め下へ */
-        lb.style.left=(right? s[0]+16 : s[0]-16)+'px'; lb.style.transform=right?'none':'translate(-100%,0)';
-      }
-    });
-  }
-  function placeBox(t){
-    var pt=prog.getPointAtLength(len*t), s=toScreen(pt.x,pt.y);
-    box.style.transform='translate('+s[0]+'px,'+s[1]+'px) translate(-50%,-112%)';
-  }
-  function setProg(t){ prog.style.strokeDashoffset=len*(1-t); }
+  van.position.set(vx,0,.4);truck.position.set(tx,0,.4);
+  const sp=(g,v)=>g.userData.wheels.forEach(w=>w.rotation.z=-v/.24);sp(van,vx);sp(truck,tx);
+  /* 止まるたびに小さく弾む（余韻） */
+  box.position.set(bx,by+(RM?0:Math.max(0,bounce)*.12*Math.sin(bounce*Math.PI*3)),bz);bounce=Math.max(0,bounce-.03);
+  /* スキャン：箱が門をくぐる瞬間だけ光る */
+  scanM.opacity=phase==='run'&&Math.abs(bx)<.7&&bz<-1?.55*(1-Math.abs(bx)/.7):0;
+  /* ほかの荷物がベルトを流れる（群れ） */
+  for(let i=0;i<OB;i++){const u=((now/1000)*.5+i/OB)%1;OD.position.set(lerp(-3.3,3.3,u),.98,-1.3);OD.rotation.y=i*.7;OD.scale.setScalar(u<.05||u>.95?0:1);OD.updateMatrix();others.setMatrixAt(i,OD.matrix)}others.instanceMatrix.needsUpdate=true;
+  return {bx,by,bz};
+}
 
-  var reached=1, reduceM=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function mark(i){
-    reached=Math.max(reached,i+1);
-    nodeEls[i]&&nodeEls[i].classList.add('on'); labEls[i]&&labEls[i].classList.add('on');
-    var p=document.createElement('p'), b=document.createElement('b'); b.textContent=STEPS[i].t;
-    p.appendChild(b); p.appendChild(document.createTextNode(STEPS[i].msg)); log.appendChild(p);
-    while(log.children.length>3) log.removeChild(log.firstChild);
-    requestAnimationFrame(function(){p.classList.add('on')});
-    document.getElementById('clock').textContent=STEPS[i].t;
-    ripple(i); event(i);
-  }
-  /* 点に着いたときの波紋 */
-  function ripple(i){
-    var pt=L.pts[i]; if(!pt) return;
-    var c=document.createElementNS(NS,'circle'); c.setAttribute('class','ripple');
-    c.setAttribute('cx',pt[0]); c.setAttribute('cy',pt[1]); c.setAttribute('r',L===WIDE?9:8);
-    gNodes.appendChild(c); setTimeout(function(){ c.remove(); },1000);
-  }
-  /* 工程ごとに箱に起きる出来事 */
-  function play(cls){ box.classList.remove(cls); void box.offsetWidth; box.classList.add(cls); }
-  function event(i){
-    if(i===0) play('drop');                                   /* 入荷：上から届いて弾む */
-    if(i===1){ play('scanning'); setTimeout(function(){ box.classList.add('checked'); },reduceM?0:900); }  /* 検品：スキャンの光→検品OK */
-    if(i===2) box.classList.add('taped');                     /* 梱包：テープが貼られる */
-    if(i===3){ box.classList.remove('drop'); box.classList.add('ontruck'); }   /* 出荷：トラックに載って走る */
-    if(i===4){ box.classList.remove('ontruck'); play('land'); }              /* お届け：降ろされて着地 */
-  }
+/* ---------- 画面サイズ・カメラ ---------- */
+function resize(){renderer.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.fov=innerWidth<innerHeight?40:30;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
+const camT=new THREE.Vector3(DESK.x,.6,DESK.z),camP=new THREE.Vector3();
+const tags=$$('.tag');
+function toScreen(v){v.project(cam);return[(v.x+1)/2*innerWidth,(1-v.y)/2*innerHeight]}
 
-  /* 区間ごとの長さ（点から点まで）を求め、点で一瞬止まりながら進める */
-  function segFractions(){
-    var f=[0], n=200, k=1, prev=0;
-    for(var j=1;j<=n && k<L.pts.length;j++){
-      var q=prog.getPointAtLength(len*j/n), t=L.pts[k];
-      if(Math.hypot(q.x-t[0],q.y-t[1])<6){ f.push(j/n); k++; }
-    }
-    while(f.length<L.pts.length) f.push(1);
-    f[f.length-1]=1; return f;
-  }
-
-  function ship(name){
-    if(running) return; running=true;
-    reset(); mark(0);
-    var f=segFractions(), i=0;
-    var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function leg(){
-      if(i>=f.length-1){ finish(name); return; }
-      var a=f[i], b=f[i+1], dur=reduce?10:1100, t0=performance.now();
-      (function step(now){
-        var k=Math.max(0,Math.min(1,(now-t0)/dur)), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2, t=a+(b-a)*e;
-        state=t; setProg(t); placeBox(t);
-        if(k<1) requestAnimationFrame(step);
-        else { i++; mark(i); setTimeout(leg, reduce?10:620); }
-      })(t0);
-    }
-    setTimeout(leg, 300);
-  }
-  function reset(){
-    state=0; reached=0; setProg(0); placeBox(0); log.innerHTML='';
-    nodeEls.forEach(function(n){n.classList.remove('on')}); labEls.forEach(function(n){n.classList.remove('on')});
-    box.classList.remove('idle','typed','drop','scanning','checked','taped','ontruck','land');
-    receipt.classList.remove('show');
-  }
-  function finish(name){
-    var d=new Date(); d.setDate(d.getDate()+2);
-    var ds=(d.getMonth()+1)+'/'+d.getDate();
-    document.getElementById('rcName').textContent=name;
-    document.getElementById('rcDate').textContent=d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate()+' 11:30';
-    document.getElementById('hkDate').textContent=ds;
-    document.getElementById('estCompany').value=name;   /* 見積フォームに社名を引き継ぐ */
-    setTimeout(function(){ receipt.classList.add('show'); running=false; }, 500);
-  }
-
-  document.getElementById('shipForm').addEventListener('submit',function(e){
-    e.preventDefault();
-    var v=document.getElementById('company').value.trim() || '株式会社サンプル';
-    document.getElementById('boxName').textContent=v;   /* textContent のみ使用（HTMLとして解釈しない） */
-    document.getElementById('company').blur();
-    ship(v);
-  });
-  /* 入力した社名を、その場で箱のラベルに印字する */
-  document.getElementById('company').addEventListener('input',function(){
-    if(running) return;
-    document.getElementById('boxName').textContent=this.value.trim()||'御社名';
-    box.classList.remove('idle'); play('typed');
-    clearTimeout(this._t); this._t=setTimeout(function(){ if(!running){ box.classList.remove('typed'); box.classList.add('idle'); } },400);
-  });
-  document.getElementById('toEstimate').addEventListener('click',function(){ receipt.classList.remove('show'); });
-  receipt.addEventListener('click',function(e){ if(e.target===receipt) receipt.classList.remove('show'); });
-
-  var toast=document.getElementById('toast'), tm;
-  document.getElementById('estForm').addEventListener('submit',function(e){
-    e.preventDefault(); toast.classList.add('show'); clearTimeout(tm); tm=setTimeout(function(){toast.classList.remove('show')},2400);
-  });
-
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{rootMargin:'0px 0px -10% 0px',threshold:.15});
-    document.querySelectorAll('.rv').forEach(function(el){ io.observe(el); });
-  } else document.querySelectorAll('.rv').forEach(function(el){ el.classList.add('in'); });
-
-  var rt; addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(build,120); });
-  build();
-  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ placeLabels(); placeBox(state); });
-  /* 見出しの改行調整などで地図エリアの高さが変わったら、ラベルと箱を置き直す（PCでラベルが点に重なっていた） */
-  if('ResizeObserver' in window) new ResizeObserver(function(){ placeLabels(); placeBox(state); }).observe(map);
-})();
+try{if(renderer.compileAsync)await renderer.compileAsync(scene,cam)}catch(e){}
+let last=performance.now(),first=true,runK=0;
+function frame(now){
+  const dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;
+  const t=phase==='idle'?0:(now-t0)/1000;
+  if(phase==='run'&&t>=9.6){phase='wait'}
+  const b=placeAll(phase==='idle'?0:Math.min(t,10.6),now);
+  /* 受領印を押す：上から落ちて、ドンと押され、朱肉がにじむ */
+  if(phase==='stamp'||stamped){const k=clamp((now-stampT)/700);stamp.visible=k<1;
+    stamp.position.set(b.bx,b.by+.33+lerp(1.6,0,o3(Math.min(1,k*1.6)))+(k>.62?(k-.62)*3:0),b.bz);stamp.scale.set(1,k>.55&&k<.7?.8:1,1);
+    if(k>.6&&!stamped){stamped=true;bounce=1;if(!RM)try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}}
+    ink.material.opacity=stamped?clamp((now-stampT-420)/400)*.92:0;
+    if(k>=1&&phase==='stamp'){phase='done';$('#finale').classList.add('show');$('#log').style.opacity=0}}
+  /* カメラ：少し上から見下ろし、箱について横へ */
+  const pt=innerWidth<innerHeight;runK+=((phase==='idle'?0:1)-runK)*(1-Math.exp(-dt*(RM?20:1.6)));   /* 入力中は箱に寄り、走り出したら街を見渡す */
+  const near=pt?[.5,4.6,7.4]:[1.2,3.9,6.6],far=pt?[1.4,10.5,16.5]:[2.2,8.6,13.5],off=near.map((v,j)=>lerp(v,far[j],runK));
+  camT.lerp(V.set(b.bx+(pt?0:lerp(.6,1.6,runK)),lerp(.7,.6,runK),b.bz*lerp(.8,.3,runK)),1-Math.exp(-dt*(RM?20:pt?11:4)));   /* 縦長の画面は見える幅が狭いので、箱をしっかり追う */
+  camP.set(camT.x+off[0],off[1],camT.z+off[2]);cam.position.copy(camP);cam.lookAt(camT);
+  const so=sun.userData.off||[0,12,6];sun.position.set(camT.x+so[0],so[1],camT.z+so[2]);sun.target.position.copy(camT);
+  renderer.render(scene,cam);
+  /* 地点の札：3Dの地点の上に */
+  tags.forEach((el,i)=>{V.set(ST[i]+(i===0?-.4:i===2?-1:0),i===1?3.0:2.7,i===1?-2:-.6);const[x,y]=toScreen(V),w=el.offsetWidth/2;el.style.left=x+'px';el.style.top=y+'px';el.style.visibility=(x-w<4||x+w>innerWidth-4||V.z>1)?'hidden':'visible'});   /* 画面の外に出た地点の札は隠す */
+  /* 受領印のボタン：箱の上に */
+  if(phase==='wait'){V.set(b.bx,b.by+1.2,b.bz);const[x,y]=toScreen(V);const sb=$('#stampBtn');sb.style.left=x+'px';sb.style.top=Math.max(130,y)+'px';sb.classList.add('on')}
+  if(first){first=false;requestAnimationFrame(()=>$('#loader').classList.add('done'))}
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+}
 </script>
-<script>
-(function(){
-  var MIN=14;
-  function enforce(){
-    document.querySelectorAll('body *').forEach(function(el){
-      if(el.closest('svg')) return;
-      var has=false;
-      for(var i=0;i<el.childNodes.length;i++){var n=el.childNodes[i]; if(n.nodeType===3&&n.textContent.trim()){has=true;break;}}
-      if(has && parseFloat(getComputedStyle(el).fontSize)<MIN) el.style.setProperty('font-size',MIN+'px','important');
-    });
-  }
-  enforce(); addEventListener('resize',enforce);
-})();
-</script>
-<script src="assets/jp-wrap.js" data-selector=".ship h1,main h2,main .lead,main p,main li b,main li p,.facts span"></script>
+<script src="assets/jp-wrap.js" data-selector=".finale small" defer></script>
 </body>
 </html>
