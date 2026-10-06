@@ -384,6 +384,12 @@ function frame(now){
   if(first){first=false;requestAnimationFrame(()=>$('#loader').classList.add('done'))}
   requestAnimationFrame(frame);
 }
+/* GPUのない端末：質感の計算が重い素材を、軽い素材に置き換える（色・模様・透明度はそのまま） */
+if(LOW){const cache=new Map();scene.traverse(o=>{const m=o.material;if(!m||!(m.isMeshStandardMaterial))return;
+  if(!cache.has(m))cache.set(m,new THREE.MeshLambertMaterial({color:m.color,map:m.map||null,transparent:m.transparent,opacity:m.opacity,side:m.side,depthWrite:m.depthWrite}));
+  o.material=cache.get(m)});
+  const gm=cache.get(glassM);if(gm)Object.defineProperty(glassM,'opacity',{set(v){gm.opacity=v},get(){return gm.opacity}});   /* ほどける時の透け具合を引き継ぐ */
+  renderer.setPixelRatio(.75)}
 try{if(renderer.compileAsync)await renderer.compileAsync(scene,cam)}catch(e){}   /* 描画の準備（シェーダー）を、画面を止めずに済ませる */
 requestAnimationFrame(frame);
 }
