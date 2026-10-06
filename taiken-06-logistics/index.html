@@ -218,8 +218,11 @@ const arch=new THREE.Group();const am=M(C.accent,{roughness:.5});
 [[-.62,0],[.62,0]].forEach(([z])=>{const p=mesh(new THREE.BoxGeometry(.1,1.4,.1),am);p.position.set(0,1.1,-1.3+z);arch.add(p)});const top=mesh(new THREE.BoxGeometry(.12,.1,1.36),am);top.position.set(0,1.8,-1.3);arch.add(top);oldTown.add(arch);
 const scanM=new THREE.MeshBasicMaterial({color:'#7FA6FF',transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false});
 const scan=new THREE.Mesh(new THREE.PlaneGeometry(1.2,1),scanM);scan.rotation.y=Math.PI/2;scan.position.set(0,1.1,-1.3);scene.add(scan);
+/* 段ボールの質感（濵田さんのGeminiの画像：側面・テープを貼った上面）。主役の箱・ベルトの荷物・荷台の荷物で共通 */
+const TL=new THREE.TextureLoader(),kTex=u=>{const t=TL.load(u);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t};
+const KS=M('#fff',{map:kTex('assets/box-side.jpg'),roughness:.9}),KT=M('#fff',{map:kTex('assets/box-top.jpg'),roughness:.88}),KM=[KS,KS,KT,KS,KS,KS];   /* 箱の面の順：右・左・上・下・前・後 */
 /* ほかの荷物（倉庫の中の流れ） */
-const OB=8,others=new THREE.InstancedMesh(rbox(.5,.36,.5,.04),M(C.kraft),OB);others.castShadow=!LOW;others.receiveShadow=true;scene.add(others);const OD=new THREE.Object3D();
+const OB=8,others=new THREE.InstancedMesh(new THREE.BoxGeometry(.5,.36,.5),KM,OB);others.castShadow=!LOW;others.receiveShadow=true;scene.add(others);const OD=new THREE.Object3D();
 
 /* ---------- 車（模型らしい丸み。会社のロゴは架空） ---------- */
 const logoTex=cvTex(512,128,(x,w,h)=>{x.fillStyle=C.white;x.fillRect(0,0,w,h);x.fillStyle=C.accent;x.fillRect(0,h-14,w,14);x.fillStyle=C.ink;x.font='700 54px "HK Mincho","Hiragino Mincho ProN",serif';if('letterSpacing' in x)x.letterSpacing='10px';x.textAlign='center';x.fillText('HAKOBUNE',w/2,h*.62)});
@@ -230,7 +233,7 @@ function vehicle(len,cab,load=0){const g=new THREE.Group();g.userData.kind=len<2
   const cb=mesh(rbox(cab,1.05,1.2,.16),M(C.accent,{roughness:.55}));cb.position.set(len/2+cab/2-.15,1.05,0);g.add(cb);old.push(cb);
   const gl=mesh(new THREE.BoxGeometry(.05,.36,1.0),M('#2D3442',{roughness:.2}));gl.position.set(len/2+cab-.17,1.25,0);g.add(gl);old.push(gl);
   const lg=new THREE.Mesh(new THREE.PlaneGeometry(len*.62,len*.155),new THREE.MeshStandardMaterial({map:logoTex,roughness:.7}));lg.position.set(-.2,.66,.632);g.add(lg);g.userData.logo=lg;
-  for(let i=0;i<load;i++){const o=mesh(rbox(.55,.4,.55,.04),M(C.kraft));o.position.set(len/2-.65-(i%3)*.6,.97+Math.floor(i/3)*.41,(i%2?.25:-.25));o.rotation.y=i*.3;g.add(o)}   /* ほかの荷物も一緒に運ぶ */
+  for(let i=0;i<load;i++){const o=mesh(new THREE.BoxGeometry(.55,.4,.55),KM);o.position.set(len/2-.65-(i%3)*.6,.97+Math.floor(i/3)*.41,(i%2?.25:-.25));o.rotation.y=i*.3;g.add(o)}   /* ほかの荷物も一緒に運ぶ */
   const wg=new THREE.CylinderGeometry(.24,.24,.18,20);wg.rotateX(Math.PI/2);const wm=M(C.tire,{roughness:.7});g.userData.wheels=[];
   [[-len/2+.35,.62],[len/2+cab/2-.2,.62],[-len/2+.35,-.62],[len/2+cab/2-.2,-.62]].forEach(([x,z])=>{const w=mesh(wg,wm);w.position.set(x,.24,z);g.add(w);g.userData.wheels.push(w)});
   scene.add(g);return g}
@@ -250,21 +253,22 @@ function useVehicles(GLTFLoader){const L=new THREE.TextureLoader();
 
 /* ---------- 主役：社名入りの段ボール ---------- */
 let company='御社';
-function boxFace(){return cvTex(512,384,(x,w,h)=>{
-  x.fillStyle='#C49B6C';x.fillRect(0,0,w,h);const r=rnd(3);for(let i=0;i<2600;i++){x.fillStyle=`rgba(${r()<.5?90:255},${r()<.5?60:230},30,${r()*.06})`;x.fillRect(r()*w,r()*h,1+r()*3,1)}   /* クラフト紙の繊維 */
-  x.fillStyle='rgba(255,245,225,.25)';x.fillRect(w*.42,0,w*.16,h);   /* テープ */
-  x.fillStyle='#FBF8F1';x.fillRect(w*.08,h*.26,w*.84,h*.5);x.strokeStyle='rgba(30,36,51,.35)';x.lineWidth=2;x.strokeRect(w*.08,h*.26,w*.84,h*.5);   /* 伝票 */
-  x.fillStyle='#1E2433';x.font='600 24px "Hiragino Sans","Noto Sans JP",sans-serif';x.fillText('お届け先',w*.12,h*.36);
-  let fs=58;const name=company+' 様';x.font=`700 ${fs}px "Hiragino Sans","Noto Sans JP",sans-serif`;while(x.measureText(name).width>w*.76&&fs>22){fs-=2;x.font=`700 ${fs}px "Hiragino Sans","Noto Sans JP",sans-serif`}
-  x.shadowColor='rgba(30,36,51,.35)';x.shadowBlur=1.5;x.fillText(name,w*.12,h*.6);x.shadowBlur=0;   /* 黒インクのわずかなにじみ */
-  x.font='500 20px "Hiragino Sans","Noto Sans JP",sans-serif';x.fillStyle='rgba(30,36,51,.7)';x.fillText('ハコブネ物流｜品名：商品一式',w*.12,h*.71)})}
-const kraftSide=cvTex(256,256,(x,w,h)=>{x.fillStyle='#C49B6C';x.fillRect(0,0,w,h);const r=rnd(9);for(let i=0;i<1400;i++){x.fillStyle=`rgba(90,60,30,${r()*.06})`;x.fillRect(r()*w,r()*h,1+r()*3,1)};x.fillStyle='rgba(255,245,225,.25)';x.fillRect(w*.42,0,w*.16,h)});
-const boxMats=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide}),M('#fff',{map:boxFace()}),M('#fff',{map:kraftSide})];
-const box=new THREE.Group();const boxM=mesh(rbox(.9,.66,.9,.05),boxMats);box.add(boxM);scene.add(box);
+/* 送り状（Geminiの罫線だけの複写紙）に、入力した社名をその場で印字する。会社名・番号・ロゴは架空も含めて入れない */
+const wbImg=new Image();wbImg.src='assets/waybill.jpg';
+function boxFace(){return cvTex(1024,776,(x,w,h)=>{
+  x.fillStyle='#F4F4F2';x.fillRect(0,0,w,h);if(wbImg.complete&&wbImg.naturalWidth)x.drawImage(wbImg,0,0,w,h);
+  const S='"Hiragino Sans","Noto Sans JP",sans-serif';x.fillStyle='#1E2433';
+  x.font=`600 30px ${S}`;x.fillText('お届け先',70,130);
+  let fs=150;const name=company+' 様';x.font=`700 ${fs}px ${S}`;while(x.measureText(name).width>w*.88&&fs>40){fs-=2;x.font=`700 ${fs}px ${S}`}
+  x.shadowColor='rgba(30,36,51,.35)';x.shadowBlur=2;x.fillText(name,60,470);x.shadowBlur=0;   /* 黒インクのわずかなにじみ */
+  x.font=`500 30px ${S}`;x.fillStyle='rgba(30,36,51,.75)';x.fillText('ハコブネ物流',560,130);x.fillText('品名：商品一式',60,620)})}
+const box=new THREE.Group();const boxM=mesh(new THREE.BoxGeometry(.9,.66,.9),KM);box.add(boxM);scene.add(box);
 /* ExtrudeGeometry の面の割り当て：0=前後の面 1=側面。前面にだけ伝票を出すため、伝票は別の板として貼る */
-boxM.material=[M('#fff',{map:kraftSide}),M('#fff',{map:kraftSide})];const boxSideMats=boxM.material;
-const label=new THREE.Mesh(new THREE.PlaneGeometry(.82,.6),M('#fff',{map:boxMats[4].map,roughness:.85}));label.position.set(0,0,.456);box.add(label);
-function printName(v){company=v.trim()||'御社';const t=boxFace();label.material.map.dispose();label.material.map=t;label.material.needsUpdate=true;bounce=1}
+const boxSideMats=[KS,KT];
+const label=new THREE.Mesh(new THREE.PlaneGeometry(.7,.53),M('#fff',{map:boxFace(),roughness:.85}));label.position.set(.06,-.04,.452);label.rotation.z=-.015;box.add(label);
+function redrawLabel(){const t=boxFace();label.material.map.dispose();label.material.map=t;label.material.needsUpdate=true}
+function printName(v){company=v.trim()||'御社';redrawLabel();bounce=1}
+wbImg.onload=redrawLabel;
 /* 受領印（届け先で押す）と、押した跡 */
 const inkTex=cvTex(256,256,(x,w,h)=>{x.strokeStyle='#B3322B';x.lineWidth=12;x.beginPath();x.arc(128,128,108,0,7);x.stroke();x.fillStyle='#B3322B';x.font='700 70px "HK Mincho","Hiragino Mincho ProN",serif';x.textAlign='center';x.fillText('受領',128,140);x.font='600 30px sans-serif';x.fillText('15:40',128,190)});
 const ink=new THREE.Mesh(new THREE.PlaneGeometry(.5,.5),new THREE.MeshStandardMaterial({map:inkTex,transparent:true,opacity:0,roughness:.9,depthWrite:false}));ink.rotation.x=-Math.PI/2;ink.position.y=.335;box.add(ink);
@@ -274,7 +278,7 @@ const stamp=new THREE.Group();const sh=mesh(new THREE.CylinderGeometry(.12,.16,.
 if(!LOW){const L=new THREE.TextureLoader(),ld=u=>new Promise(r=>L.load(u,r,undefined,()=>r(null)));
   Promise.all(['assets/cardboard-normal.jpg','assets/asphalt-normal.jpg','assets/asphalt-rough.jpg','assets/plaster-normal.jpg'].map(ld)).then(([cb,an,ar,pl])=>{
     const rep=(t,x,y)=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(x,y);return t};
-    if(cb){rep(cb,1.4,1.4);boxSideMats.forEach(m=>{m.normalMap=cb;m.normalScale.set(.6,.6);m.needsUpdate=true})}
+    if(cb){rep(cb,1.4,1.4);boxSideMats.forEach(m=>{m.normalMap=cb;m.normalScale.set(.3,.3);m.needsUpdate=true})}
     if(an&&ar){rep(an,40,2);rep(ar,40,2);roadM.normalMap=an;roadM.normalScale.set(.5,.5);roadM.roughnessMap=ar;roadM.needsUpdate=true}
     if(pl){rep(pl,.45,.45);wallMats.forEach(m=>{m.normalMap=pl;m.normalScale.set(.7,.7);m.needsUpdate=true})}
   })}
@@ -368,7 +372,7 @@ function frame(now){
     if(k>=1&&phase==='stamp'){phase='done';$('#finale').classList.add('show');$('#log').style.opacity=0}}
   /* カメラ：少し上から見下ろし、箱について横へ */
   const pt=innerWidth<innerHeight;runK+=((phase==='idle'?0:1)-runK)*(1-Math.exp(-dt*(RM?20:1.6)));   /* 入力中は箱に寄り、走り出したら街を見渡す */
-  const near=pt?[.8,7.2,13.5]:[2.6,5.6,12],far=pt?[2,19,30]:[4,14,24],off=near.map((v,j)=>lerp(v,far[j],runK));
+  const near=pt?[.5,3.4,7.6]:[1.3,2.5,5.4],far=pt?[2,19,30]:[4,14,24],off=near.map((v,j)=>lerp(v,far[j],runK));
   camT.lerp(V.set(b.bx+(pt?0:lerp(.6,1.6,runK)),lerp(.7,.6,runK),b.bz*lerp(.8,.3,runK)),1-Math.exp(-dt*(RM?20:pt?11:4)));   /* 縦長の画面は見える幅が狭いので、箱をしっかり追う */
   camP.set(camT.x+off[0],off[1],camT.z+off[2]);cam.position.copy(camP);cam.lookAt(camT);
   const so=sun.userData.off||[0,12,6];sun.position.set(camT.x+so[0],so[1],camT.z+so[2]);sun.target.position.copy(camT);
