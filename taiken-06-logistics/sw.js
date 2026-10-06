@@ -1,6 +1,6 @@
 /* 一度開いた端末では、電波がなくても 06 を開けるようにする（展示会・交流会対策） */
-const CACHE = 'taiken06-v1';
-const FILES = ['./', './index.html', './assets/three.module.min.js', './assets/mincho.woff2', './assets/jp-wrap.js', './assets/budoux-ja.json'];
+const CACHE = 'taiken06-v2';
+const FILES = ['./', './index.html', './assets/three.module.min.js', './assets/mincho.woff2', './assets/jp-wrap.js', './assets/budoux-ja.json', './assets/cardboard-normal.jpg', './assets/asphalt-normal.jpg', './assets/asphalt-rough.jpg', './assets/plaster-normal.jpg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
