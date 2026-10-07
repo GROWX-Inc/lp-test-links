@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>NORTH ROW｜鶴プリント ヴィンテージTシャツ（体験デモ）</title>
+<meta name="description" content="自分に近い体型のモデルを選び、着た姿を指で回して、前・横・背中まで確かめられる商品ページのデモ。GROWX 体験カタログ 09。">
+<meta name="robots" content="noindex">
+<style>
+/* 文字は端末のフォント（外部サーバーに頼らない＝電波なしでも開ける） */
+:root{
+  --gutter:clamp(16px,4.5vw,40px);
+  --bg:#F3F1ED; --stage:#E9E6E0; --panel:#FFFFFF; --line:#DAD5CC;
+  --ink:#1D1F24; --muted:#585C66; --navy:#26324F; --accent:#B33A2C;
+  --sans:"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--navy);outline-offset:3px}
+
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px var(--gutter);border-bottom:1px solid var(--line);background:var(--bg)}
+.top b{font-size:20px;letter-spacing:.24em;font-weight:700}
+.top span{font-size:14px;color:var(--muted)}
+
+.pdp{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);max-width:1240px;margin:0 auto;padding:clamp(16px,2.5vw,32px) var(--gutter) 64px}
+@media (max-width:860px){.pdp{grid-template-columns:minmax(0,1fr)}}
+
+/* ===== 3Dの試着ビュー ===== */
+.viewer{position:sticky;top:16px;align-self:start;min-width:0}
+@media (max-width:860px){.viewer{position:relative;top:0}}
+.stage{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:radial-gradient(ellipse 70% 60% at 50% 45%,#F6F4F0,var(--stage));touch-action:pan-y;cursor:grab}
+.stage.drag{cursor:grabbing}
+@media (max-width:860px){.stage{aspect-ratio:auto;height:min(118vw,72svh)}}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8%;transition:opacity .6s}
+.stage.ready .poster{opacity:0;pointer-events:none}
+.load{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-size:14px;color:var(--muted);background:rgba(255,255,255,.85);padding:6px 14px;border-radius:999px;transition:opacity .4s;white-space:nowrap}
+.stage.ready .load{opacity:0}
+.badge{position:absolute;left:12px;top:12px;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px;color:var(--ink)}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;font-size:14px;background:rgba(255,255,255,.9);border-radius:999px;padding:6px 14px;opacity:0;transition:opacity .4s;pointer-events:none;white-space:nowrap}
+.stage.ready .hint{opacity:1}.stage.used .hint{opacity:0}
+/* 服の上の注目点（3Dの位置に合わせて動く） */
+.spot{position:absolute;left:0;top:0;width:48px;height:48px;margin:-24px 0 0 -24px;border:0;background:none;cursor:pointer;opacity:0;transition:opacity .3s;display:grid;place-items:center}
+.spot::before{content:"";width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(38,50,79,.35),0 2px 6px rgba(0,0,0,.25)}
+.spot.on{opacity:1}
+.spot.on::before{animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 9px rgba(38,50,79,.12),0 2px 6px rgba(0,0,0,.25)}}
+.note{position:absolute;left:12px;right:12px;bottom:12px;background:var(--panel);border-radius:12px;padding:12px 14px;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.12);opacity:0;transform:translateY(8px);transition:.3s;pointer-events:none}
+.note.show{opacity:1;transform:none;pointer-events:auto}
+.note b{display:block;font-size:16px;margin-bottom:2px}
+.note button{position:absolute;right:4px;top:4px;width:48px;height:48px;border:0;background:none;font-size:20px;color:var(--muted);cursor:pointer}
+
+.views{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.views button{min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:14px;font-weight:600}
+.views button[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.thumbs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
+.thumbs button{padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel);aspect-ratio:1;cursor:pointer;min-height:48px}
+.thumbs button[aria-pressed="true"]{outline:2px solid var(--navy);outline-offset:1px}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .t3d{display:grid;place-items:center;width:100%;height:100%;font-size:14px;font-weight:700;color:var(--navy);background:#EEF0F5}
+.photo{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .3s}
+.photo.show{opacity:1;pointer-events:auto}
+.photo img{width:100%;height:100%;object-fit:contain}
+
+/* ===== 商品の情報 ===== */
+.info{min-width:0}
+.brand{font-size:14px;letter-spacing:.2em;color:var(--muted);margin:0}
+h1{font-size:clamp(22px,2.4vw,28px);line-height:1.45;margin:4px 0 8px;font-weight:700}
+.price{font-size:24px;font-weight:700;margin:0}
+.price small{font-size:14px;font-weight:500;color:var(--muted);margin-left:6px}
+.sec{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+.sec h2{font-size:16px;margin:0 0 10px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.sec h2 span{font-size:14px;font-weight:500;color:var(--muted)}
+.bodies{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.bodies button{min-height:64px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;padding:8px 6px;line-height:1.4}
+.bodies button b{display:block;font-size:16px}
+.bodies button span{display:block;font-size:14px;color:var(--muted)}
+.bodies button[aria-pressed="true"]{border:2px solid var(--navy);padding:7px 5px}
+.wear{margin:10px 0 0;font-size:14px;color:var(--muted)}
+.wear b{color:var(--ink)}
+.sizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sizes button{min-height:48px;border-radius:10px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-weight:600}
+.sizes button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cart{width:100%;min-height:56px;margin-top:20px;border:0;border-radius:999px;background:var(--navy);color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+.cart:active{transform:scale(.98)}
+.spec{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 16px;font-size:14px}
+.spec dt{color:var(--muted)}.spec dd{margin:0}
+.desc{margin:0;color:var(--ink)}
+footer{border-top:1px solid var(--line);padding:24px var(--gutter) calc(env(safe-area-inset-bottom,0px) + 32px);font-size:14px;color:var(--muted);text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);transform:translate(-50%,20px);z-index:20;opacity:0;max-width:calc(100% - 2*var(--gutter));
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;transition:.35s;pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+html.no-gl #gl,html.no-gl .hint,html.no-gl .views,html.no-gl .load{display:none}
+html.no-gl .stage .poster{opacity:1}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<header class="top"><b>NORTH ROW</b><span>デモストア</span></header>
+
+<main class="pdp">
+  <section class="viewer" aria-label="着用イメージ（指で回して、前・横・背中を見られます）">
+    <div class="stage" id="stage">
+      <img class="poster" src="assets/photo-front-s.jpg" alt="鶴プリント ヴィンテージTシャツ（紺）の正面" width="640" height="640" fetchpriority="high">
+      <canvas id="gl" aria-hidden="true"></canvas>
+      <span class="badge" id="badge">着用モデル：標準 175cm</span>
+      <span class="load" id="load">3Dの試着を準備しています</span>
+      <span class="hint" aria-hidden="true">← 指で左右になぞると回ります →</span>
+      <button class="spot" type="button" data-k="print" aria-label="胸のプリントの説明"></button>
+      <button class="spot" type="button" data-k="neck" aria-label="首まわりの説明"></button>
+      <button class="spot" type="button" data-k="sleeve" aria-label="そでの説明"></button>
+      <button class="spot" type="button" data-k="hem" aria-label="すその説明"></button>
+      <div class="note" id="note" role="status"><button type="button" id="noteX" aria-label="閉じる">×</button><b id="noteT"></b><span id="noteD"></span></div>
+      <div class="photo" id="photo"><img alt="" id="photoImg"></div>
+    </div>
+    <div class="views" role="group" aria-label="向き">
+      <button type="button" data-v="0" aria-pressed="true">正面</button>
+      <button type="button" data-v="1">ななめ</button>
+      <button type="button" data-v="2">横</button>
+      <button type="button" data-v="3">背中</button>
+    </div>
+    <div class="thumbs" role="group" aria-label="画像">
+      <button type="button" data-p="" aria-pressed="true"><span class="t3d">3D試着</span></button>
+      <button type="button" data-p="assets/photo-front.jpg" aria-pressed="false"><img src="assets/photo-front.jpg" alt="平置きの正面" loading="lazy" width="900" height="900"></button>
+      <button type="button" data-p="assets/photo-neck.jpg" aria-pressed="false"><img src="assets/photo-neck.jpg" alt="首まわりとネームタグ" loading="lazy" width="900" height="900"></button>
+      <button type="button" data-p="assets/photo-fabric.jpg" aria-pressed="false"><img src="assets/photo-fabric.jpg" alt="生地の拡大" loading="lazy" width="900" height="900"></button>
+    </div>
+  </section>
+
+  <section class="info">
+    <p class="brand">NORTH ROW</p>
+    <h1>鶴プリント ヴィンテージTシャツ</h1>
+    <p class="price">¥8,800<small>税込</small></p>
+
+    <div class="sec">
+      <h2>あなたに近い体型で見る<span>モデルが変わります</span></h2>
+      <div class="bodies" role="group" aria-label="モデルの体型">
+        <button type="button" data-b="slim" aria-pressed="false"><b>細身</b><span>175cm・58kg</span></button>
+        <button type="button" data-b="standard" aria-pressed="true"><b>標準</b><span>175cm・68kg</span></button>
+        <button type="button" data-b="broad" aria-pressed="false"><b>がっしり</b><span>175cm・80kg</span></button>
+      </div>
+      <p class="wear" id="wear">このモデルは <b>Lサイズ</b> を着用しています。肩が落ちる、ゆったりした形です。</p>
+    </div>
+
+    <div class="sec">
+      <h2>サイズ<span id="sizeNote">標準体型なら L がおすすめ</span></h2>
+      <div class="sizes" role="group" aria-label="サイズ">
+        <button type="button" aria-pressed="false">S</button><button type="button" aria-pressed="false">M</button><button type="button" aria-pressed="true">L</button><button type="button" aria-pressed="false">XL</button>
+      </div>
+      <button class="cart" type="button" id="cart">カートに入れる</button>
+    </div>
+
+    <div class="sec">
+      <h2>商品について</h2>
+      <p class="desc">色落ちした紺に、飛ぶ鶴を描いたヴィンテージ風のプリント。厚手のコットンで、一枚でも透けにくい生地です。</p>
+    </div>
+    <div class="sec">
+      <dl class="spec">
+        <dt>素材</dt><dd>コットン100%</dd>
+        <dt>色</dt><dd>ネイビー（ヴィンテージ加工）</dd>
+        <dt>形</dt><dd>オーバーサイズ・ドロップショルダー</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>このページは、GROWXの体験型サイトのデモです。ブランド・商品・価格・モデルはすべて架空のものです。購入はできません。</footer>
+<div class="toast" id="toast" role="status">デモのため、カートには入りません。</div>
+
+<script type="module">
+/* ===== 09 アパレルEC：自分に近い体型のモデルが商品を着た姿を、指で回して確かめる =====
+   3D：Blenderで作ったモデル（人体はMPFB2）に、布の計算で着せたTシャツ。生地とプリントは濵田さんがGeminiで作った商品画像 */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const RM=matchMedia('(prefers-reduced-motion: reduce)').matches,MOB=matchMedia('(pointer:coarse)').matches||innerWidth<860;
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;
+const BODY={slim:{n:'細身',h:'175cm',size:'M',note:'細身なら M がおすすめ'},standard:{n:'標準',h:'175cm',size:'L',note:'標準体型なら L がおすすめ'},broad:{n:'がっしり',h:'175cm',size:'XL',note:'がっしり体型なら XL がおすすめ'}};
+const NOTES={print:['胸のプリント','白いぼかしの円に、飛ぶ鶴。ひび割れた風合いで、着るほどなじみます。'],neck:['首まわり','細めのリブで、首にそって丸く収まります。'],sleeve:['そで','肩が落ちる形で、そで口はひじの少し上。腕まわりはゆったり。'],hem:['すそ','腰が隠れる長さ。前後とも、まっすぐ落ちます。']};
+const toast=$('#toast');let tm;function say(m){toast.textContent=m;toast.classList.add('show');clearTimeout(tm);tm=setTimeout(()=>toast.classList.remove('show'),2400)}
+$('#cart').addEventListener('click',()=>say('デモのため、カートには入りません。'));
+$$('.sizes button').forEach(b=>b.addEventListener('click',()=>$$('.sizes button').forEach(x=>x.setAttribute('aria-pressed',x===b))));
+/* 画像の切り替え（3D試着／写真） */
+$$('.thumbs button').forEach(b=>b.addEventListener('click',()=>{$$('.thumbs button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  const p=b.dataset.p;if(p){$('#photoImg').src=p;$('#photoImg').alt=b.querySelector('img').alt}$('#photo').classList.toggle('show',!!p)}));
+const note=$('#note');function openNote(k){$('#noteT').textContent=NOTES[k][0];$('#noteD').textContent=NOTES[k][1];note.classList.add('show')}
+$('#noteX').addEventListener('click',()=>{note.classList.remove('show');G&&G.focus(null)});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+/* ---------- 3D：最初の画面（商品写真）が出たあとに読み込む ---------- */
+let G=null;
+if(document.readyState!=='complete')await new Promise(r=>addEventListener('load',r,{once:true}));
+await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(r,100))));
+let THREE=null,renderer=null;
+try{THREE=await import('./assets/three.module.min.js');renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true,alpha:true,powerPreference:'high-performance'})}catch(e){renderer=null}
+if(!renderer){document.documentElement.classList.add('no-gl')}else G=await build();
+
+async function build(){
+const stage=$('#stage');
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,MOB?1.75:2));renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1,.05,50);
+/* 撮影スタジオの光：上前のやわらかい主光・左の補助光・後ろの輪郭光・床からの照り返し */
+scene.add(new THREE.HemisphereLight('#FFFFFF','#CFC8BC',1.1));
+const key=new THREE.DirectionalLight('#FFF6EC',2.2);key.position.set(1.6,3.2,2.6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+Object.assign(key.shadow.camera,{left:-.9,right:.9,top:2,bottom:-.1,near:1,far:7});key.shadow.radius=8;key.shadow.bias=-.001;key.shadow.normalBias=.05;scene.add(key);
+const fill=new THREE.DirectionalLight('#E8EEFF',.7);fill.position.set(-2.4,1.6,1.4);scene.add(fill);
+const rim=new THREE.DirectionalLight('#FFFFFF',1.1);rim.position.set(.2,2.4,-2.6);scene.add(rim);
+/* 映り込み用の周りの景色（白いスタジオ） */
+{const s=new THREE.Scene();s.background=new THREE.Color('#D9D6D0');const p=new THREE.Mesh(new THREE.PlaneGeometry(4,2),new THREE.MeshBasicMaterial({color:'#ffffff'}));p.position.set(0,3,2);p.lookAt(0,0,0);s.add(p);
+ const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(s,.04).texture;pm.dispose()}
+const floor=new THREE.Mesh(new THREE.CircleGeometry(1.4,48),new THREE.ShadowMaterial({opacity:.16}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+
+const turn=new THREE.Group();scene.add(turn);   /* 回すのはモデル（カメラは固定） */
+const {GLTFLoader}=await import('./assets/gltf-loader.min.js');const loader=new GLTFLoader(),cache={};
+function load(b){if(!cache[b])cache[b]=new Promise(r=>loader.load(`assets/model-${b}.glb`,g=>{
+    g.scene.rotation.x=0;g.scene.traverse(o=>{if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=!/pants|shoe/.test(o.material.name);const m=o.material;if(m.map){m.map.anisotropy=8}
+      if(/tshirt|pants/.test(m.name)){m.envMapIntensity=.25}});
+    r(g.scene)},undefined,()=>r(null)));return cache[b]}
+let cur=null,curB='standard';
+async function show(b){const m=await load(b);if(!m)return;if(cur)turn.remove(cur);cur=m;turn.add(m);curB=b;
+  const box=new THREE.Box3().setFromObject(m);H=box.max.y;placeSpots()}
+let H=1.75;
+/* 注目点（服の上の位置：高さは身長に対する割合） */
+const SPOT={print:[0,.70,1],neck:[0,.845,.5],sleeve:[1,.74,0],hem:[0,.515,1]};
+const spotV={};function placeSpots(){const b=new THREE.Box3().setFromObject(cur),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+  /* 胴の前の面・肩の外側を、レイで実際の服の表面に合わせる */
+  const ray=new THREE.Raycaster();
+  for(const k in SPOT){const [sx,fy,sz]=SPOT[k],y=H*fy;let o,d;
+    if(sx){o=new THREE.Vector3(c.x+1,y,c.z);d=new THREE.Vector3(-1,0,0)}else{o=new THREE.Vector3(c.x,y,c.z+(sz>0?1:-1));d=new THREE.Vector3(0,0,sz>0?-1:1)}
+    ray.set(o,d);const hit=ray.intersectObject(cur,true)[0];spotV[k]=hit?hit.point.clone().add(d.clone().multiplyScalar(-.012)):o}}
+await show('standard');
+
+/* ---------- 操作：指で回す・ボタンで向き・ホイール／2本指で寄る ---------- */
+let rot=0,rotT=0,vel=0,down=false,lx=0,zoom=0,zoomT=0,focus=null,used=false;
+const VIEWS=[0,-Math.PI/4,-Math.PI/2,Math.PI];
+const near=a=>{const d=((a-rot)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI;return rot+d};
+function setView(i){rotT=near(VIEWS[i]);$$('.views button').forEach((x,j)=>x.setAttribute('aria-pressed',j===i))}
+$$('.views button').forEach((b,i)=>b.addEventListener('click',()=>{setView(i);focusOn(null)}));
+stage.addEventListener('pointerdown',e=>{if(e.target.closest('.spot,.note,.photo'))return;down=true;lx=e.clientX;stage.classList.add('drag');stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-lx;lx=e.clientX;rotT+=dx*.012;vel=dx*.012;if(Math.abs(dx)>2&&!used){used=true;stage.classList.add('used')}
+  $$('.views button').forEach(x=>x.setAttribute('aria-pressed','false'))});
+const up=()=>{down=false;stage.classList.remove('drag')};stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
+stage.addEventListener('wheel',e=>{e.preventDefault();zoomT=clamp(zoomT-e.deltaY*.0015)},{passive:false});
+let pinch=0;stage.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);if(pinch)zoomT=clamp(zoomT+(d-pinch)*.004);pinch=d;e.preventDefault()}},{passive:false});
+stage.addEventListener('touchend',()=>pinch=0);
+function focusOn(k){focus=k;if(!k){note.classList.remove('show');zoomT=0;return}
+  const ang={print:0,neck:0,sleeve:-Math.PI/2,hem:0}[k];rotT=near(ang);zoomT=.85;openNote(k)}
+$$('.spot').forEach(b=>b.addEventListener('click',()=>focusOn(b.dataset.k)));
+/* 体型の切り替え：同じ向き・同じ寄り具合のまま、モデルだけ入れ替える */
+$$('.bodies button').forEach(b=>b.addEventListener('click',async()=>{const k=b.dataset.b;$$('.bodies button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+  const B=BODY[k];$('#badge').textContent=`着用モデル：${B.n} ${B.h}`;$('#sizeNote').textContent=B.note;
+  const w=$('#wear');w.innerHTML='';w.append('このモデルは ');const bb=document.createElement('b');bb.textContent=B.size+'サイズ';w.append(bb,' を着用しています。肩が落ちる、ゆったりした形です。');
+  $$('.sizes button').forEach(x=>x.setAttribute('aria-pressed',x.textContent===B.size));
+  $('#load').textContent='モデルを着替えています';stage.classList.remove('ready');await show(k);stage.classList.add('ready')}));
+['slim','broad'].forEach(b=>setTimeout(()=>load(b),2500));   /* ほかの体型は、あとで静かに読んでおく */
+
+/* ---------- 毎フレーム ---------- */
+function resize(){const r=stage.getBoundingClientRect();renderer.setSize(r.width,r.height,false);cam.aspect=r.width/r.height;cam.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(stage);resize();
+const tgt=new THREE.Vector3(),pos=new THREE.Vector3(),V=new THREE.Vector3();let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(!down&&Math.abs(vel)>1e-4){rotT+=vel;vel*=Math.pow(.02,dt)}
+  rot+=(rotT-rot)*(1-Math.exp(-dt*(RM?40:9)));zoom+=(zoomT-zoom)*(1-Math.exp(-dt*(RM?40:6)));
+  turn.rotation.y=rot;
+  /* カメラ：首から下を写す。寄るほど、注目点（なければ胸）に近づく */
+  const far=2.85;   /* 首から下（あごが映らない）から足元までが入る距離 */
+  const f=focus&&spotV[focus]?V.copy(spotV[focus]).applyAxisAngle(new THREE.Vector3(0,1,0),rot):V.set(0,H*.66,0);
+  tgt.set(lerp(0,f.x,zoom),lerp(H*.425,f.y,zoom),lerp(0,f.z,zoom));
+  pos.set(tgt.x*.6,tgt.y,lerp(far*(cam.aspect<.75?1.12:1),1.15,zoom));cam.position.copy(pos);cam.lookAt(tgt);
+  renderer.render(scene,cam);
+  /* 注目点の表示：服の表面がこちらを向いているときだけ */
+  $$('.spot').forEach(el=>{const k=el.dataset.k,p=spotV[k];if(!p)return;V.copy(p).applyAxisAngle(new THREE.Vector3(0,1,0),rot);
+    const n=V.clone().setY(0).normalize(),face=n.z>.35||(k==='neck'&&Math.cos(rot)>.6);V.project(cam);
+    const r=stage.getBoundingClientRect(),x=(V.x+1)/2*r.width,y=(1-V.y)/2*r.height;
+    el.style.transform=`translate(${x}px,${y}px)`;el.classList.toggle('on',face&&zoom<.4&&!focus&&x>24&&x<r.width-24&&y>24&&y<r.height-24)});
+  requestAnimationFrame(frame)}
+try{if(renderer.compileAsync)await renderer.compileAsync(scene,cam)}catch(e){}
+requestAnimationFrame(frame);stage.classList.add('ready');
+return {focus:focusOn};
+}
+</script>
+</body>
+</html>
