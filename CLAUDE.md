@@ -52,6 +52,7 @@
 | taiken-09-apparel | テスト公開（AI BPO体験カタログ09・体型を選んでモデルの着用姿を回して見るアパレル商品ページのデモ。架空のブランド・商品・モデルで実在しない） |
 | samurai-gel | テスト公開（SAMURAI GEL ブランドサイト モック・先方確認用） |
 | samurai-gel-wf | テスト公開（SAMURAI GEL ブランドサイト 作り直し版ワイヤーフレーム・先方確認用。samurai-gel とは別物） |
+| samurai-gel-design | テスト公開（SAMURAI GEL デザインの方向性サンプル3セクション＋DESIGN.md。画像は samurai-gel/media を読み込みのみで参照） |
 
 ## PRマージ後に必ずやること
 
