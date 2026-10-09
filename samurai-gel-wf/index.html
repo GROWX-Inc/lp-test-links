@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SAMURAI GEL ワイヤーフレーム</title>
+<style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+/* Layout: 1カラム縦積み（スマホ主体）。PCは中央寄せ＋一部2カラム。グレースケールのみ */
+:root{
+  --bg:#f4f4f3;--paper:#ffffff;--ink:#1d1d1c;--sub:#5c5c5a;--line:#cfcfcc;--fill:#e6e6e3;--note:#fff6d6;--note-ink:#5a4600;
+  --gut:clamp(16px,4vw,32px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161616;--paper:#202020;--ink:#ececea;--sub:#a9a9a6;--line:#3e3e3c;--fill:#2c2c2b;--note:#3a3214;--note-ink:#f1dc95;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#161616;--paper:#202020;--ink:#ececea;--sub:#a9a9a6;--line:#3e3e3c;--fill:#2c2c2b;--note:#3a3214;--note-ink:#f1dc95;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;font-size:16px;line-height:1.8;padding-inline:var(--gut);padding-block:0 96px;word-break:auto-phrase}
+.wrap{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.top{padding-block:20px 4px;display:flex;flex-direction:column;gap:6px}
+.top h1{font-size:20px;margin:0}
+.top p{margin:0;color:var(--sub);font-size:14px}
+header.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px}
+.logo{font-weight:700;letter-spacing:.08em;margin-right:auto}
+.burger{min-width:44px;height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);font-size:14px;cursor:pointer}
+@media (max-width:899px){header.nav #menu{display:none;flex-direction:column;width:100%;gap:0;font-size:16px}header.nav #menu.open{display:flex}header.nav #menu a{display:block;padding:12px 4px;border-top:1px solid var(--line)}}
+@media (min-width:900px){.burger{display:none}}
+.nav ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:14px}
+.nav a{color:var(--ink)}
+section{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:24px var(--gut);display:flex;flex-direction:column;gap:16px;scroll-margin-top:80px}
+.sec-label{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--sub)}
+.sec-label b{color:var(--ink);font-size:14px;border:1px solid var(--ink);border-radius:4px;padding:0 8px}
+.note{background:var(--note);color:var(--note-ink);border-radius:6px;padding:10px 12px;font-size:14px;line-height:1.7}
+h2{font-size:clamp(22px,4.5vw,30px);line-height:1.5;margin:0;text-wrap:balance}
+h3{font-size:18px;margin:0;line-height:1.5}
+p{margin:0}
+.img{background:var(--fill);border:1px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:14px;text-align:center;padding:12px;min-height:160px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 24px;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:700;text-decoration:none;font-size:16px;border:0;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.card{border:1px solid var(--line);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.small{font-size:14px;color:var(--sub)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.tbl{overflow-x:auto}
+.vs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.vs .card:first-child{border-style:dashed}
+.stat{background:var(--fill);border-radius:6px;padding:12px 6px;text-align:center}
+.stat strong{display:block;font-size:20px}
+.stat span{font-size:14px;color:var(--sub)}
+.sim{display:flex;flex-direction:column;gap:12px}
+.sim-row{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-size:14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.timeline{display:flex;flex-direction:column;gap:6px;border-left:2px solid var(--ink);padding-left:14px}
+.result{border:2px solid var(--ink);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px}
+details{border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+summary{cursor:pointer;font-size:15px}
+footer{font-size:14px;color:var(--sub);display:flex;flex-direction:column;gap:6px;padding-block:20px}
+.fixed{position:fixed;left:0;right:0;bottom:0;padding:10px var(--gut) calc(10px + env(safe-area-inset-bottom,0px));background:var(--paper);border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:center;z-index:9}
+.fixed .btn{flex:1;max-width:420px}
+@media (min-width:900px){.fixed{display:none}}
+a:focus-visible,button:focus-visible{outline:3px solid var(--sub);outline-offset:2px}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:85%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.rail::-webkit-scrollbar{display:none}
+.rail>.card{scroll-snap-align:start}
+@media (min-width:900px){.rail{grid-auto-columns:calc((100% - 24px) / 3)}}
+.ctrl{display:flex;align-items:center;justify-content:center;gap:16px}
+.arrow{width:48px;height:48px;border-radius:50%;border:1px solid var(--ink);background:var(--paper);color:var(--ink);font-size:20px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.arrow:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:8px;align-items:center}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.dots span.on{background:var(--ink)}
+.count{font-size:14px;color:var(--sub);font-variant-numeric:tabular-nums;min-width:3em;text-align:center}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <h1>SAMURAI GEL サイト ワイヤーフレーム</h1>
+    <p>※仮の本文です。色・写真・装飾は入れていません。黄色の枠は説明メモで、実際のサイトには載りません。</p>
+  </div>
+
+  <header class="nav">
+    <span class="logo">SAMURAI GEL</span>
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="menu">メニュー</button>
+    <ul id="menu">
+      <li><a href="#drink">飲みやすさ</a></li>
+      <li><a href="#product">商品について</a></li>
+      <li><a href="#plan">使い方（補給プラン）</a></li>
+      <li><a href="#price">料金・セット</a></li>
+      <li><a href="#shops">取扱店</a></li>
+    </ul>
+  </header>
+  <div class="note">上部メニュー：スクロールしても上に残ります。スマホはハンバーガーメニューに格納し、PCは横並びで表示します。商品名ではなく、初めての人にも分かる言葉にしています。</div>
+
+  <section id="hero">
+    <div class="sec-label"><b>1</b>最初の画面</div>
+    <div class="img">商品写真（刀と鎧のパッケージ）＋レースを走る市民ランナーの写真</div>
+    <h2>疲れきった30km地点でも、<br>するっと飲める補給を。</h2>
+    <p>記録に挑むランナーのために、食品開発者でありランナーでもある開発者がつくったエナジージェルです。</p>
+    <div><a class="btn" href="#price">商品を見る</a></div>
+    <div class="note">役割：何の商品か・誰のためかを一瞬で伝え、離脱を防ぐ。すでに買うと決めている人は、ここからすぐ料金へ進めます。</div>
+  </section>
+
+  <section id="drink">
+    <div class="sec-label"><b>2</b>飲みやすさ</div>
+    <h2>「ジェルはベタついて、<br>飲みにくい」と思っていませんか。</h2>
+    <div class="vs">
+      <div class="card"><h3>よくあるジェル</h3><p class="small">粘りが強く、口に残る。水がないと飲みにくい。疲れているほど、喉を通らない。</p></div>
+      <div class="card"><h3>SAMURAI GEL</h3><p class="small">寒天のゼリー食感で、水なしでも飲める。口に残らず、袋もベタつかない。</p></div>
+    </div>
+    <div class="img">食感がわかる動画（袋から押し出す・飲む瞬間）</div>
+    <div class="card">
+      <p>「ジェルはベタつくイメージがあって、水と一緒じゃないと飲めなかったんですが、サムライジェルはゼリー状なので水がなくても飲めてとても良いです。」</p>
+      <p class="small">初めて購入した方のレビュー（STORES・星5）</p>
+    </div>
+    <div class="note">役割：飲む前の人に、飲みやすさを伝える。「ジェルは飲みにくい」という思い込みを先に言い、食感の動画と初めて買った人の声で答えます。</div>
+  </section>
+
+  <section id="product">
+    <div class="sec-label"><b>3</b>商品について（刀と鎧）</div>
+    <h2>前へ進むための「刀」。<br>疲れた身体を守る「鎧」。</h2>
+    <div class="grid2">
+      <div class="card"><div class="img" style="min-height:120px">刀のパッケージ</div><h3>刀（かたな）</h3><p class="small">レース前半〜中盤に。40分前後を目安に、定期的に摂るエネルギー補給型。</p></div>
+      <div class="card"><div class="img" style="min-height:120px">鎧のパッケージ</div><h3>鎧（よろい）</h3><p class="small">レース後半と運動後に。疲れてきた身体を考えたリカバリー型。</p></div>
+    </div>
+    <h3>カロリーが低めなのは、狙いがあるからです。</h3>
+    <p>身体に蓄えられる糖質には限りがあります。一方で、体脂肪として蓄えたエネルギーはとても大きい。SAMURAI GELは糖質を大量に入れるのではなく、身体にあるエネルギーも使って長く走ることを考えて設計しています。その考え方を表すのが、刀に配合したMCTオイルです。</p>
+    <details><summary>成分表を見る</summary>
+      <div class="tbl"><table>
+        <tr><th></th><th>刀（45g）</th><th>鎧（40g）</th></tr>
+        <tr><td>エネルギー</td><td>74kcal</td><td>33kcal</td></tr>
+        <tr><td>炭水化物</td><td>16.7g</td><td>5.6g</td></tr>
+        <tr><td>MCTオイル</td><td>3000mg</td><td>—</td></tr>
+        <tr><td>BCAA</td><td>500mg</td><td>1000mg</td></tr>
+        <tr><td>コラーゲンペプチド</td><td>—</td><td>500mg</td></tr>
+        <tr><td>クエン酸</td><td>400mg</td><td>400mg</td></tr>
+        <tr><td>カフェイン</td><td>70mg</td><td>70mg</td></tr>
+      </table></div>
+    </details>
+    <div class="note">役割：刀と鎧の違いと、カロリーが低めな理由を伝える。数字より先に考え方を説明し、成分表は開閉で見られるようにします。効果の書き方は表示ルールの確認が必要です。</div>
+  </section>
+
+  <section id="plan">
+    <div class="sec-label"><b>4</b>使い方（補給プラン）</div>
+    <h2>あなたのレースに合わせた、<br>補給のタイミングと個数。</h2>
+    <div class="sim">
+      <p class="small">種目を選んでください</p>
+      <div class="sim-row" id="sport">
+        <button class="chip" aria-pressed="true" data-v="full">フルマラソン</button>
+        <button class="chip" aria-pressed="false" data-v="half">ハーフ</button>
+        <button class="chip" aria-pressed="false" data-v="trail">トレラン</button>
+        <button class="chip" aria-pressed="false" data-v="bike">自転車</button>
+        <button class="chip" aria-pressed="false" data-v="tri">トライアスロン</button>
+      </div>
+      <p class="small">目標タイム</p>
+      <div class="sim-row" id="time">
+        <button class="chip" aria-pressed="false" data-v="3">3時間</button>
+        <button class="chip" aria-pressed="true" data-v="35">3時間30分</button>
+        <button class="chip" aria-pressed="false" data-v="4">4時間</button>
+        <button class="chip" aria-pressed="false" data-v="5">5時間</button>
+      </div>
+      <div class="result" aria-live="polite">
+        <h3 id="r-title">フルマラソン・3時間30分の補給プラン</h3>
+        <div class="timeline" id="r-line"></div>
+        <p id="r-count"></p>
+        <p class="small">おすすめのセット</p>
+        <p id="r-set" style="font-weight:700"></p>
+        <div><a class="btn" href="#price">このセットを購入する</a></div>
+      </div>
+    </div>
+    <div class="note">役割：いつ・何個飲めばいいかと、どのセットを買えばいいかが分かる。1回目の購入地点です。タイミングは仮の値で、5種目の正式な定義は千坂さんに確認します。</div>
+  </section>
+
+  <section id="trust">
+    <div class="sec-label"><b>5</b>信頼</div>
+    <h2>挑戦する人たちが、<br>レースで選んでいる。</h2>
+    <div class="grid3">
+      <div class="stat"><strong>★5.0</strong><span>レビュー17件</span></div>
+      <div class="stat"><strong>5種目</strong><span>サポート選手</span></div>
+      <div class="stat"><strong>FSSC 22000</strong><span>認証工場で製造</span></div>
+    </div>
+    <h3>サポート選手</h3>
+    <div class="rail" id="athletes" tabindex="0" aria-label="サポート選手一覧">
+      <div class="card"><div class="img" style="min-height:120px">選手写真</div><p class="small">マラソン</p><h3>選手名</h3><p class="small">実績：〇〇マラソン 2時間〇分</p><p>感想の本文が入ります。100〜150字程度で、レースのどの場面でどう使い、どう感じたかを書いていただきます。</p></div>
+      <div class="card"><div class="img" style="min-height:120px">選手写真</div><p class="small">トレイルラン</p><h3>選手名</h3><p class="small">実績：〇〇大会 入賞</p><p>感想の本文が入ります。100〜150字程度で、レースのどの場面でどう使い、どう感じたかを書いていただきます。</p></div>
+      <div class="card"><div class="img" style="min-height:120px">選手写真</div><p class="small">トライアスロン</p><h3>選手名</h3><p class="small">実績：〇〇大会 優勝</p><p>感想の本文が入ります。100〜150字程度で、レースのどの場面でどう使い、どう感じたかを書いていただきます。</p></div>
+      <div class="card"><div class="img" style="min-height:120px">選手写真</div><p class="small">自転車</p><h3>選手名</h3><p class="small">実績：〇〇大会</p><p>感想の本文が入ります。100〜150字程度で、レースのどの場面でどう使い、どう感じたかを書いていただきます。</p></div>
+      <div class="card"><div class="img" style="min-height:120px">選手写真</div><p class="small">格闘技</p><h3>選手名</h3><p class="small">実績：〇〇大会</p><p>感想の本文が入ります。100〜150字程度で、レースのどの場面でどう使い、どう感じたかを書いていただきます。</p></div>
+    </div>
+    <div class="ctrl">
+      <button class="arrow" id="prev" aria-label="前の選手">‹</button>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <span class="count" id="count">1 / 5</span>
+      <button class="arrow" id="next" aria-label="次の選手">›</button>
+    </div>
+    <div class="note">スマホ・PCともにカルーセル。矢印ボタンと「1 / 5」の表示で、他にも選手がいることが分かるようにしています。スワイプでも動かせます。自動では動かしません。1枚目は一番多い客層（マラソン）の選手にします。</div>
+    <h3>購入者の声</h3>
+    <div class="grid2">
+      <div class="card"><p>「フルマラソン時に刀をスタート前と20kmで、鎧を30kmで使用しています。昨年はサムライジェルのおかげで3時間一桁まで出せました。」</p><p class="small">リピート購入の方</p></div>
+      <div class="card"><p>「個人的には鎧の効果をとても感じ驚いています。走ってる最中はもちろん、練習後や翌日の疲労感まで違います。」</p><p class="small">18個入りを購入した方</p></div>
+    </div>
+    <div><a class="btn ghost" href="#">すべてのレビューを見る</a></div>
+    <h3>つくる人・つくる場所</h3>
+    <div class="grid2">
+      <div class="card"><div class="img" style="min-height:100px">開発者が走る写真</div><h3>つくる人</h3><p class="small">食品メーカーで20年、商品開発と品質保証に携わる市民ランナー。自分がレースで本当に使いたいジェルを、走りながら試作して完成させました。</p></div>
+      <div class="card"><div class="img" style="min-height:100px">工場の写真</div><h3>つくる場所</h3><p class="small">新潟県の真喜食品で製造。健康食品GMPと、食品安全の国際規格FSSC 22000の認証を取得した工場です。</p></div>
+    </div>
+    <div class="note">役割：初めての人に、安心して選べる理由を伝える。上の数字だけで要点が分かり、詳しく見たい人は下を読みます。開発者は控えめに、半分のカード1枚にしています。</div>
+  </section>
+
+  <section id="price">
+    <div class="sec-label"><b>6</b>料金・セット（メイン）</div>
+    <h2>まずは10個から。<br>レースが続くなら、まとめてお得に。</h2>
+    <div class="grid2">
+      <div class="card"><div class="img" style="min-height:120px">10個入り</div><h3>10個入り（刀5・鎧5）</h3><p style="font-size:22px;font-weight:700">¥4,300</p><p class="small">1個あたり430円｜送料500円</p><p class="small">初めての方に</p><a class="btn" href="#">購入する</a></div>
+      <div class="card"><div class="img" style="min-height:120px">18個入り</div><h3>18個入り（刀9・鎧9）</h3><p style="font-size:22px;font-weight:700">¥7,430</p><p class="small">1個あたり約413円｜400円お得｜送料500円</p><p class="small">シーズンに2〜3レース走る方に</p><a class="btn" href="#">購入する</a></div>
+      <div class="card"><div class="img" style="min-height:120px">40個入り</div><h3>40個入り（刀20・鎧20）</h3><p style="font-size:22px;font-weight:700">¥15,950</p><p class="small">1個あたり約399円｜1,450円お得｜送料500円</p><p class="small">練習でも使う方に</p><a class="btn" href="#">購入する</a></div>
+    </div>
+    <p class="small">朝練ブレンド（コーヒー）とのセットもあります。→ STORESで見る</p>
+    <div class="note">役割：セットを比べて選び、購入する（2回目の購入地点・主役）。お試しセットや送料無料の条件が新設された場合は、ここに追加します。</div>
+  </section>
+
+  <section id="shops">
+    <div class="sec-label"><b>7</b>取扱店（小さく）</div>
+    <h3>お店で手に取れます</h3>
+    <details><summary>関東（〇店舗）</summary><p class="small">店舗名・住所・地図リンクが入ります。</p></details>
+    <details><summary>関西（〇店舗）</summary><p class="small">店舗名・住所・地図リンクが入ります。</p></details>
+    <details><summary>その他の地域（〇店舗）</summary><p class="small">店舗名・住所・地図リンクが入ります。</p></details>
+    <div class="note">役割：お店で手に取りたい人に、近くの店舗を案内する。取扱店リストの最新版と、店舗で単品販売があるかを千坂さんに確認します。</div>
+  </section>
+
+  <footer>
+    <p><b>SAMURAI GEL</b>｜株式会社サブスリーラボ</p>
+    <p>卸・お取り扱い・選手サポートのご相談：お問い合わせフォーム</p>
+    <p>YouTube / Instagram / X / ブログ</p>
+    <div class="note">問い合わせ窓口はおまけ程度の扱いのため、フッターに小さく置くだけにしています。</div>
+  </footer>
+</div>
+
+<div class="fixed"><a class="btn" href="#price">商品を見る・購入する</a></div>
+<div class="note" style="max-width:960px;margin:12px auto 0">スマホでは、画面下に購入ボタンを常に表示します（PCでは非表示）。</div>
+
+<script>
+const plans={
+ full:{name:'フルマラソン',dist:42,kata:[['スタート前','刀'],['10km','刀'],['18km','刀'],['26km','刀'],['32km','鎧']]},
+ half:{name:'ハーフ',dist:21,kata:[['スタート前','刀'],['10km','刀'],['15km','鎧']]},
+ trail:{name:'トレラン',dist:0,kata:[['スタート前','刀'],['40分ごと','刀'],['後半の登り前','鎧'],['ゴール後','鎧']]},
+ bike:{name:'自転車',dist:0,kata:[['スタート前','刀'],['40分ごと','刀'],['後半','鎧']]},
+ tri:{name:'トライアスロン',dist:0,kata:[['スイム前','刀'],['バイク中に40分ごと','刀'],['ラン後半','鎧']]}
+};
+const times={'3':'3時間','35':'3時間30分','4':'4時間','5':'5時間'};
+let s='full',t='35';
+function pick(groupId,cb){document.querySelectorAll('#'+groupId+' .chip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+groupId+' .chip').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');cb(b.dataset.v);render();}));}
+function render(){
+ const p=plans[s];const extra=t==='5'?1:(t==='4'?1:0);
+ const line=[...p.kata];if(extra)line.splice(line.length-1,0,['後半の追加','刀']);
+ document.getElementById('r-title').textContent=p.name+'・'+times[t]+'の補給プラン';
+ document.getElementById('r-line').innerHTML=line.map(([w,g])=>'<div><b>'+w+'</b>　'+g+'</div>').join('');
+ const k=line.filter(x=>x[1]==='刀').length,y=line.filter(x=>x[1]==='鎧').length;
+ document.getElementById('r-count').textContent='1レースで 刀 '+k+'個・鎧 '+y+'個（合計'+(k+y)+'個）';
+ const n=k+y;document.getElementById('r-set').textContent=n<=5?'10個入り：レース2回分＋練習で試せます':'18個入り：レース約'+Math.floor(18/n)+'回分';
+}
+pick('sport',v=>s=v);pick('time',v=>t=v);render();
+(function(){
+ const b=document.getElementById('burger'),m=document.getElementById('menu'),h=b.closest('header');
+ const set=o=>{m.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.textContent=o?'✕ 閉じる':'☰ メニュー';};
+ b.addEventListener('click',e=>{e.stopPropagation();set(!m.classList.contains('open'));});
+ m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));
+ document.addEventListener('click',e=>{if(m.classList.contains('open')&&!h.contains(e.target))set(false);});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')set(false);});
+ let y=scrollY;addEventListener('scroll',()=>{if(m.classList.contains('open')&&Math.abs(scrollY-y)>40)set(false);if(!m.classList.contains('open'))y=scrollY;},{passive:true});
+ set(false);
+})();
+(function(){
+ const rail=document.getElementById('athletes'),cards=[...rail.children],prev=document.getElementById('prev'),next=document.getElementById('next'),dots=document.getElementById('dots'),count=document.getElementById('count');
+ cards.forEach(()=>dots.appendChild(document.createElement('span')));
+ const per=()=>Math.max(1,Math.round(rail.clientWidth/cards[0].getBoundingClientRect().width));
+ const idx=()=>Math.round(rail.scrollLeft/(cards[0].getBoundingClientRect().width+12));
+ function update(){const i=idx(),p=per(),last=cards.length-p;prev.disabled=i<=0;next.disabled=i>=last;[...dots.children].forEach((d,k)=>d.classList.toggle('on',k>=i&&k<i+p));count.textContent=(Math.min(i+p,cards.length))+' / '+cards.length;}
+ function go(d){const i=Math.min(Math.max(idx()+d,0),cards.length-per());rail.scrollTo({left:cards[i].offsetLeft-cards[0].offsetLeft,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
+ prev.addEventListener('click',()=>go(-1));next.addEventListener('click',()=>go(1));
+ rail.addEventListener('scroll',()=>requestAnimationFrame(update),{passive:true});addEventListener('resize',update);update();
+})();
+</script>
+
+</body>
+</html>
