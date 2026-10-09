@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>SAMURAI GEL デザインサンプル</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=Shippori+Mincho+B1:wght@800&display=swap">
+<style>
+/* 方向性：上質でシンプル × 市民ランナーの挑戦。DESIGN.md のトークンをそのまま使う */
+:root{
+  --ink:#111214;--ink-2:#1C1E22;--paper:#F5F2EC;--paper-2:#EAE5DC;--red:#C41E24;--red-d:#9E161B;
+  --sub-l:#4A4D52;--sub-d:#B9BCC2;--line-l:#D9D3C8;--line-d:#33363C;
+  --gut:clamp(16px,5vw,64px);--max:1200px;
+  --mincho:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --sans:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+  --en:"Barlow Condensed","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:2;letter-spacing:.05em;font-feature-settings:"palt";word-break:auto-phrase;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+.wrap{width:100%;max-width:calc(var(--max) + var(--gut)*2);margin:0 auto;padding-inline:var(--gut)}
+.en{font-family:var(--en);text-transform:uppercase;letter-spacing:.12em;font-weight:600;font-size:14px;line-height:1.7}
+h1,h2{font-family:var(--mincho);font-weight:800;letter-spacing:.06em;margin:0;text-wrap:balance}
+h2{font-size:clamp(26px,3.6vw,40px);line-height:1.5}
+h3{font-size:clamp(18px,1.9vw,22px);line-height:1.6;margin:0;font-weight:700}
+p{margin:0}
+.lead{font-size:clamp(16px,1.6vw,18px);font-weight:500}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:0 32px;background:var(--red);color:#fff;text-decoration:none;font-weight:700;font-size:16px;letter-spacing:.1em;border:1px solid var(--red);transition:background .2s}
+.btn:hover{background:var(--red-d)}
+.btn.line{background:transparent;color:inherit;border-color:currentColor}
+.btn .arw{font-family:var(--en);font-size:18px}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+.sample{background:var(--ink);color:var(--sub-d);font-size:14px;line-height:1.7;padding:8px var(--gut);text-align:center}
+
+/* header */
+header{position:sticky;top:0;z-index:20;background:rgba(17,18,20,.92);backdrop-filter:blur(8px);color:#fff;border-bottom:1px solid var(--line-d)}
+.hd{display:flex;align-items:center;gap:24px;min-height:64px}
+.hd .logo{width:132px;margin-right:auto}
+.menu{list-style:none;display:flex;gap:28px;margin:0;padding:0;font-size:14px}
+.menu a{color:#fff;text-decoration:none;opacity:.86}
+.menu a:hover{opacity:1}
+.hd .btn{min-height:44px;padding:0 20px;font-size:14px}
+.burger{display:none;background:none;border:1px solid var(--line-d);color:#fff;min-width:48px;height:44px;font-size:14px;font-family:var(--sans);cursor:pointer}
+@media (max-width:899px){
+  .hd .btn{display:none}
+  .burger{display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
+  .menu{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;gap:0;background:var(--ink);padding:0 var(--gut) 16px;border-bottom:1px solid var(--line-d)}
+  .menu.open{display:flex}
+  .menu a{display:block;padding:14px 0;border-top:1px solid var(--line-d);font-size:16px}
+}
+
+/* hero */
+.hero{position:relative;color:#fff;background:var(--ink);overflow:hidden}
+.hero .bg{position:absolute;inset:0;background:url(../samurai-gel/media/photo_pouches_track.jpg) center 62%/cover no-repeat}
+.hero .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(17,18,20,.92) 0%,rgba(17,18,20,.72) 42%,rgba(17,18,20,.15) 100%)}
+.hero .in{position:relative;display:flex;flex-direction:column;gap:28px;padding-block:clamp(96px,14vw,168px) clamp(72px,10vw,128px);max-width:640px}
+.hero h1{font-size:clamp(30px,4.6vw,54px);line-height:1.45}
+.hero .lead{color:#E7E8EA}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px 20px;color:var(--sub-d)}
+.hero .meta span::before{content:"";display:inline-block;width:6px;height:6px;background:var(--red);margin-right:8px;vertical-align:middle}
+@media (min-width:900px){
+  .hero .in{max-width:860px}
+  .hero .bg{left:38%}
+  .hero .bg::after{background:linear-gradient(90deg,rgba(17,18,20,1) 0%,rgba(17,18,20,.55) 30%,rgba(17,18,20,0) 70%)}
+}
+@media (max-width:640px){
+  .hero .bg{background-position:72% 60%}
+  .hero .bg::after{background:linear-gradient(180deg,rgba(17,18,20,.55) 0%,rgba(17,18,20,.88) 55%,rgba(17,18,20,.96) 100%)}
+  .hero .in{padding-top:220px}
+}
+
+/* plan */
+.plan{background:var(--ink);color:#fff;padding-block:clamp(72px,10vw,120px)}
+.sec-hd{display:flex;flex-direction:column;gap:16px;margin-bottom:clamp(32px,5vw,56px)}
+.plan .sec-hd .en{color:#F0898C}
+.plan .sec-hd p.lead{color:var(--sub-d)}
+.sim{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:900px){.sim{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px}}
+.panel{background:var(--ink-2);padding:clamp(20px,3vw,32px);display:flex;flex-direction:column;gap:24px}
+.field{display:flex;flex-direction:column;gap:12px}
+.field>label,.field>.lbl{font-size:14px;color:var(--sub-d);line-height:1.7}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:0 16px;background:transparent;border:1px solid var(--line-d);color:#fff;font-family:var(--sans);font-size:15px;letter-spacing:.05em;cursor:pointer}
+.chip[aria-pressed="true"]{border-color:#fff;box-shadow:inset 0 -3px 0 var(--red)}
+select{appearance:none;width:100%;min-height:52px;background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E") right 16px center no-repeat;color:#fff;border:1px solid var(--line-d);padding:0 44px 0 16px;font-family:var(--sans);font-size:16px}
+.result{display:flex;flex-direction:column;gap:24px;min-width:0}
+.result h3 .en{display:block;color:var(--sub-d);font-weight:500}
+.track{position:relative;height:150px;margin-top:8px}
+.track .rail{position:absolute;left:0;right:0;top:92px;height:2px;background:var(--line-d)}
+.track .km{position:absolute;top:104px;transform:translateX(-50%);font-family:var(--en);font-size:14px;color:var(--sub-d);white-space:nowrap}
+.mk{position:absolute;top:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;width:44px}
+.mk img{width:34px;height:auto}
+.mk i{width:10px;height:10px;background:#fff;border:2px solid var(--ink);outline:1px solid #fff;margin-top:2px}
+.mk.yoroi i{background:var(--ink);outline-color:#fff}
+.mk.kata i{background:var(--red);outline-color:var(--red)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px;color:var(--sub-d)}
+.legend b{color:#fff;font-weight:700}
+.counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--line-d);border-bottom:1px solid var(--line-d)}
+.counts div{padding:16px 8px;display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.counts div+div{border-left:1px solid var(--line-d);padding-left:16px}
+.counts span{font-size:14px;color:var(--sub-d);line-height:1.7}
+.counts strong{font-family:var(--en);font-size:40px;line-height:1.1;font-weight:700;letter-spacing:.02em}
+.counts strong small{font-family:var(--sans);font-size:14px;margin-left:4px;font-weight:500}
+.reco{display:flex;flex-wrap:wrap;align-items:center;gap:20px 24px;background:var(--paper);color:var(--ink);padding:20px}
+.reco img{width:120px;flex:none}
+.reco .txt{flex:1 1 220px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.reco .txt .en{color:var(--red)}
+.reco .txt p{font-size:14px;color:var(--sub-l);line-height:1.8}
+.reco .btn{flex:1 1 200px}
+.wait{border:1px dashed var(--line-d);padding:24px;color:var(--sub-d);font-size:15px;line-height:1.9}
+.tentative{font-size:14px;color:var(--sub-d);line-height:1.7}
+
+/* price */
+.price{padding-block:clamp(72px,10vw,120px)}
+.price .sec-hd .en{color:var(--red)}
+.price .sec-hd p.lead{color:var(--sub-l)}
+.sets{display:grid;grid-template-columns:minmax(0,1fr);gap:40px}
+@media (min-width:760px){.sets{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}}
+.set{display:flex;flex-direction:column;gap:12px;position:relative}
+.set .ph{background:var(--paper-2);aspect-ratio:5/3;display:flex;align-items:center;justify-content:center;padding:16px;max-width:100%}
+.set .ph img{max-height:100%;object-fit:contain}
+.set .tag{position:absolute;left:0;top:0;background:var(--ink);color:#fff;font-size:14px;line-height:1.7;padding:4px 12px}
+.set .tag.red{background:var(--red)}
+.set h3{margin-top:8px}
+.set .yen{font-family:var(--en);font-size:36px;font-weight:700;line-height:1.1;letter-spacing:.02em}
+.set .yen small{font-family:var(--sans);font-size:14px;font-weight:500;margin-left:4px}
+.set .per{font-size:14px;color:var(--sub-l);line-height:1.7}
+.set .per b{color:var(--ink)}
+.set .for{font-size:15px;line-height:1.8;padding-top:12px;border-top:1px solid var(--line-l)}
+.set .btn{margin-top:auto}
+.set.main .ph{outline:2px solid var(--red);outline-offset:-2px}
+.note-stores{margin-top:32px;font-size:14px;color:var(--sub-l);line-height:1.8}
+
+footer{background:var(--ink);color:var(--sub-d);font-size:14px;line-height:1.8;padding-block:48px 120px}
+footer .wrap{display:flex;flex-direction:column;gap:12px}
+.fixed{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--gut) calc(10px + env(safe-area-inset-bottom,0px));background:rgba(17,18,20,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line-d)}
+.fixed .btn{width:100%}
+@media (min-width:900px){.fixed{display:none}}
+
+.rv{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease}
+.js .rv.pre{opacity:0;transform:translateY(16px)}
+@media (prefers-reduced-motion:reduce){.js .rv.pre{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<p class="sample">デザインの方向性サンプルです（最初の画面・補給プラン・料金の3セクションのみ）。写真と文章は仮です。</p>
+
+<header>
+  <div class="wrap hd">
+    <img class="logo" src="../samurai-gel/media/logo_white.png" alt="SAMURAI GEL">
+    <button class="burger" id="burger" aria-expanded="false" aria-controls="menu">☰ メニュー</button>
+    <ul class="menu" id="menu">
+      <li><a href="#">飲みやすさ</a></li>
+      <li><a href="#">商品について</a></li>
+      <li><a href="#plan">使い方（補給プラン）</a></li>
+      <li><a href="#price">料金・セット</a></li>
+      <li><a href="#">取扱店</a></li>
+    </ul>
+    <a class="btn" href="#price">購入する</a>
+  </div>
+</header>
+
+<section class="hero" aria-label="SAMURAI GEL">
+  <div class="bg" role="img" aria-label="陸上トラックに置かれた刀と鎧のパッケージ"></div>
+  <div class="wrap">
+    <div class="in">
+      <p class="en" style="color:#F0898C">Energy gel for runners</p>
+      <h1>疲れきった30km地点でも、<br>するっと飲める補給を。</h1>
+      <p class="lead">記録に挑むランナーのために。<br>食品開発者であり、市民ランナーでもある開発者が、走りながらつくったエナジージェルです。</p>
+      <div class="meta"><span>水なしで飲める</span><span>国内の認証工場で製造</span><span>刀と鎧の2種類</span></div>
+      <div><a class="btn" href="#price">商品を見る <span class="arw">→</span></a></div>
+    </div>
+  </div>
+</section>
+
+<section class="plan" id="plan">
+  <div class="wrap">
+    <div class="sec-hd rv">
+      <p class="en">Fuel plan</p>
+      <h2>あなたのレースに合わせた、<br>補給のタイミングと個数。</h2>
+      <p class="lead">種目と目標タイムを選ぶと、刀と鎧をいつ飲めばいいかが分かります。</p>
+    </div>
+    <div class="sim rv">
+      <div class="panel">
+        <div class="field">
+          <span class="lbl" id="l-sport">種目</span>
+          <div class="chips" id="sport" role="group" aria-labelledby="l-sport">
+            <button class="chip" aria-pressed="true" data-v="full">フルマラソン</button>
+            <button class="chip" aria-pressed="false" data-v="half">ハーフ</button>
+            <button class="chip" aria-pressed="false" data-v="trail">トレラン</button>
+            <button class="chip" aria-pressed="false" data-v="bike">自転車</button>
+            <button class="chip" aria-pressed="false" data-v="tri">トライアスロン</button>
+            <button class="chip" aria-pressed="false" data-v="fight">格闘技</button>
+          </div>
+        </div>
+        <div class="field" id="f-time">
+          <label for="time">目標タイム</label>
+          <select id="time"></select>
+        </div>
+        <div class="field" id="f-mode">
+          <span class="lbl" id="l-mode">走り方</span>
+          <div class="chips" id="mode" role="group" aria-labelledby="l-mode">
+            <button class="chip" aria-pressed="true" data-v="normal">いつも通り</button>
+            <button class="chip" aria-pressed="false" data-v="attack">序盤から攻める</button>
+          </div>
+        </div>
+      </div>
+      <div class="result" aria-live="polite">
+        <h3 id="r-title"></h3>
+        <div id="r-body"></div>
+        <p class="tentative">※タイミングは仮の値です。正式な値は、開発者が決めた補給ガイドに置き換えます。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="price" id="price">
+  <div class="wrap">
+    <div class="sec-hd rv">
+      <p class="en">Sets</p>
+      <h2>まずは10個から。<br>レースが続くなら、まとめてお得に。</h2>
+      <p class="lead">どのセットも、刀と鎧が半分ずつ入っています。</p>
+    </div>
+    <div class="sets rv">
+      <article class="set main">
+        <span class="tag red">初めての方に</span>
+        <div class="ph"><img src="../samurai-gel/media/set10.png" alt="10個入りセット"></div>
+        <h3>10個入り（刀5・鎧5）</h3>
+        <p class="yen">4,300<small>円（税込）</small></p>
+        <p class="per">1個あたり <b>430円</b>　送料500円</p>
+        <p class="for">フルマラソン2回分。まずは練習とレースで試したい方に。</p>
+        <a class="btn" href="#">購入する <span class="arw">→</span></a>
+      </article>
+      <article class="set">
+        <span class="tag">400円お得</span>
+        <div class="ph"><img src="../samurai-gel/media/set18.png" alt="18個入りセット"></div>
+        <h3>18個入り（刀9・鎧9）</h3>
+        <p class="yen">7,430<small>円（税込）</small></p>
+        <p class="per">1個あたり <b>約413円</b>　送料500円</p>
+        <p class="for">シーズンに2〜3レース走る方に。</p>
+        <a class="btn line" href="#">購入する <span class="arw">→</span></a>
+      </article>
+      <article class="set">
+        <span class="tag">1,450円お得</span>
+        <div class="ph"><img src="../samurai-gel/media/set40.png" alt="40個入りセット"></div>
+        <h3>40個入り（刀20・鎧20）</h3>
+        <p class="yen">15,950<small>円（税込）</small></p>
+        <p class="per">1個あたり <b>約399円</b>　送料500円</p>
+        <p class="for">ポイント練習でも使う方に。</p>
+        <a class="btn line" href="#">購入する <span class="arw">→</span></a>
+      </article>
+    </div>
+    <p class="note-stores">購入は、SAMURAI GEL公式オンラインストア（STORES）のページで行います。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>SAMURAI GEL｜株式会社サブスリーラボ</p>
+    <p>卸・お取り扱い・選手サポートのご相談：お問い合わせフォーム</p>
+  </div>
+</footer>
+
+<div class="fixed"><a class="btn" href="#price">商品を見る・購入する <span class="arw">→</span></a></div>
+
+<script>
+document.documentElement.classList.add('js');
+const IMG={kata:'../samurai-gel/media/pouch_katana.png',yoroi:'../samurai-gel/media/pouch_yoroi.png'};
+const TIMES={full:[150,180,210,240,270,300,330],half:[75,90,105,120,150]};
+const DIST={full:42.195,half:21.0975};
+let sport='full',mode='normal';
+const sel=document.getElementById('time');
+const fmt=m=>Math.floor(m/60)+'時間'+(m%60?(m%60)+'分':'');
+function fillTimes(){const list=TIMES[sport]||[];const def=sport==='full'?210:105;sel.innerHTML=list.map(m=>`<option value="${m}"${m===def?' selected':''}>${fmt(m)}</option>`).join('');}
+function plan(){
+  const T=+sel.value,D=DIST[sport];
+  const yo=sport==='full'?(mode==='attack'?[15,32]:[32]):(mode==='attack'?[8,15]:[15]);
+  const pts=yo.map(k=>({k,t:'yoroi'}));
+  for(let m=40;m<T-15;m+=40){const k=m/T*D;if(yo.every(y=>Math.abs(y-k)>3))pts.push({k,t:'kata'});}
+  pts.sort((a,b)=>a.k-b.k);return {pts,D,T};
+}
+function render(){
+  const title=document.getElementById('r-title'),body=document.getElementById('r-body');
+  const named={trail:'トレラン',bike:'自転車',tri:'トライアスロン',fight:'格闘技'};
+  const ok=sport==='full'||sport==='half';
+  document.getElementById('f-time').hidden=!ok;document.getElementById('f-mode').hidden=!ok;
+  if(!ok){title.innerHTML=`<span class="en">Coming soon</span>${named[sport]}の補給プラン`;body.innerHTML=`<p class="wait">${named[sport]}は、コースや競技の時間によって飲み方が大きく変わります。<br>開発者が決めた飲み方の目安を、ここに表示します。</p>`;return;}
+  const {pts,D,T}=plan();
+  const k=pts.filter(p=>p.t==='kata').length,y=pts.length-k,n=k+y;
+  title.innerHTML=`<span class="en">Your plan</span>${sport==='full'?'フルマラソン':'ハーフ'}・${fmt(T)}${mode==='attack'?'（攻める）':''}`;
+  const ticks=(sport==='full'?[0,10,20,30,42.195]:[0,5,10,15,21.0975]).map(v=>`<span class="km" style="left:${v/D*100}%;transform:translateX(${v===0?'0':v===D?'-100%':'-50%'})">${v===D?'GOAL':v+'km'}</span>`).join('');
+  const mks=pts.map(p=>`<div class="mk ${p.t}" style="left:${Math.min(Math.max(p.k/D*100,4),96)}%"><img src="${IMG[p.t]}" alt="${p.t==='kata'?'刀':'鎧'}"><i></i></div>`).join('');
+  const list=pts.map(p=>`<b>${p.k.toFixed(0)}km</b> ${p.t==='kata'?'刀':'鎧'}`).join('　');
+  const races10=Math.floor(10/n),best=n*2<=10?{img:'set10',name:'10個入り',txt:`この計画なら、レース${races10}回分。練習で試す分も残ります。`}:{img:'set18',name:'18個入り',txt:`この計画なら、レース${Math.floor(18/n)}回分。`};
+  body.innerHTML=`<div class="track" role="img" aria-label="スタートからゴールまでの補給地点">${'<div class="rail"></div>'+ticks+mks}</div>
+  <p class="legend">${list}</p>
+  <div class="counts"><div><span>刀</span><strong>${k}<small>個</small></strong></div><div><span>鎧</span><strong>${y}<small>個</small></strong></div><div><span>1レース合計</span><strong>${n}<small>個</small></strong></div></div>
+  <div class="reco"><img src="../samurai-gel/media/${best.img}.png" alt="${best.name}"><div class="txt"><p class="en">Recommended</p><h3>${best.name}がおすすめ</h3><p>${best.txt}</p></div><a class="btn" href="#price">このセットを購入する <span class="arw">→</span></a></div>`;
+}
+function chips(id,cb){document.querySelectorAll('#'+id+' .chip').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('#'+id+' .chip').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');cb(b.dataset.v);render();}));}
+chips('sport',v=>{sport=v;fillTimes();});chips('mode',v=>mode=v);sel.addEventListener('change',render);
+fillTimes();render();
+(function(){const b=document.getElementById('burger'),m=document.getElementById('menu');const set=o=>{m.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.textContent=o?'✕ 閉じる':'☰ メニュー';};b.addEventListener('click',()=>set(!m.classList.contains('open')));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));})();
+(function(){if(!('IntersectionObserver' in window))return;const els=[...document.querySelectorAll('.rv')];const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.remove('pre');io.unobserve(e.target);}}),{threshold:.15});els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top>innerHeight){el.classList.add('pre');io.observe(el);}});})();
+</script>
+</body>
+</html>
