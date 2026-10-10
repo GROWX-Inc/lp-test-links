@@ -136,6 +136,108 @@ select{appearance:none;width:100%;min-height:52px;background:var(--ink) url("dat
 .set.main .ph{outline:2px solid var(--red);outline-offset:-2px}
 .note-stores{margin-top:32px;font-size:14px;color:var(--sub-l);line-height:1.8}
 
+/* shared light sections */
+.sec{padding-block:clamp(72px,10vw,120px)}
+.sec .sec-hd .en{color:var(--red)}
+.sec .sec-hd p.lead{color:var(--sub-l)}
+.bg2{background:var(--paper-2)}
+.price{background:var(--paper-2)}
+.price .set .ph{background:var(--paper)}
+
+/* drink */
+.vs{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:760px){.vs{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}
+.vs .col{padding:clamp(20px,3vw,32px);display:flex;flex-direction:column;gap:16px}
+.vs .them{border:1px solid var(--line-l);color:var(--sub-l)}
+.vs .us{background:var(--ink);color:#fff}
+.vs ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.vs li{display:flex;gap:12px;align-items:baseline;line-height:1.8}
+.vs .them li::before{content:"—";color:var(--sub-l);flex:none}
+.vs .us li::before{content:"";width:8px;height:8px;background:var(--red);flex:none;transform:translateY(-2px)}
+.vs .us .en{color:#F0898C}
+.drink-media{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;margin-top:clamp(32px,5vw,56px)}
+@media (min-width:900px){.drink-media{grid-template-columns:minmax(0,7fr) minmax(0,5fr);align-items:stretch}}
+.movie{position:relative;aspect-ratio:16/10;background:#000 url(../samurai-gel/media/photo_pouches_watch.jpg) center/cover;max-width:100%}
+.movie::after{content:"";position:absolute;inset:0;background:rgba(17,18,20,.35)}
+.movie .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;width:72px;height:72px;border:1px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px}
+.movie .cap{position:absolute;left:16px;bottom:12px;z-index:1;color:#fff;font-size:14px;line-height:1.7}
+.quote{background:var(--paper-2);padding:clamp(24px,3vw,40px);display:flex;flex-direction:column;gap:16px;justify-content:center}
+.quote .mark{font-family:var(--mincho);font-size:56px;line-height:.6;color:var(--red)}
+.quote p.q{font-family:var(--mincho);font-weight:800;font-size:clamp(18px,1.8vw,21px);line-height:1.9}
+.quote p.who{font-size:14px;color:var(--sub-l);line-height:1.7}
+
+/* product */
+.duo{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:760px){.duo{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.prod{background:var(--paper);display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:clamp(16px,3vw,32px);padding:clamp(20px,3vw,32px);align-items:center}
+.prod img{width:100%;max-width:180px;justify-self:center}
+.prod .body{display:flex;flex-direction:column;gap:12px;min-width:0}
+.prod .name{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.prod .name b{font-family:var(--mincho);font-weight:800;font-size:clamp(32px,4vw,44px);line-height:1.2}
+.prod .when{display:inline-block;align-self:flex-start;background:var(--ink);color:#fff;font-size:14px;line-height:1.7;padding:4px 12px}
+.prod.katana .when{background:var(--red)}
+.prod .ing{display:flex;flex-wrap:wrap;gap:6px}
+.prod .ing span{border:1px solid var(--line-l);font-size:14px;line-height:1.6;padding:2px 10px;color:var(--sub-l)}
+.why{margin-top:clamp(40px,6vw,72px);display:grid;grid-template-columns:minmax(0,1fr);gap:24px;border-top:1px solid var(--line-l);padding-top:clamp(32px,5vw,48px)}
+@media (min-width:900px){.why{grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px}}
+.why h3{font-family:var(--mincho);font-weight:800;font-size:clamp(22px,2.6vw,30px);line-height:1.6}
+.why .txt{display:flex;flex-direction:column;gap:20px}
+details.facts{border-top:1px solid var(--line-l);border-bottom:1px solid var(--line-l)}
+details.facts summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:56px;font-weight:700}
+details.facts summary::-webkit-details-marker{display:none}
+details.facts summary::after{content:"+";font-family:var(--en);font-size:24px}
+details.facts[open] summary::after{content:"−"}
+.tbl{overflow-x:auto;padding-bottom:16px}
+.tbl table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.7;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line-l)}
+.tbl th{font-weight:700}
+
+/* trust */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-bottom:1px solid var(--line-l)}
+.stats div{padding:20px 8px;display:flex;flex-direction:column;gap:4px}
+.stats div+div{border-left:1px solid var(--line-l);padding-left:clamp(12px,2vw,24px)}
+.stats strong{font-family:var(--en);font-size:clamp(24px,4vw,44px);line-height:1.1;font-weight:700;letter-spacing:.02em}
+.stats span{font-size:14px;line-height:1.6;color:var(--sub-l)}
+.sub-h{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:clamp(48px,7vw,80px) 0 24px;flex-wrap:wrap}
+.sub-h h3{font-family:var(--mincho);font-weight:800;font-size:clamp(20px,2.2vw,26px)}
+.rail{display:grid;grid-auto-flow:column;grid-auto-columns:85%;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+.rail::-webkit-scrollbar{display:none}
+@media (min-width:900px){.rail{grid-auto-columns:calc((100% - 32px)/3)}}
+.ath{scroll-snap-align:start;background:var(--paper-2);display:flex;flex-direction:column;min-width:0}
+.ath .ph{aspect-ratio:4/3;background:var(--ink-2);color:var(--sub-d);display:flex;align-items:center;justify-content:center;font-size:14px;max-width:100%}
+.ath .in{padding:20px;display:flex;flex-direction:column;gap:8px}
+.ath .sport{font-family:var(--en);text-transform:uppercase;letter-spacing:.12em;font-size:14px;color:var(--red);font-weight:600}
+.ath .rec{font-size:14px;color:var(--sub-l);line-height:1.7}
+.ath p.v{font-size:15px;line-height:1.9}
+.ctrl{display:flex;align-items:center;gap:16px}
+.arrow{width:48px;height:48px;border:1px solid var(--ink);background:transparent;color:var(--ink);font-size:20px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:var(--en)}
+.arrow:disabled{opacity:.3;cursor:default}
+.count{font-family:var(--en);font-size:16px;letter-spacing:.08em;min-width:3.5em;text-align:center}
+.reviews{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+@media (min-width:760px){.reviews{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}}
+.rv-card{border-top:2px solid var(--ink);padding-top:20px;display:flex;flex-direction:column;gap:12px}
+.rv-card .stars{color:var(--red);letter-spacing:.2em;font-size:14px}
+.rv-card p.q{line-height:2}
+.rv-card p.who{font-size:14px;color:var(--sub-l)}
+.makers{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:760px){.makers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.maker{display:flex;flex-direction:column;gap:12px}
+.maker .ph{aspect-ratio:16/10;background:var(--ink-2) center/cover;color:var(--sub-d);display:flex;align-items:center;justify-content:center;font-size:14px;max-width:100%}
+.maker .en{color:var(--red)}
+.maker p{color:var(--sub-l);line-height:1.9}
+
+/* shops */
+.shops{padding-block:clamp(56px,8vw,96px)}
+.shops .grid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:900px){.shops .grid{grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:56px}}
+.shops details{border-bottom:1px solid var(--line-l)}
+.shops details:first-of-type{border-top:1px solid var(--line-l)}
+.shops summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:56px}
+.shops summary::-webkit-details-marker{display:none}
+.shops summary::after{content:"+";font-family:var(--en);font-size:22px}
+.shops details[open] summary::after{content:"−"}
+.shops details p{padding-bottom:16px;color:var(--sub-l);font-size:15px;line-height:1.9}
+
 footer{background:var(--ink);color:var(--sub-d);font-size:14px;line-height:1.8;padding-block:48px 120px}
 footer .wrap{display:flex;flex-direction:column;gap:12px}
 .fixed{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px var(--gut) calc(10px + env(safe-area-inset-bottom,0px));background:rgba(17,18,20,.94);backdrop-filter:blur(8px);border-top:1px solid var(--line-d)}
@@ -148,18 +250,18 @@ footer .wrap{display:flex;flex-direction:column;gap:12px}
 </style>
 </head>
 <body>
-<p class="sample">デザインの方向性サンプルです（最初の画面・補給プラン・料金の3セクションのみ）。写真と文章は仮です。</p>
+<p class="sample">デザインの方向性サンプルです（全7セクション）。写真・選手・文章は仮です。</p>
 
 <header>
   <div class="wrap hd">
     <img class="logo" src="../samurai-gel/media/logo_white.png" alt="SAMURAI GEL">
     <button class="burger" id="burger" aria-expanded="false" aria-controls="menu">☰ メニュー</button>
     <ul class="menu" id="menu">
-      <li><a href="#">飲みやすさ</a></li>
-      <li><a href="#">商品について</a></li>
+      <li><a href="#drink">飲みやすさ</a></li>
+      <li><a href="#product">商品について</a></li>
       <li><a href="#plan">使い方（補給プラン）</a></li>
       <li><a href="#price">料金・セット</a></li>
-      <li><a href="#">取扱店</a></li>
+      <li><a href="#shops">取扱店</a></li>
     </ul>
     <a class="btn" href="#price">購入する</a>
   </div>
@@ -174,6 +276,85 @@ footer .wrap{display:flex;flex-direction:column;gap:12px}
       <p class="lead">記録に挑むランナーのために。<br>食品開発者であり、市民ランナーでもある開発者が、走りながらつくったエナジージェルです。</p>
       <div class="meta"><span>水なしで飲める</span><span>国内の認証工場で製造</span><span>刀と鎧の2種類</span></div>
       <div><a class="btn" href="#price">商品を見る <span class="arw">→</span></a></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="drink">
+  <div class="wrap">
+    <div class="sec-hd rv">
+      <p class="en">Easy to drink</p>
+      <h2>「ジェルはベタついて、<br>飲みにくい」と思っていませんか。</h2>
+      <p class="lead">呼吸が上がり、身体が疲れきった状態でも、喉を通ること。SAMURAI GELは、そこから設計しています。</p>
+    </div>
+    <div class="vs rv">
+      <div class="col them">
+        <h3>よくあるジェル</h3>
+        <ul><li>粘りが強く、口の中に残る</li><li>水がないと飲みにくい</li><li>疲れているほど、喉を通らない</li></ul>
+      </div>
+      <div class="col us">
+        <p class="en">Samurai gel</p>
+        <h3>SAMURAI GEL</h3>
+        <ul><li>寒天のゼリー食感で、水なしでも飲める</li><li>口に残らず、袋もベタつかない</li><li>甘すぎない味で、終盤でもすっと入る</li></ul>
+      </div>
+    </div>
+    <div class="drink-media rv">
+      <div class="movie" role="img" aria-label="食感が分かる動画が入る場所"><span class="play">▶</span><span class="cap">食感が分かる動画が入ります（撮影予定）</span></div>
+      <div class="quote">
+        <span class="mark">“</span>
+        <p class="q">ジェルはベタつくイメージがあって、水と一緒じゃないと飲めなかったんですが、サムライジェルはゼリー状なので水がなくても飲めてとても良いです。</p>
+        <p class="who">初めて購入した方のレビュー（STORES・★5）</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec bg2" id="product">
+  <div class="wrap">
+    <div class="sec-hd rv">
+      <p class="en">Katana &amp; Yoroi</p>
+      <h2>前へ進むための「刀」。<br>疲れた身体を守る「鎧」。</h2>
+      <p class="lead">味違いの2種類ではありません。レースの前半と後半で、役割を分けています。</p>
+    </div>
+    <div class="duo rv">
+      <article class="prod katana">
+        <img src="../samurai-gel/media/pouch_katana.png" alt="刀のパッケージ">
+        <div class="body">
+          <p class="name"><b>刀</b><span class="en">Energy</span></p>
+          <span class="when">前半〜中盤　40分前後ごとに</span>
+          <p>動き続けるためのエネルギー補給型。一度に大量に入れるのではなく、定期的に摂っていく設計です。</p>
+          <div class="ing"><span>MCTオイル</span><span>BCAA</span><span>クエン酸</span><span>マグネシウム</span><span>カフェイン</span></div>
+        </div>
+      </article>
+      <article class="prod yoroi">
+        <img src="../samurai-gel/media/pouch_yoroi.png" alt="鎧のパッケージ">
+        <div class="body">
+          <p class="name"><b>鎧</b><span class="en">Recovery</span></p>
+          <span class="when">後半と、走り終えた後に</span>
+          <p>疲れてきた身体を考えたリカバリー型。終盤の踏ん張りと、レース後の回復を意識した成分です。</p>
+          <div class="ing"><span>BCAA</span><span>コラーゲンペプチド</span><span>クエン酸</span><span>カフェイン</span></div>
+        </div>
+      </article>
+    </div>
+    <div class="why rv">
+      <h3>カロリーが低めなのは、<br>狙いがあるからです。</h3>
+      <div class="txt">
+        <p>身体に蓄えられる糖質には限りがあります。一方で、体脂肪として蓄えたエネルギーはとても大きい。</p>
+        <p>SAMURAI GELは、糖質を大量に入れて高カロリーにするのではなく、身体にあるエネルギーも使って長く走ることを考えて設計しています。その考え方を表すのが、刀に配合したMCTオイルです。</p>
+        <details class="facts">
+          <summary>成分表を見る</summary>
+          <div class="tbl"><table>
+            <tr><th></th><th>刀（45g）</th><th>鎧（40g）</th></tr>
+            <tr><td>エネルギー</td><td>74kcal</td><td>33kcal</td></tr>
+            <tr><td>炭水化物</td><td>16.7g</td><td>5.6g</td></tr>
+            <tr><td>MCTオイル</td><td>3,000mg</td><td>—</td></tr>
+            <tr><td>BCAA</td><td>500mg</td><td>1,000mg</td></tr>
+            <tr><td>コラーゲンペプチド</td><td>—</td><td>500mg</td></tr>
+            <tr><td>クエン酸</td><td>400mg</td><td>400mg</td></tr>
+            <tr><td>カフェイン</td><td>70mg</td><td>70mg</td></tr>
+          </table></div>
+        </details>
+      </div>
     </div>
   </div>
 </section>
@@ -219,6 +400,48 @@ footer .wrap{display:flex;flex-direction:column;gap:12px}
   </div>
 </section>
 
+<section class="sec" id="trust">
+  <div class="wrap">
+    <div class="sec-hd rv">
+      <p class="en">Trusted by challengers</p>
+      <h2>挑戦する人たちが、<br>レースで選んでいる。</h2>
+    </div>
+    <div class="stats rv">
+      <div><strong>★5.0</strong><span>STORESのレビュー17件</span></div>
+      <div><strong>5種目</strong><span>のサポート選手</span></div>
+      <div><strong>FSSC 22000</strong><span>認証工場で製造</span></div>
+    </div>
+
+    <div class="sub-h rv">
+      <h3>サポート選手</h3>
+      <div class="ctrl">
+        <button class="arrow" id="prev" aria-label="前の選手">←</button>
+        <span class="count" id="count">1 / 5</span>
+        <button class="arrow" id="next" aria-label="次の選手">→</button>
+      </div>
+    </div>
+    <div class="rail rv" id="athletes" tabindex="0" aria-label="サポート選手一覧">
+      <article class="ath"><div class="ph">選手写真</div><div class="in"><p class="sport">Marathon</p><h3>選手名</h3><p class="rec">〇〇マラソン　2時間〇分</p><p class="v">感想の本文が入ります。レースのどの場面でどう使い、どう感じたかを100〜150字程度で書いていただきます。</p></div></article>
+      <article class="ath"><div class="ph">選手写真</div><div class="in"><p class="sport">Trail running</p><h3>選手名</h3><p class="rec">〇〇トレイル　入賞</p><p class="v">感想の本文が入ります。レースのどの場面でどう使い、どう感じたかを100〜150字程度で書いていただきます。</p></div></article>
+      <article class="ath"><div class="ph">選手写真</div><div class="in"><p class="sport">Triathlon</p><h3>選手名</h3><p class="rec">〇〇大会　優勝</p><p class="v">感想の本文が入ります。レースのどの場面でどう使い、どう感じたかを100〜150字程度で書いていただきます。</p></div></article>
+      <article class="ath"><div class="ph">選手写真</div><div class="in"><p class="sport">Cycling</p><h3>選手名</h3><p class="rec">〇〇大会</p><p class="v">感想の本文が入ります。レースのどの場面でどう使い、どう感じたかを100〜150字程度で書いていただきます。</p></div></article>
+      <article class="ath"><div class="ph">選手写真</div><div class="in"><p class="sport">Martial arts</p><h3>選手名</h3><p class="rec">〇〇大会</p><p class="v">感想の本文が入ります。レースのどの場面でどう使い、どう感じたかを100〜150字程度で書いていただきます。</p></div></article>
+    </div>
+
+    <div class="sub-h rv"><h3>購入した方の声</h3><a href="#" style="color:inherit;font-size:14px">すべてのレビューを見る →</a></div>
+    <div class="reviews rv">
+      <div class="rv-card"><p class="stars">★★★★★</p><p class="q">フルマラソン時に刀をスタート前と20kmで、鎧を30kmで使用しています。昨年はサムライジェルのおかげで3時間一桁まで出せました。</p><p class="who">リピート購入の方</p></div>
+      <div class="rv-card"><p class="stars">★★★★★</p><p class="q">個人的には鎧の効果をとても感じ驚いています。走ってる最中はもちろん、練習後や翌日の疲労感まで違います。</p><p class="who">18個入りを購入した方</p></div>
+    </div>
+
+    <div class="sub-h rv"><h3>つくる人と、つくる場所</h3></div>
+    <div class="makers rv">
+      <div class="maker"><div class="ph" style="background-image:url(../samurai-gel/media/photo_trail_birch.jpg)" role="img" aria-label="林の中を走るランナー"></div><p class="en">Maker</p><h3>走りながら、試作を重ねた</h3><p>食品メーカーで商品開発と品質保証に携わる市民ランナーが、自分がレースで本当に使いたいジェルを、走りながら試作して完成させました。</p></div>
+      <div class="maker"><div class="ph">工場の写真が入ります</div><p class="en">Factory</p><h3>認証を受けた国内の工場で</h3><p>新潟県の真喜食品で製造しています。健康食品GMPと、食品安全の国際規格FSSC 22000の認証を取得した工場です。</p></div>
+    </div>
+  </div>
+</section>
+
 <section class="price" id="price">
   <div class="wrap">
     <div class="sec-hd rv">
@@ -256,6 +479,20 @@ footer .wrap{display:flex;flex-direction:column;gap:12px}
       </article>
     </div>
     <p class="note-stores">購入は、SAMURAI GEL公式オンラインストア（STORES）のページで行います。</p>
+  </div>
+</section>
+
+<section class="shops" id="shops">
+  <div class="wrap grid rv">
+    <div class="sec-hd" style="margin:0">
+      <p class="en" style="color:var(--red)">Shops</p>
+      <h3 style="font-family:var(--mincho);font-weight:800;font-size:clamp(22px,2.6vw,30px)">お店でも、手に取れます。</h3>
+    </div>
+    <div>
+      <details><summary>関東（〇店舗）</summary><p>店舗名・住所・地図へのリンクが入ります。</p></details>
+      <details><summary>関西（〇店舗）</summary><p>店舗名・住所・地図へのリンクが入ります。</p></details>
+      <details><summary>その他の地域（〇店舗）</summary><p>店舗名・住所・地図へのリンクが入ります。</p></details>
+    </div>
   </div>
 </section>
 
@@ -306,6 +543,16 @@ function chips(id,cb){document.querySelectorAll('#'+id+' .chip').forEach(b=>b.ad
 chips('sport',v=>{sport=v;fillTimes();});chips('mode',v=>mode=v);sel.addEventListener('change',render);
 fillTimes();render();
 (function(){const b=document.getElementById('burger'),m=document.getElementById('menu');const set=o=>{m.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.textContent=o?'✕ 閉じる':'☰ メニュー';};b.addEventListener('click',()=>set(!m.classList.contains('open')));m.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>set(false)));})();
+(function(){
+ const rail=document.getElementById('athletes'),cards=[...rail.children],prev=document.getElementById('prev'),next=document.getElementById('next'),count=document.getElementById('count');
+ const step=()=>cards[1].offsetLeft-cards[0].offsetLeft;
+ const per=()=>Math.max(1,Math.round(rail.clientWidth/step()));
+ const idx=()=>Math.round(rail.scrollLeft/step());
+ function update(){const i=idx(),p=per();prev.disabled=i<=0;next.disabled=i>=cards.length-p;const e=Math.min(i+p,cards.length);count.textContent=(p>1?(i+1)+'–'+e:e)+' / '+cards.length;}
+ function go(d){const i=Math.min(Math.max(idx()+d,0),cards.length-per());rail.scrollTo({left:i*step(),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});}
+ prev.addEventListener('click',()=>go(-1));next.addEventListener('click',()=>go(1));
+ rail.addEventListener('scroll',()=>requestAnimationFrame(update),{passive:true});addEventListener('resize',update);update();
+})();
 (function(){if(!('IntersectionObserver' in window))return;const els=[...document.querySelectorAll('.rv')];const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.remove('pre');io.unobserve(e.target);}}),{threshold:.15});els.forEach(el=>{const r=el.getBoundingClientRect();if(r.top>innerHeight){el.classList.add('pre');io.observe(el);}});})();
 </script>
 </body>
